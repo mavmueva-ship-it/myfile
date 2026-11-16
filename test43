@@ -1,0 +1,216 @@
+PS C:\Users\mavmu\AppData\Local\OpenJarvis\src\frontend> Get-ChildItem "$env:APPDATA","$env:LOCALAPPDATA","$env:USERPROFILE\.openjarvis" -Recurse -File -Filter "*inference*" -ErrorAction SilentlyContinue | Select-Object -ExpandProperty FullName
+C:\Users\mavmu\AppData\Local\OpenJarvis\src\.venv\Lib\site-packages\anthropic\types\beta\organization\beta_allowed_inference_geo.py
+C:\Users\mavmu\AppData\Local\OpenJarvis\src\.venv\Lib\site-packages\anthropic\types\beta\organization\beta_analytics_inference_geo_filter.py
+C:\Users\mavmu\AppData\Local\OpenJarvis\src\.venv\Lib\site-packages\anthropic\types\organization\allowed_inference_geo.py
+C:\Users\mavmu\AppData\Local\OpenJarvis\src\.venv\Lib\site-packages\huggingface_hub\_inference_endpoints.py
+C:\Users\mavmu\AppData\Local\OpenJarvis\src\.venv\Lib\site-packages\huggingface_hub\cli\inference_endpoints.py
+C:\Users\mavmu\AppData\Local\OpenJarvis\src\.venv\Lib\site-packages\huggingface_hub\inference\_providers\hf_inference.py
+C:\Users\mavmu\AppData\Local\OpenJarvis\src\.venv\Lib\site-packages\huggingface_hub\__pycache__\_inference_endpoints.cpython-313.pyc
+C:\Users\mavmu\AppData\Local\OpenJarvis\src\.venv\Lib\site-packages\onnxruntime\capi\onnxruntime_inference_collection.py
+C:\Users\mavmu\AppData\Local\OpenJarvis\src\.venv\Lib\site-packages\onnxruntime\quantization\shape_inference.py
+C:\Users\mavmu\AppData\Local\OpenJarvis\src\.venv\Lib\site-packages\onnxruntime\tools\ort_format_model\ort_flatbuffers_py\fbs\InferenceSession.py
+C:\Users\mavmu\AppData\Local\OpenJarvis\src\.venv\Lib\site-packages\onnxruntime\transformers\models\phi2\inference_example.py
+C:\Users\mavmu\AppData\Local\OpenJarvis\src\.venv\Lib\site-packages\pandas\core\dtypes\inference.py
+C:\Users\mavmu\AppData\Local\OpenJarvis\src\.venv\Lib\site-packages\pandas\core\dtypes\__pycache__\inference.cpython-313.pyc
+C:\Users\mavmu\AppData\Local\OpenJarvis\src\.venv\Lib\site-packages\pandas\tests\dtypes\test_inference.py
+C:\Users\mavmu\AppData\Local\OpenJarvis\src\.venv\Lib\site-packages\pandas\tests\tseries\frequencies\test_inference.py
+C:\Users\mavmu\AppData\Local\OpenJarvis\src\.venv\Lib\site-packages\pyarrow\include\arrow\python\inference.h
+C:\Users\mavmu\AppData\Local\OpenJarvis\src\.venv\Lib\site-packages\pyarrow\src\arrow\python\inference.cc
+C:\Users\mavmu\AppData\Local\OpenJarvis\src\.venv\Lib\site-packages\pyarrow\src\arrow\python\inference.h
+C:\Users\mavmu\AppData\Local\OpenJarvis\src\.venv\Lib\site-packages\sympy\logic\inference.py
+C:\Users\mavmu\AppData\Local\OpenJarvis\src\.venv\Lib\site-packages\sympy\logic\tests\test_inference.py
+C:\Users\mavmu\AppData\Local\OpenJarvis\src\.venv\Lib\site-packages\sympy\logic\__pycache__\inference.cpython-313.pyc
+C:\Users\mavmu\AppData\Local\OpenJarvis\src\.venv\Lib\site-packages\torch\include\ATen\ops\is_inference.h
+C:\Users\mavmu\AppData\Local\OpenJarvis\src\.venv\Lib\site-packages\torch\include\ATen\ops\is_inference_compositeimplicitautograd_dispatch.h
+C:\Users\mavmu\AppData\Local\OpenJarvis\src\.venv\Lib\site-packages\torch\include\ATen\ops\is_inference_native.h
+C:\Users\mavmu\AppData\Local\OpenJarvis\src\.venv\Lib\site-packages\torch\include\ATen\ops\is_inference_ops.h
+C:\Users\mavmu\AppData\Local\OpenJarvis\src\.venv\Lib\site-packages\torch\include\c10\core\InferenceMode.h
+C:\Users\mavmu\AppData\Local\OpenJarvis\src\.venv\Lib\site-packages\torch\include\torch\csrc\autograd\InferenceMode.h
+C:\Users\mavmu\AppData\Local\OpenJarvis\src\.venv\Lib\site-packages\torch\include\torch\csrc\jit\passes\onnx\shape_type_inference.h
+C:\Users\mavmu\AppData\Local\OpenJarvis\src\.venv\Lib\site-packages\torch\include\torch\csrc\jit\tensorexpr\bounds_inference.h
+C:\Users\mavmu\AppData\Local\OpenJarvis\src\.venv\Lib\site-packages\torch\include\torch\csrc\lazy\core\shape_inference.h
+C:\Users\mavmu\AppData\Local\OpenJarvis\src\frontend\node_modules\posthog-js\dist\element-inference.d.ts
+C:\Users\mavmu\AppData\Local\OpenJarvis\src\frontend\node_modules\posthog-js\dist\element-inference.jsC:\Users\mavmu\AppData\Local\OpenJarvis\src\frontend\node_modules\posthog-js\dist\element-inference.js.map
+C:\Users\mavmu\AppData\Local\OpenJarvis\src\frontend\node_modules\posthog-js\dist\src\entrypoints\element-inference.es.d.ts
+C:\Users\mavmu\AppData\Local\OpenJarvis\src\frontend\node_modules\posthog-js\dist\src\extensions\product-tours\element-inference.d.ts
+C:\Users\mavmu\AppData\Local\OpenJarvis\src\frontend\node_modules\posthog-js\lib\src\entrypoints\element-inference.es.d.ts
+C:\Users\mavmu\AppData\Local\OpenJarvis\src\frontend\node_modules\posthog-js\lib\src\entrypoints\element-inference.es.js
+C:\Users\mavmu\AppData\Local\OpenJarvis\src\frontend\node_modules\posthog-js\lib\src\entrypoints\element-inference.es.js.map
+C:\Users\mavmu\AppData\Local\OpenJarvis\src\frontend\node_modules\posthog-js\lib\src\extensions\product-tours\element-inference.d.ts
+C:\Users\mavmu\AppData\Local\OpenJarvis\src\frontend\node_modules\posthog-js\lib\src\extensions\product-tours\element-inference.js
+C:\Users\mavmu\AppData\Local\OpenJarvis\src\frontend\node_modules\posthog-js\lib\src\extensions\product-tours\element-inference.js.map
+C:\Users\mavmu\AppData\Local\OpenJarvis\src\frontend\node_modules\terser\lib\compress\inference.js
+C:\Users\mavmu\AppData\Local\OpenJarvis\src\frontend\src\components\InferenceSourceSetup.test.tsx
+C:\Users\mavmu\AppData\Local\OpenJarvis\src\frontend\src\components\InferenceSourceSetup.tsx
+C:\Users\mavmu\AppData\Local\uv\cache\archive-v0\eB8W981AAfK4ptwg\onnxruntime\capi\onnxruntime_inference_collection.py
+C:\Users\mavmu\AppData\Local\uv\cache\archive-v0\eB8W981AAfK4ptwg\onnxruntime\quantization\shape_inference.py
+C:\Users\mavmu\AppData\Local\uv\cache\archive-v0\eB8W981AAfK4ptwg\onnxruntime\tools\ort_format_model\ort_flatbuffers_py\fbs\InferenceSession.py
+C:\Users\mavmu\AppData\Local\uv\cache\archive-v0\eB8W981AAfK4ptwg\onnxruntime\transformers\models\phi2\inference_example.py
+C:\Users\mavmu\AppData\Local\uv\cache\archive-v0\f44qJW-WvSWGbo2t\sympy\logic\inference.py
+C:\Users\mavmu\AppData\Local\uv\cache\archive-v0\f44qJW-WvSWGbo2t\sympy\logic\tests\test_inference.py
+C:\Users\mavmu\AppData\Local\uv\cache\archive-v0\Fo3NzNNhz3zvgggw\pyarrow\include\arrow\python\inference.h
+C:\Users\mavmu\AppData\Local\uv\cache\archive-v0\Fo3NzNNhz3zvgggw\pyarrow\src\arrow\python\inference.cc
+C:\Users\mavmu\AppData\Local\uv\cache\archive-v0\Fo3NzNNhz3zvgggw\pyarrow\src\arrow\python\inference.hC:\Users\mavmu\AppData\Local\uv\cache\archive-v0\IvDroK-10hWGUigx\vcs_versioning\_version_inference.pyC:\Users\mavmu\AppData\Local\uv\cache\archive-v0\U7pe4QAIB1nBDmN3\setuptools_scm\_integration\version_inference.py
+C:\Users\mavmu\AppData\Local\uv\cache\archive-v0\UAHp8SG28hIh_n6E\anthropic\types\beta\organization\beta_allowed_inference_geo.py
+C:\Users\mavmu\AppData\Local\uv\cache\archive-v0\UAHp8SG28hIh_n6E\anthropic\types\beta\organization\beta_analytics_inference_geo_filter.py
+C:\Users\mavmu\AppData\Local\uv\cache\archive-v0\UAHp8SG28hIh_n6E\anthropic\types\organization\allowed_inference_geo.py
+C:\Users\mavmu\AppData\Local\uv\cache\archive-v0\wIz1wtu5hjAYG-8I\torch\include\ATen\ops\is_inference.h
+C:\Users\mavmu\AppData\Local\uv\cache\archive-v0\wIz1wtu5hjAYG-8I\torch\include\ATen\ops\is_inference_compositeimplicitautograd_dispatch.h
+C:\Users\mavmu\AppData\Local\uv\cache\archive-v0\wIz1wtu5hjAYG-8I\torch\include\ATen\ops\is_inference_native.h
+C:\Users\mavmu\AppData\Local\uv\cache\archive-v0\wIz1wtu5hjAYG-8I\torch\include\ATen\ops\is_inference_ops.h
+C:\Users\mavmu\AppData\Local\uv\cache\archive-v0\wIz1wtu5hjAYG-8I\torch\include\c10\core\InferenceMode.h
+C:\Users\mavmu\AppData\Local\uv\cache\archive-v0\wIz1wtu5hjAYG-8I\torch\include\torch\csrc\autograd\InferenceMode.h
+C:\Users\mavmu\AppData\Local\uv\cache\archive-v0\wIz1wtu5hjAYG-8I\torch\include\torch\csrc\jit\passes\onnx\shape_type_inference.h
+C:\Users\mavmu\AppData\Local\uv\cache\archive-v0\wIz1wtu5hjAYG-8I\torch\include\torch\csrc\jit\tensorexpr\bounds_inference.h
+C:\Users\mavmu\AppData\Local\uv\cache\archive-v0\wIz1wtu5hjAYG-8I\torch\include\torch\csrc\lazy\core\shape_inference.h
+C:\Users\mavmu\AppData\Local\uv\cache\archive-v0\WS_2NcHhxoRA8a8J\pandas\core\dtypes\inference.py
+C:\Users\mavmu\AppData\Local\uv\cache\archive-v0\WS_2NcHhxoRA8a8J\pandas\tests\dtypes\test_inference.py
+C:\Users\mavmu\AppData\Local\uv\cache\archive-v0\WS_2NcHhxoRA8a8J\pandas\tests\tseries\frequencies\test_inference.py
+C:\Users\mavmu\AppData\Local\uv\cache\archive-v0\z38PV_Wuyw_Rifss\huggingface_hub\_inference_endpoints.py
+C:\Users\mavmu\AppData\Local\uv\cache\archive-v0\z38PV_Wuyw_Rifss\huggingface_hub\cli\inference_endpoints.py
+C:\Users\mavmu\AppData\Local\uv\cache\archive-v0\z38PV_Wuyw_Rifss\huggingface_hub\inference\_providers\hf_inference.py
+C:\Users\mavmu\.openjarvis\inference.json                Get-Content "$env:USERPROFILE\.openjarvis\inference.json"S C:\Users\mavmu\AppData\Local\OpenJarvis\src\frontend>
+{
+  "kind": "ollama",
+  "confirmed": true,
+  "model": "qwen3.5:2b"
+}
+PS C:\Users\mavmu\AppData\Local\OpenJarvis\src\frontend> Get-ChildItem ".\src-tauri\src" -Recurse -File -Filter "*.rs" | Select-String -Pattern "read_configured_inference_config|configured_at_launch|boot_backend" -Context 3,12
+
+  src-tauri\src\lib.rs:476:        let _ = task.await;
+  src-tauri\src\lib.rs:477:    }
+  src-tauri\src\lib.rs:478:    let task_backend = backend.clone();
+> src-tauri\src\lib.rs:479:    let task = tauri::async_runtime::spawn(boot_backend(task_backend, status));
+  src-tauri\src\lib.rs:480:    manager.boot_task = Some(task);
+  src-tauri\src\lib.rs:481:}
+  src-tauri\src\lib.rs:482:
+  src-tauri\src\lib.rs:483:// ---------------------------------------------------------------------------
+  src-tauri\src\lib.rs:484:// Setup status (reported to frontend)
+  src-tauri\src\lib.rs:485:// ---------------------------------------------------------------------------
+  src-tauri\src\lib.rs:486:
+  src-tauri\src\lib.rs:487:#[derive(serde::Serialize, Clone)]
+  src-tauri\src\lib.rs:488:struct SetupStatus {
+  src-tauri\src\lib.rs:489:    phase: String,
+  src-tauri\src\lib.rs:490:    detail: String,
+  src-tauri\src\lib.rs:491:    ollama_ready: bool,
+  src-tauri\src\lib.rs:1050:// Backend boot sequence (runs in background after app launch)
+  src-tauri\src\lib.rs:1051:// ---------------------------------------------------------------------------
+  src-tauri\src\lib.rs:1052:
+> src-tauri\src\lib.rs:1053:async fn boot_backend(backend: SharedBackend, status: SharedStatus) {
+  src-tauri\src\lib.rs:1054:    // Never infer consent from a missing or malformed config. A fresh desktop
+  src-tauri\src\lib.rs:1055:    // install must persist an explicit source choice before this function can
+  src-tauri\src\lib.rs:1056:    // launch Ollama, contact a custom endpoint, or download a model.
+> src-tauri\src\lib.rs:1057:    let Some(mut cfg) = read_configured_inference_config() else {
+  src-tauri\src\lib.rs:1058:        *status.lock().await = SetupStatus::default();
+  src-tauri\src\lib.rs:1059:        return;
+  src-tauri\src\lib.rs:1060:    };
+  src-tauri\src\lib.rs:1061:    let mut pending_rollback = PendingInferenceRollback::new(&cfg);
+  src-tauri\src\lib.rs:1062:    let plan = boot_plan(&cfg, total_ram_gb());
+  src-tauri\src\lib.rs:1063:    {
+  src-tauri\src\lib.rs:1064:        let mut s = status.lock().await;
+  src-tauri\src\lib.rs:1065:        *s = SetupStatus::starting(&cfg);
+  src-tauri\src\lib.rs:1066:        s.source = match cfg.kind {
+  src-tauri\src\lib.rs:1067:            SourceKind::Ollama => "ollama",
+  src-tauri\src\lib.rs:1068:            SourceKind::Custom => "custom",
+  src-tauri\src\lib.rs:1069:        }
+  src-tauri\src\lib.rs:1765:    backend: tauri::State<'_, SharedBackend>,
+  src-tauri\src\lib.rs:1766:    status: tauri::State<'_, SharedStatus>,
+  src-tauri\src\lib.rs:1767:) -> Result<(), String> {
+> src-tauri\src\lib.rs:1768:    if read_configured_inference_config().is_none() {
+  src-tauri\src\lib.rs:1769:        *status.lock().await = SetupStatus::default();
+  src-tauri\src\lib.rs:1770:        return Err("Choose an inference source before starting OpenJarvis.".into());
+  src-tauri\src\lib.rs:1771:    }
+  src-tauri\src\lib.rs:1772:    let b = backend.inner().clone();
+  src-tauri\src\lib.rs:1773:    let s = status.inner().clone();
+  src-tauri\src\lib.rs:1774:    start_managed_boot(b, s).await;
+  src-tauri\src\lib.rs:1775:    Ok(())
+  src-tauri\src\lib.rs:1776:}
+  src-tauri\src\lib.rs:1777:
+  src-tauri\src\lib.rs:1778:#[tauri::command]
+  src-tauri\src\lib.rs:1779:async fn stop_backend(backend: tauri::State<'_, SharedBackend>) -> Result<(),
+String> {
+  src-tauri\src\lib.rs:1780:    backend.lock().await.stop_all().await;
+  src-tauri\src\lib.rs:2858:    serde_json::from_value::<InferenceConfig>(value).ok()
+  src-tauri\src\lib.rs:2859:}
+  src-tauri\src\lib.rs:2860:
+> src-tauri\src\lib.rs:2861:fn read_configured_inference_config() -> Option<InferenceConfig> {
+  src-tauri\src\lib.rs:2862:    std::fs::read_to_string(inference_config_path())
+  src-tauri\src\lib.rs:2863:        .ok()
+  src-tauri\src\lib.rs:2864:        .and_then(|text| parse_configured_inference_config(&text))
+  src-tauri\src\lib.rs:2865:}
+  src-tauri\src\lib.rs:2866:
+  src-tauri\src\lib.rs:2867:/// Read the on-disk inference config, or the Ollama default if absent.
+  src-tauri\src\lib.rs:2868:fn read_inference_config() -> InferenceConfig {
+> src-tauri\src\lib.rs:2869:    read_configured_inference_config().unwrap_or_default()
+  src-tauri\src\lib.rs:2870:}
+  src-tauri\src\lib.rs:2871:
+  src-tauri\src\lib.rs:2872:/// Write the inference config to disk (pretty JSON).
+  src-tauri\src\lib.rs:2873:fn write_inference_config(cfg: &InferenceConfig) -> Result<(), String> {
+  src-tauri\src\lib.rs:2874:    let path = inference_config_path();
+  src-tauri\src\lib.rs:2875:    write_inference_config_at(cfg, &path)
+  src-tauri\src\lib.rs:2876:}
+  src-tauri\src\lib.rs:2877:
+  src-tauri\src\lib.rs:2878:fn write_inference_config_at(cfg: &InferenceConfig, path: &std::path::Path) ->
+Result<(), String> {
+  src-tauri\src\lib.rs:2879:    if let Some(parent) = path.parent() {
+  src-tauri\src\lib.rs:2880:        let _ = std::fs::create_dir_all(parent);
+  src-tauri\src\lib.rs:2881:    }
+  src-tauri\src\lib.rs:3328:#[cfg_attr(mobile, tauri::mobile_entry_point)]
+  src-tauri\src\lib.rs:3329:pub fn run() {
+  src-tauri\src\lib.rs:3330:    let backend: SharedBackend = Arc::new(Mutex::new(BackendManager::default()));
+> src-tauri\src\lib.rs:3331:    let configured_at_launch = match read_configured_inference_config() {
+  src-tauri\src\lib.rs:3332:        Some(cfg) if cfg.confirmed => {
+  src-tauri\src\lib.rs:3333:            // A confirmed source never consumes a staging slot. Clear any
+  src-tauri\src\lib.rs:3334:            // remnant from a prior interrupted config write.
+  src-tauri\src\lib.rs:3335:            let _ = secure_store_set(PENDING_INFERENCE_API_KEY, "");
+  src-tauri\src\lib.rs:3336:            Some(cfg)
+  src-tauri\src\lib.rs:3337:        }
+  src-tauri\src\lib.rs:3338:        Some(_) => {
+  src-tauri\src\lib.rs:3339:            // A prior first-run boot was interrupted or failed before it
+  src-tauri\src\lib.rs:3340:            // reached ready. Never replay that unvalidated choice on launch.
+  src-tauri\src\lib.rs:3341:            let _ = discard_pending_inference_setup();
+  src-tauri\src\lib.rs:3342:            None
+  src-tauri\src\lib.rs:3343:        }
+  src-tauri\src\lib.rs:3348:            None
+  src-tauri\src\lib.rs:3349:        }
+  src-tauri\src\lib.rs:3350:    };
+> src-tauri\src\lib.rs:3351:    let initial_status = configured_at_launch
+  src-tauri\src\lib.rs:3352:        .as_ref()
+  src-tauri\src\lib.rs:3353:        .map(SetupStatus::starting)
+  src-tauri\src\lib.rs:3354:        .unwrap_or_default();
+  src-tauri\src\lib.rs:3355:    let status: SharedStatus = Arc::new(Mutex::new(initial_status));
+  src-tauri\src\lib.rs:3356:
+> src-tauri\src\lib.rs:3357:    let boot_backend_ref = backend.clone();
+  src-tauri\src\lib.rs:3358:    let boot_status_ref = status.clone();
+  src-tauri\src\lib.rs:3359:
+  src-tauri\src\lib.rs:3360:    tauri::Builder::default()
+  src-tauri\src\lib.rs:3361:        .manage(backend.clone())
+  src-tauri\src\lib.rs:3362:        .manage(status.clone())
+  src-tauri\src\lib.rs:3363:        .plugin(tauri_plugin_notification::init())
+  src-tauri\src\lib.rs:3364:        .plugin(tauri_plugin_shell::init())
+  src-tauri\src\lib.rs:3365:        .plugin(tauri_plugin_global_shortcut::Builder::new().build())
+  src-tauri\src\lib.rs:3366:        .plugin(tauri_plugin_autostart::init(
+  src-tauri\src\lib.rs:3367:            MacosLauncher::LaunchAgent,
+  src-tauri\src\lib.rs:3368:            Some(vec!["--hidden"]),
+  src-tauri\src\lib.rs:3369:        ))
+  src-tauri\src\lib.rs:3440:            // Returning users keep automatic startup after they have persisted
+  src-tauri\src\lib.rs:3441:            // a source. Fresh installs stay inert until the setup UI records
+  src-tauri\src\lib.rs:3442:            // explicit consent and invokes `start_backend`.
+> src-tauri\src\lib.rs:3443:            if configured_at_launch.is_some() {
+> src-tauri\src\lib.rs:3444:                tauri::async_runtime::spawn(start_managed_boot(boot_backend_ref,
+boot_status_ref));
+  src-tauri\src\lib.rs:3445:            }
+  src-tauri\src\lib.rs:3446:
+  src-tauri\src\lib.rs:3447:            Ok(())
+  src-tauri\src\lib.rs:3448:        })
+  src-tauri\src\lib.rs:3449:        .invoke_handler(tauri::generate_handler![
+  src-tauri\src\lib.rs:3450:            get_setup_status,
+  src-tauri\src\lib.rs:3451:            get_api_base,
+  src-tauri\src\lib.rs:3452:            start_backend,
+  src-tauri\src\lib.rs:3453:            stop_backend,
+  src-tauri\src\lib.rs:3454:            reset_inference_source,
+  src-tauri\src\lib.rs:3455:            check_health,
+  src-tauri\src\lib.rs:3456:            fetch_energy,
+
+
+PS C:\Users\mavmu\AppData\Local\OpenJarvis\src\frontend>
