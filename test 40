@@ -1,0 +1,861 @@
+PS C:\Users\mavmu\AppData\Local\OpenJarvis\src\frontend> Get-Content ".\src-tauri\src\lib.rs" | Select-String -Pattern "boot_backend|fn boot|uv|Command::new|choice_recorded" -Context 5,8
+
+  use tokio::sync::Mutex;
+
+  const OLLAMA_PORT: u16 = 11434;
+  const JARVIS_PORT: u16 = 8000;
+  #[cfg(not(all(target_os = "windows", target_arch = "aarch64")))]
+> const DESKTOP_UV_SYNC_COMMAND: &str =
+>     "uv sync --extra desktop --extra inference-cloud --extra inference-google --extra voice
+--group desktop-native";
+  #[cfg(all(target_os = "windows", target_arch = "aarch64"))]
+> const DESKTOP_UV_SYNC_COMMAND: &str =
+>     "uv sync --python cpython-3.12-windows-x86_64-none --extra desktop --extra inference-cloud
+--extra inference-google --extra voice --group desktop-native";
+
+  /// Small, fast model used when startup needs a default Ollama tag.
+  const STARTUP_MODEL: &str = "qwen3.5:4b";
+
+  /// Tiny fallback model if even the startup model can't be pulled.
+  const FALLBACK_MODEL: &str = "qwen3:0.6b";
+
+  /// Qwen3.5 model variants, ordered smallest to largest.
+  /// Get total system RAM in GB.
+  fn total_ram_gb() -> f64 {
+      #[cfg(target_os = "macos")]
+      {
+          use std::process::Command;
+>         if let Ok(output) = Command::new("sysctl").args(["-n", "hw.memsize"]).output() {
+              if let Ok(s) = String::from_utf8(output.stdout) {
+                  if let Ok(bytes) = s.trim().parse::<u64>() {
+                      return bytes as f64 / (1024.0 * 1024.0 * 1024.0);
+                  }
+              }
+          }
+      }
+      #[cfg(target_os = "linux")]
+      }
+      #[cfg(target_os = "windows")]
+      {
+          use std::process::Command;
+          // wmic returns TotalVisibleMemorySize in KB
+>         if let Ok(output) = Command::new("wmic")
+              .args(["OS", "get", "TotalVisibleMemorySize", "/value"])
+              .output()
+          {
+              if let Ok(s) = String::from_utf8(output.stdout) {
+                  for line in s.lines() {
+                      if let Some(val) = line.strip_prefix("TotalVisibleMemorySize=") {
+                          if let Ok(kb) = val.trim().parse::<u64>() {
+                              return kb as f64 / (1024.0 * 1024.0);
+      model_to_pull: Option<String>,
+      /// Optional `(engine_key, bare_host)` override for a custom endpoint,
+      /// e.g. `("lmstudio", "http://localhost:1234")`. Written into
+      /// ~/.openjarvis/config.toml so `jarvis serve` picks it up.
+      engine_host: Option<(String, String)>,
+>     /// Args appended after `uv run jarvis serve --port <port>`.
+      serve_args: Vec<String>,
+  }
+
+  /// Default OpenAI-compatible engine key used when a custom endpoint config
+  /// omits one (LM Studio is the canonical local server).
+  const CUSTOM_FALLBACK_ENGINE: &str = "lmstudio";
+
+  /// Decide what to launch/pull/serve from the inference config + system RAM.
+  /// Pure: no I/O, no spawning.
+> fn boot_plan(cfg: &InferenceConfig, ram_gb: f64) -> BootPlan {
+      match cfg.kind {
+          SourceKind::Ollama => {
+              let model = cfg
+                  .model
+                  .clone()
+                  .unwrap_or_else(|| default_local_model(ram_gb).to_string());
+              BootPlan {
+                  launch_ollama: true,
+              // Generic program locations
+              format!("{localappdata}\\Programs\\{name}\\{name}.exe"),
+              format!("{programfiles}\\{name}\\{name}.exe"),
+              // Ollama installs to LOCALAPPDATA on Windows
+              format!("{localappdata}\\Programs\\Ollama\\{name}.exe"),
+>             // uv installs via pip/pipx
+              format!("{home}\\AppData\\Roaming\\Python\\Scripts\\{name}.exe"),
+          ]
+      };
+
+      for path in &candidates {
+          if std::path::Path::new(path).exists() {
+              return path.clone();
+          }
+
+      // Fallback: ask the OS to find it on PATH.
+      // On Windows this uses `where.exe`, on Unix `which`.
+      #[cfg(target_os = "windows")]
+      {
+>         if let Ok(output) = std::process::Command::new("where")
+              .arg(format!("{name}.exe"))
+              .output()
+          {
+              if output.status.success() {
+                  let stdout = String::from_utf8_lossy(&output.stdout);
+                  if let Some(first_line) = stdout.lines().next() {
+                      let p = first_line.trim();
+                      if !p.is_empty() && std::path::Path::new(p).exists() {
+              }
+          }
+      }
+      #[cfg(not(target_os = "windows"))]
+      {
+>         if let Ok(output) = std::process::Command::new("which").arg(name).output() {
+              if output.status.success() {
+                  let stdout = String::from_utf8_lossy(&output.stdout);
+                  if let Some(first_line) = stdout.lines().next() {
+                      let p = first_line.trim();
+                      if !p.is_empty() && std::path::Path::new(p).exists() {
+                          return p.to_string();
+                      }
+                  }
+
+  /// Spawn a subprocess whose lifetime cannot escape the async operation that
+  /// created it.  Tokio's default is `kill_on_drop(false)`, which means aborting
+  /// the boot task in the small window between `spawn()` and storing the child in
+  /// `BackendManager` would detach it.  The same default also lets one-shot boot
+> /// commands (`git clone`, `uv sync`, extension verification) continue after a
+  /// source reset.  Every subprocess on the boot path must opt in here (or call
+  /// `kill_on_drop(true)` before `output()`).
+  fn spawn_owned_child(cmd: &mut tokio::process::Command) -> std::io::Result<tokio::process::Child> {
+      cmd.kill_on_drop(true);
+      cmd.spawn()
+  }
+
+  /// Rolling buffer holding the most recent ~16 KB of jarvis stderr.
+      if let Some(task) = manager.boot_task.take() {
+          task.abort();
+          let _ = task.await;
+      }
+      let task_backend = backend.clone();
+>     let task = tauri::async_runtime::spawn(boot_backend(task_backend, status));
+      manager.boot_task = Some(task);
+  }
+
+  // ---------------------------------------------------------------------------
+  // Setup status (reported to frontend)
+  // ---------------------------------------------------------------------------
+
+  #[derive(serde::Serialize, Clone)]
+          Err(_) => return JarvisStartResult::Timeout,
+      };
+      let deadline = tokio::time::Instant::now() + timeout;
+      loop {
+          // 1. Has the child already exited? `try_wait` is non-blocking; on
+>         // Windows where uv / python / the Rust extension can fail to load
+          // very fast, this catches the crash within ~500ms instead of after
+          // the full HTTP timeout window.
+          let exit_status = {
+              let mut mgr = backend.lock().await;
+              match mgr.jarvis.as_mut() {
+                  Some(h) => h.child.try_wait().ok().flatten(),
+                  None => None,
+              }
+      }
+      Ok(())
+  }
+
+  // ---------------------------------------------------------------------------
+> // uv sync error formatting (pure helpers â€” unit-tested, see #331)
+  // ---------------------------------------------------------------------------
+
+> /// Last `max_chars` characters of a `uv sync` stderr stream, trimmed.
+  ///
+> /// uv's actionable diagnostic almost always lands at the tail of the
+  /// stream, so when surfacing a failure to the user we show the end, not
+  /// the (usually noisy progress-spinner) beginning. Operates on `char`
+  /// boundaries so it never splits a multi-byte UTF-8 codepoint â€” important
+  /// because Windows consoles emit non-ASCII (cp9xx) bytes.
+> fn uv_sync_stderr_tail(stderr: &str, max_chars: usize) -> String {
+      let total = stderr.chars().count();
+      let skip = total.saturating_sub(max_chars);
+      stderr
+          .chars()
+          .skip(skip)
+          .collect::<String>()
+          .trim()
+          .to_string()
+  }
+
+> /// Error message shown when `uv sync` runs but exits non-zero (#331).
+  ///
+  /// `exit_code` is `None` when the process was terminated by a signal with
+  /// no exit code (rendered as "unknown" rather than a misleading -1).
+> fn format_uv_sync_failure(root: &std::path::Path, exit_code: Option<i32>, stderr: &str) -> String {
+      let code = exit_code
+          .map(|c| c.to_string())
+          .unwrap_or_else(|| "unknown".to_string());
+>     let tail = uv_sync_stderr_tail(stderr, 800);
+      let rust_hint = if looks_like_rust_extension_build_error(stderr) {
+          format!("\n\n{}", rust_toolchain_install_hint())
+      } else {
+          String::new()
+      };
+      format!(
+>         "`uv sync` failed in {} (exit {}). Last output:\n\n{}\n\n\
+           Try opening a terminal in that directory and running \
+           `{}` manually for the full output.{}",
+          root.display(),
+          code,
+          tail,
+>         DESKTOP_UV_SYNC_COMMAND,
+          rust_hint,
+      )
+  }
+
+  /// Strip AppImage-injected environment from a subprocess command (#455).
+  ///
+  /// When the OpenJarvis desktop binary is shipped as an AppImage, the AppImage
+  /// runtime sets `LD_LIBRARY_PATH` (and friends) to the extracted-to-/tmp
+  /// bundled lib dir. Any child we spawn inherits that env by default â€” but the
+> /// children we spawn (`uv`, `ollama`, `git`) live outside the AppImage and
+  /// must NOT load their shared libraries from the AppImage's bundle. The
+> /// classic symptom: `uv` finds `python3`, `python3` tries to `import numpy`,
+  /// numpy's `.so` files try to dlopen libstdc++/libssl/libcrypto, the linker
+  /// picks the AppImage's versions which were built against a different glibc
+  /// or libcrypto API, and python dies silently â€” before any startup log
+  /// reaches us. The user sees "API Server â€” starting server..." forever.
+  ///
+  /// Fix: when we detect we're inside an AppImage (the AppImage runtime sets
+  /// `$APPIMAGE` to the original image path), strip the leaked env vars before
+  /// spawn. Conditional on `APPIMAGE` being set so regular Linux installs that
+              cmd.env_remove("ARGV0");
+          }
+      }
+  }
+
+> /// Error message shown when `uv sync` can't even be spawned (#331) â€”
+> /// e.g. the resolved `uv` binary doesn't exist or isn't executable.
+> fn format_uv_sync_spawn_error(root: &std::path::Path, uv_bin: &str, err: &str) -> String {
+      format!(
+>         "Could not run `uv sync`: {}. Verify uv is installed at \
+           `{}` and the OpenJarvis repo is at `{}`.",
+          err,
+>         uv_bin,
+          root.display(),
+      )
+  }
+
+  fn rust_toolchain_install_hint() -> &'static str {
+      #[cfg(all(target_os = "windows", target_arch = "aarch64"))]
+      return "The desktop app needs Rust and Visual Studio Build Tools with the x64 C++ workload \
+              for its x64 Python backend. Install Rust from https://rustup.rs, run \
+      allow(unused_variables)
+  )]
+  fn prepare_backend_python(cmd: &mut tokio::process::Command) {
+      #[cfg(all(target_os = "windows", target_arch = "aarch64"))]
+      {
+>         cmd.env("UV_PYTHON", "cpython-3.12-windows-x86_64-none");
+          // The PyO3 module must match the interpreter, not the desktop shell.
+          cmd.env("CARGO_BUILD_TARGET", "x86_64-pc-windows-msvc");
+          // Use the same stable compiler where the x64 target was installed,
+          // rather than selecting a separate toolchain through the MSRV pin.
+          cmd.env("RUSTUP_TOOLCHAIN", "stable");
+          // PyO3 cannot infer the target interpreter's ABI across host arches.
+          cmd.env("PYO3_CROSS_PYTHON_VERSION", "3.12");
+          cmd.env("PYO3_CROSS_PYTHON_IMPLEMENTATION", "CPython");
+          rust_toolchain_install_hint(),
+      )
+  }
+
+  fn format_extension_import_failure(root: &std::path::Path, stderr: &str) -> String {
+>     let tail = uv_sync_stderr_tail(stderr, 4000);
+      format!(
+          "`openjarvis_rust` is still not importable after building. Last output:\n\n{}\n\n\
+           Run these manually for the full build log:\n\n\
+             cd {}\n\
+             {}\n\
+>            uv run python -c \"import openjarvis_rust\"",
+          if tail.is_empty() {
+              "(no stderr output)"
+          } else {
+              &tail
+          },
+          root.display(),
+>         DESKTOP_UV_SYNC_COMMAND,
+      )
+  }
+
+  fn add_cargo_bin_to_path(cmd: &mut tokio::process::Command) {
+      let mut paths: Vec<std::path::PathBuf> = std::env::var_os("PATH")
+          .map(|path| std::env::split_paths(&path).collect())
+          .unwrap_or_default();
+      paths.insert(
+      }
+  }
+
+  async fn verify_openjarvis_rust_extension(
+      root: &std::path::Path,
+>     uv_bin: &str,
+  ) -> Result<(), String> {
+>     let mut cmd = tokio::process::Command::new(uv_bin);
+      cmd.args(["run", "python", "-c", "import openjarvis_rust"])
+          .stdout(std::process::Stdio::null())
+          .stderr(std::process::Stdio::piped())
+          .current_dir(root);
+      prepare_subprocess_for_appimage(&mut cmd);
+      prepare_backend_python(&mut cmd);
+      add_cargo_bin_to_path(&mut cmd);
+      cmd.kill_on_drop(true);
+          Ok(out) => {
+              let stderr = String::from_utf8_lossy(&out.stderr);
+              Err(format_extension_import_failure(root, &stderr))
+          }
+          Err(e) => Err(format!(
+>             "Could not verify `openjarvis_rust`: {}. Verify uv is installed at `{}`.",
+>             e, uv_bin
+          )),
+      }
+  }
+
+  fn port_owner_hint() -> String {
+      if cfg!(target_os = "windows") {
+          format!("netstat -ano | findstr :{}", JARVIS_PORT)
+      } else {
+
+  // ---------------------------------------------------------------------------
+  // Backend boot sequence (runs in background after app launch)
+  // ---------------------------------------------------------------------------
+
+> async fn boot_backend(backend: SharedBackend, status: SharedStatus) {
+      // Never infer consent from a missing or malformed config. A fresh desktop
+      // install must persist an explicit source choice before this function can
+      // launch Ollama, contact a custom endpoint, or download a model.
+      let Some(mut cfg) = read_configured_inference_config() else {
+          *status.lock().await = SetupStatus::default();
+          return;
+      };
+      let mut pending_rollback = PendingInferenceRollback::new(&cfg);
+          }
+
+          // Try the bundled sidecar first, fall back to system ollama
+          let ollama_child = {
+              let ollama_bin = resolve_bin("ollama");
+>             let mut sidecar_cmd = tokio::process::Command::new(&ollama_bin);
+              sidecar_cmd
+                  .arg("serve")
+                  .env("OLLAMA_HOST", format!("127.0.0.1:{}", OLLAMA_PORT))
+                  .stdout(std::process::Stdio::null())
+                  .stderr(std::process::Stdio::null());
+              // Avoid LD_LIBRARY_PATH leak when running inside an AppImage (#455).
+              prepare_subprocess_for_appimage(&mut sidecar_cmd);
+              match spawn_owned_child(&mut sidecar_cmd) {
+          let mut s = status.lock().await;
+          s.phase = "server".into();
+          s.detail = "Starting API server...".into();
+      }
+
+>     let uv_bin = resolve_bin("uv");
+
+>     // Verify uv is actually installed. Concrete per-OS instructions â€”
+      // the generic "install it from astral.sh" was the #1 source of
+      // confusion on the Discord support thread; users couldn't tell whether
+      // to use winget, scoop, pip, or the official installer.
+>     if !std::path::Path::new(&uv_bin).exists() && uv_bin == "uv" {
+          let mut s = status.lock().await;
+          #[cfg(target_os = "windows")]
+>         let msg = "Could not find 'uv' (Python package manager). \
+                     To install on Windows, open PowerShell and run:\n\n\
+>                    powershell -ExecutionPolicy Bypass -c \"irm https://astral.sh/uv/install.ps1 |
+iex\"\n\n\
+                     Then close and relaunch this app. \
+>                    (If the install completes but the app still can't find uv, \
+                     you may need to log out and back in so PATH refreshes.)";
+          #[cfg(target_os = "macos")]
+>         let msg = "Could not find 'uv' (Python package manager). \
+                     To install on macOS, open Terminal and run:\n\n\
+>                    curl -LsSf https://astral.sh/uv/install.sh | sh\n\n\
+                     Then relaunch this app.";
+          #[cfg(target_os = "linux")]
+>         let msg = "Could not find 'uv' (Python package manager). \
+                     To install on Linux, open a terminal and run:\n\n\
+>                    curl -LsSf https://astral.sh/uv/install.sh | sh\n\n\
+                     Then relaunch this app.";
+          #[cfg(not(any(target_os = "windows", target_os = "macos", target_os = "linux")))]
+>         let msg = "Could not find 'uv' (Python package manager). \
+>                    Install it from https://astral.sh/uv then relaunch.";
+          s.error = Some(msg.into());
+          return;
+      }
+
+      let mut project_root = find_project_root();
+
+      if project_root.is_none() {
+          // Auto-clone on first launch
+          {
+              let mut s = status.lock().await;
+              s.detail = "Downloading OpenJarvis (first launch)...".into();
+          }
+
+>         let mut clone_cmd = tokio::process::Command::new(&git_bin);
+          clone_cmd
+              .args([
+                  "clone",
+                  "--depth",
+                  "1",
+                  "https://github.com/open-jarvis/OpenJarvis.git",
+                  &clone_target,
+              ])
+      // desktop app â€” the app killed their server, then raced to spawn its
+      // own, sometimes losing the race and hanging.
+      //
+      // New behaviour, by response shape:
+      //   * 2xx /health        â€” healthy jarvis serve. Attach to it; skip the
+>     //                          uv-sync + spawn dance entirely. Done.
+      //   * 503                â€” server is up but engine isn't ready. Surface
+      //                          an actionable message; don't kill (matches
+      //                          our wait_for_jarvis_health 503 contract).
+      //   * any other status   â€” something else is listening on the port. Tell
+      //                          the user via the error banner instead of
+      //                          force-killing a foreign service.
+      //   * Err (conn refused) â€” nothing is listening. Proceed to spawn.
+      //
+          return;
+      }
+
+      // Install dependencies automatically (handles fresh clones).
+      //
+>     // Previously we ran `uv sync` with both stdout AND stderr piped to
+>     // /dev/null and discarded the exit code (`let _ = â€¦`). When `uv sync`
+      // failed â€” Windows path issues, network problems, lockfile conflicts â€”
+>     // the user saw no error, the boot continued, `uv run jarvis serve`
+      // then ran in an under-provisioned venv, and the user waited the full
+      // 600s health-check window before getting "Jarvis server did not
+      // become healthy in time" with no actionable detail (issue #331).
+      //
+      // Now: capture stderr, check the exit status, surface a useful error
+      // to the user BEFORE the long server-start wait. The status detail
+      // message also indicates this can take a couple of minutes on first
+      // boot so users don't restart the app thinking it's stuck.
+      {
+          let mut s = status.lock().await;
+>         s.detail = "Installing dependencies (uv sync â€” may take 1-2 min on first
+boot)...".into();
+      }
+>     let mut sync_cmd = tokio::process::Command::new(&uv_bin);
+      sync_cmd
+          .args([
+              "sync",
+              "--extra",
+              "desktop",
+              "--extra",
+              "inference-cloud",
+              "--extra",
+              "inference-google",
+              "--extra",
+              "voice",
+>             // openjarvis_rust lives in a uv dependency group (not the published
+              // `desktop` extra) so pip installs from PyPI don't require it (#584).
+              "--group",
+              "desktop-native",
+          ])
+          .stdout(std::process::Stdio::null())
+          .stderr(std::process::Stdio::piped())
+          .current_dir(root);
+      // Avoid LD_LIBRARY_PATH leak when running inside an AppImage (#455).
+      let sync_output = sync_cmd.output().await;
+      match sync_output {
+          Ok(out) if !out.status.success() => {
+              let stderr = String::from_utf8_lossy(&out.stderr);
+              let mut s = status.lock().await;
+>             s.error = Some(format_uv_sync_failure(root, out.status.code(), &stderr));
+              return;
+          }
+          Err(e) => {
+              let mut s = status.lock().await;
+>             s.error = Some(format_uv_sync_spawn_error(root, &uv_bin, &e.to_string()));
+              return;
+          }
+          Ok(_) => {} // success â€” fall through
+      }
+
+      {
+          let mut s = status.lock().await;
+          s.detail = "Verifying Rust extension (openjarvis_rust)...".into();
+      }
+>     if let Err(err) = verify_openjarvis_rust_extension(root, &uv_bin).await {
+          let mut s = status.lock().await;
+          s.error = Some(err);
+          return;
+      }
+
+      {
+          let mut s = status.lock().await;
+          s.detail = format!("Starting API server from {}...", root.display());
+      }
+
+>     let mut cmd = tokio::process::Command::new(&uv_bin);
+      let mut serve_argv: Vec<String> = vec![
+          "run".into(),
+          "jarvis".into(),
+          "serve".into(),
+          "--port".into(),
+          JARVIS_PORT.to_string(),
+      ];
+      serve_argv.extend(plan.serve_args.iter().cloned());
+          }
+          Err(e) => {
+              let mut s = status.lock().await;
+              s.error = Some(format!(
+                  "Could not start jarvis server: {}. \
+>                  Make sure uv is installed (https://astral.sh/uv) and the OpenJarvis repo is
+cloned at {}",
+                  e,
+                  root.display(),
+              ));
+              return;
+          }
+      }
+
+      let server_url = format!("http://127.0.0.1:{}/health", JARVIS_PORT);
+          JarvisStartResult::ServiceUnavailable(body) => {
+              let mut s = status.lock().await;
+              s.error = Some(format!(
+                  "Jarvis server is running but the inference engine is not available \
+                   (HTTP 503). This usually means the configured model couldn't be loaded.\n\n\
+>                  Check the server logs, or run 'uv run jarvis serve --port {}{}' \
+                   from {} to see the engine error.\n\n\
+                   Server response:\n{}",
+                  JARVIS_PORT,
+                  // Show the args actually passed (after `serve --port <port>`),
+                  // including any post-fallback `--model` override.
+                  match serve_argv.get(5..) {
+                      Some(rest) if !rest.is_empty() => format!(" {}", rest.join(" ")),
+                      _ => String::new(),
+              let mut s = status.lock().await;
+              s.error = Some(if stderr.is_empty() {
+                  format!(
+                      "Jarvis server exited (code {}) before becoming ready.\n\n\
+                       No stderr output. Check that:\n\
+>                      1. uv is installed ({})\n\
+                       2. The OpenJarvis repo is at {}\n\
+>                      3. 'uv sync' completes in that directory",
+                      code_str,
+>                     uv_bin,
+                      root.display(),
+                  )
+              } else {
+                  format!(
+                      "Jarvis server exited (code {}) before becoming ready.\n\nStderr:\n{}",
+                      code_str, stderr,
+                  )
+              });
+              let stderr = read_jarvis_stderr_tail(&backend).await;
+              let mut s = status.lock().await;
+              s.error = Some(if stderr.is_empty() {
+                  format!(
+                      "Jarvis server did not become ready within 10 minutes. Check that:\n\
+>                      1. uv is installed ({})\n\
+                       2. The OpenJarvis repo is at {}\n\
+>                      3. Run 'uv sync' in that directory",
+>                     uv_bin,
+                      root.display(),
+                  )
+              } else {
+                  format!(
+                      "Jarvis server did not become ready within 10 minutes.\n\nStderr:\n{}",
+                      stderr,
+                  )
+              });
+          .map_err(|e| format!("Invalid response: {}", e))
+  }
+
+  #[tauri::command]
+  async fn run_jarvis_command(args: Vec<String>) -> Result<String, String> {
+>     let uv_bin = resolve_bin("uv");
+
+      let mut cmd_args = vec!["run".to_string(), "jarvis".to_string()];
+      cmd_args.extend(args.iter().cloned());
+
+>     let mut cmd = tokio::process::Command::new(&uv_bin);
+      cmd.args(&cmd_args);
+>     // Run from the project root so `uv run jarvis` resolves the OpenJarvis
+      // project regardless of the app's launch cwd. In a packaged install the
+      // cwd isn't the checkout, so without this `jarvis` isn't found and the
+      // backend never starts â€” the UI then shows "Failed to get response"
+      // (see #531).
+      if let Some(ref root) = find_project_root() {
+          cmd.current_dir(root);
+      }
+
+          .as_ref()
+          .map(SetupStatus::starting)
+          .unwrap_or_default();
+      let status: SharedStatus = Arc::new(Mutex::new(initial_status));
+
+>     let boot_backend_ref = backend.clone();
+      let boot_status_ref = status.clone();
+
+      tauri::Builder::default()
+          .manage(backend.clone())
+          .manage(status.clone())
+          .plugin(tauri_plugin_notification::init())
+          .plugin(tauri_plugin_shell::init())
+          .plugin(tauri_plugin_global_shortcut::Builder::new().build())
+
+              // Returning users keep automatic startup after they have persisted
+              // a source. Fresh installs stay inert until the setup UI records
+              // explicit consent and invokes `start_backend`.
+              if configured_at_launch.is_some() {
+>                 tauri::async_runtime::spawn(start_managed_boot(boot_backend_ref, boot_status_ref));
+              }
+
+              Ok(())
+          })
+          .invoke_handler(tauri::generate_handler![
+              get_setup_status,
+              get_api_base,
+              start_backend,
+  #[cfg(test)]
+  mod tests {
+      use super::{
+          boot_plan, default_local_model, discard_pending_inference_setup_at,
+          format_extension_import_failure, format_missing_rust_toolchain, format_port_unavailable,
+>         format_uv_sync_failure, format_uv_sync_spawn_error, managed_cloud_key_names,
+          matching_installed_model, model_names_match, normalize_host,
+          parse_configured_inference_config, parse_ollama_model_names,
+          persist_confirmed_inference_config_at, preferred_installed_model,
+          project_root_near_executable, reload_cloud_keys_for_owned_backend_at,
+          should_persist_resolved_model, spawn_owned_child, stage_pending_inference_config_at,
+>         startup_installed_model, upsert_engine_host, uv_sync_stderr_tail, BackendManager,
+          InferenceConfig, InferenceCredentialStore, PendingInferenceRollback, SetupStatus,
+>         SourceKind, DESKTOP_UV_SYNC_COMMAND, PENDING_INFERENCE_API_KEY,
+      };
+      use std::collections::HashMap;
+      use std::path::Path;
+      use std::sync::Mutex as StdMutex;
+
+      #[test]
+      fn atlas_cloud_key_is_loaded_with_managed_desktop_keys() {
+          assert!(managed_cloud_key_names().contains(&"ATLASCLOUD_API_KEY".to_string()));
+          std::fs::remove_dir_all(root).unwrap();
+      }
+
+      #[test]
+      fn tail_returns_whole_string_when_shorter_than_limit() {
+>         assert_eq!(uv_sync_stderr_tail("short error", 800), "short error");
+      }
+
+      #[test]
+      fn tail_keeps_the_end_not_the_beginning() {
+>         // uv's actionable line is at the end; the spinner noise is at the start.
+          let s = format!("{}ACTUAL ERROR HERE", "spinner-noise ".repeat(200));
+>         let tail = uv_sync_stderr_tail(&s, 40);
+          assert!(tail.ends_with("ACTUAL ERROR HERE"), "tail was: {tail:?}");
+          assert!(!tail.contains("spinner-noise spinner-noise spinner-noise"));
+          assert!(tail.chars().count() <= 40);
+      }
+
+      #[test]
+      fn tail_trims_surrounding_whitespace() {
+>         assert_eq!(uv_sync_stderr_tail("  \n padded \n  ", 800), "padded");
+      }
+
+      #[test]
+      fn tail_never_splits_a_multibyte_codepoint() {
+          // Each "Ã©" is 2 bytes / 1 char. A byte-based slice could panic or
+          // produce invalid UTF-8; the char-based tail must not.
+          let s = "Ã©".repeat(500);
+>         let tail = uv_sync_stderr_tail(&s, 100);
+          assert_eq!(tail.chars().count(), 100);
+          assert!(tail.chars().all(|c| c == 'Ã©'));
+      }
+
+      #[test]
+      fn failure_message_includes_exit_code_and_tail_and_hint() {
+>         let msg = format_uv_sync_failure(
+              Path::new("/home/u/.openjarvis/src"),
+              Some(2),
+              "error: failed to resolve numpy==2.1.3",
+          );
+          assert!(msg.contains("exit 2"));
+          assert!(msg.contains("/home/u/.openjarvis/src"));
+          assert!(msg.contains("failed to resolve numpy==2.1.3"));
+>         assert!(msg.contains(DESKTOP_UV_SYNC_COMMAND)); // actionable next step
+      }
+
+      #[test]
+      fn failure_message_renders_missing_exit_code_as_unknown() {
+          // Process killed by signal â†’ no exit code. Must not show a misleading -1.
+>         let msg = format_uv_sync_failure(Path::new("/x"), None, "boom");
+          assert!(msg.contains("exit unknown"));
+          assert!(!msg.contains("exit -1"));
+      }
+
+      #[test]
+      fn spawn_error_names_the_binary_and_root() {
+>         let msg = format_uv_sync_spawn_error(
+              Path::new("/repo"),
+>             "C:\\Users\\me\\.local\\bin\\uv.exe",
+              "No such file or directory (os error 2)",
+          );
+>         assert!(msg.contains("C:\\Users\\me\\.local\\bin\\uv.exe"));
+          assert!(msg.contains("/repo"));
+          assert!(msg.contains("No such file or directory"));
+      }
+
+      #[test]
+      fn missing_rust_toolchain_message_names_cargo_and_installer() {
+          let msg = format_missing_rust_toolchain();
+          assert!(msg.contains("cargo"));
+          assert!(msg.contains("openjarvis_rust"));
+          assert!(msg.contains("Visual Studio Build Tools"));
+      }
+
+      #[test]
+>     fn uv_sync_rust_failure_mentions_toolchain() {
+>         let msg = format_uv_sync_failure(
+              Path::new("C:\\Users\\me\\OpenJarvis"),
+              Some(1),
+              "maturin failed: linker `link.exe` not found while building openjarvis-rust",
+          );
+          assert!(msg.contains("exit 1"));
+          assert!(msg.contains("link.exe"));
+          assert!(msg.contains("https://rustup.rs"));
+          assert!(msg.contains("Visual Studio Build Tools"));
+          let msg = format_extension_import_failure(
+              Path::new("C:\\Users\\me\\OpenJarvis"),
+              "ModuleNotFoundError: No module named 'openjarvis_rust'",
+          );
+          assert!(msg.contains("openjarvis_rust"));
+>         assert!(msg.contains(DESKTOP_UV_SYNC_COMMAND));
+>         assert!(msg.contains("uv run python -c \"import openjarvis_rust\""));
+          assert!(msg.contains("ModuleNotFoundError"));
+      }
+
+      #[test]
+      fn port_unavailable_message_names_port_and_owner_hint() {
+          let msg = format_port_unavailable(8000, "address already in use");
+          assert!(msg.contains("Port 8000 is not available"));
+          assert!(msg.contains("address already in use"));
+          );
+          assert_eq!(normalize_host("http://host:8000"), "http://host:8000");
+      }
+
+      #[test]
+>     fn boot_plan_ollama_launches_and_pulls_one_model() {
+          let cfg = InferenceConfig {
+              kind: SourceKind::Ollama,
+              ..Default::default()
+          };
+          let plan = boot_plan(&cfg, 16.0);
+          assert!(plan.launch_ollama);
+          assert_eq!(plan.model_to_pull.as_deref(), Some("qwen3.5:4b"));
+          assert!(plan.engine_host.is_none());
+              .windows(2)
+              .any(|w| w == ["--model", "qwen3.5:4b"]));
+      }
+
+      #[test]
+>     fn boot_plan_ollama_respects_pinned_model() {
+          let cfg = InferenceConfig {
+              kind: SourceKind::Ollama,
+              model: Some("qwen3.5:9b".into()),
+              ..Default::default()
+          };
+          let plan = boot_plan(&cfg, 16.0);
+          assert_eq!(plan.model_to_pull.as_deref(), Some("qwen3.5:9b"));
+      }
+
+      #[test]
+>     fn boot_plan_custom_skips_ollama_and_sets_engine_host() {
+          let cfg = InferenceConfig {
+              kind: SourceKind::Custom,
+              confirmed: true,
+              model: Some("qwen2.5-7b".into()),
+              host: Some("http://localhost:1234".into()),
+              engine: Some("lmstudio".into()),
+          };
+          let plan = boot_plan(&cfg, 16.0);
+              .windows(2)
+              .any(|w| w == ["--model", "qwen2.5-7b"]));
+      }
+
+      #[test]
+>     fn boot_plan_custom_defaults_engine_to_lmstudio() {
+          let cfg = InferenceConfig {
+              kind: SourceKind::Custom,
+              confirmed: true,
+              model: Some("m".into()),
+              host: Some("http://h:1".into()),
+              engine: None,
+          };
+          let plan = boot_plan(&cfg, 16.0);
+              .windows(2)
+              .any(|w| w == ["--engine", "lmstudio"]));
+      }
+
+      #[test]
+>     fn boot_plan_custom_omits_engine_host_when_no_host() {
+          // No configured host â†’ don't set engine_host (no override to write).
+          let cfg = InferenceConfig {
+              kind: SourceKind::Custom,
+              confirmed: true,
+              model: Some("m".into()),
+              host: None,
+              engine: Some("lmstudio".into()),
+          };
+
+          let (spawned_tx, spawned_rx) = tokio::sync::oneshot::channel();
+          let started_for_child = started.clone();
+          let completed_for_child = completed.clone();
+          let task = tokio::spawn(async move {
+>             let mut cmd = tokio::process::Command::new(std::env::current_exe().unwrap());
+              cmd.args([
+                  "--exact",
+                  "tests::owned_child_process_helper",
+                  "--nocapture",
+              ])
+              .env("OPENJARVIS_OWNED_CHILD_STARTED", started_for_child)
+              .env("OPENJARVIS_OWNED_CHILD_COMPLETED", completed_for_child)
+              .stdout(std::process::Stdio::null())
+          );
+          std::fs::remove_dir_all(root).unwrap();
+      }
+
+      #[test]
+>     fn boot_plan_ollama_uses_fallback_model_on_low_ram() {
+          // Below the smallest model's min_ram â†’ default_local_model â†’ FALLBACK_MODEL.
+          let cfg = InferenceConfig {
+              kind: SourceKind::Ollama,
+              ..Default::default()
+          };
+          let plan = boot_plan(&cfg, 1.0);
+          assert_eq!(plan.model_to_pull.as_deref(), Some(super::FALLBACK_MODEL));
+      }
+          // duration of the lock. The 2024-edition env mutation rules
+          // require the `unsafe` block but the guard makes it sound.
+          unsafe {
+              std::env::remove_var("APPIMAGE");
+          }
+>         let mut cmd = tokio::process::Command::new(HARMLESS_BIN);
+          super::prepare_subprocess_for_appimage(&mut cmd);
+          if let Some(v) = prev {
+              unsafe {
+                  std::env::set_var("APPIMAGE", v);
+              }
+          }
+      }
+
+          let _guard = APPIMAGE_ENV_LOCK.lock().unwrap_or_else(|e| e.into_inner());
+          let prev = std::env::var_os("APPIMAGE");
+          unsafe {
+              std::env::set_var("APPIMAGE", "/tmp/test.AppImage");
+          }
+>         let mut cmd = tokio::process::Command::new(HARMLESS_BIN);
+          super::prepare_subprocess_for_appimage(&mut cmd);
+          unsafe {
+              if let Some(v) = prev {
+                  std::env::set_var("APPIMAGE", v);
+              } else {
+                  std::env::remove_var("APPIMAGE");
+              }
+          }
+
+
+PS C:\Users\mavmu\AppData\Local\OpenJarvis\src\frontend>
