@@ -1,0 +1,1462 @@
+PS C:\Users\mavmu\AppData\Local\OpenJarvis\src\frontend> Get-ChildItem ".\src-tauri\src" -Recurse -File -Filter "*.rs" | Select-String -Pattern "Command::new|jarvis|8000|serve|spawn" -Context 2,3
+
+  src-tauri\src\lib.rs:8:
+  src-tauri\src\lib.rs:9:const OLLAMA_PORT: u16 = 11434;
+> src-tauri\src\lib.rs:10:const JARVIS_PORT: u16 = 8000;
+  src-tauri\src\lib.rs:11:#[cfg(not(all(target_os = "windows", target_arch = "aarch64")))]
+  src-tauri\src\lib.rs:12:const DESKTOP_UV_SYNC_COMMAND: &str =
+  src-tauri\src\lib.rs:13:    "uv sync --extra desktop --extra inference-cloud --extra
+inference-google --extra voice --group desktop-native";
+  src-tauri\src\lib.rs:39:    {
+  src-tauri\src\lib.rs:40:        use std::process::Command;
+> src-tauri\src\lib.rs:41:        if let Ok(output) = Command::new("sysctl").args(["-n",
+"hw.memsize"]).output() {
+  src-tauri\src\lib.rs:42:            if let Ok(s) = String::from_utf8(output.stdout) {
+  src-tauri\src\lib.rs:43:                if let Ok(bytes) = s.trim().parse::<u64>() {
+  src-tauri\src\lib.rs:44:                    return bytes as f64 / (1024.0 * 1024.0 * 1024.0);
+  src-tauri\src\lib.rs:65:        use std::process::Command;
+  src-tauri\src\lib.rs:66:        // wmic returns TotalVisibleMemorySize in KB
+> src-tauri\src\lib.rs:67:        if let Ok(output) = Command::new("wmic")
+  src-tauri\src\lib.rs:68:            .args(["OS", "get", "TotalVisibleMemorySize", "/value"])
+  src-tauri\src\lib.rs:69:            .output()
+  src-tauri\src\lib.rs:70:        {
+  src-tauri\src\lib.rs:105:
+  src-tauri\src\lib.rs:106:/// A resolved boot plan derived purely from the inference config + RAM.
+> src-tauri\src\lib.rs:107:/// Pure and side-effect-free so it can be unit-tested without spawning
+  src-tauri\src\lib.rs:108:/// processes or touching the network.
+  src-tauri\src\lib.rs:109:#[derive(Debug, Clone, PartialEq, Eq)]
+  src-tauri\src\lib.rs:110:struct BootPlan {
+  src-tauri\src\lib.rs:115:    /// Optional `(engine_key, bare_host)` override for a custom endpoint,
+  src-tauri\src\lib.rs:116:    /// e.g. `("lmstudio", "http://localhost:1234")`. Written into
+> src-tauri\src\lib.rs:117:    /// ~/.openjarvis/config.toml so `jarvis serve` picks it up.
+  src-tauri\src\lib.rs:118:    engine_host: Option<(String, String)>,
+> src-tauri\src\lib.rs:119:    /// Args appended after `uv run jarvis serve --port <port>`.
+> src-tauri\src\lib.rs:120:    serve_args: Vec<String>,
+  src-tauri\src\lib.rs:121:}
+  src-tauri\src\lib.rs:122:
+  src-tauri\src\lib.rs:123:/// Default OpenAI-compatible engine key used when a custom endpoint
+config
+> src-tauri\src\lib.rs:124:/// omits one (LM Studio is the canonical local server).
+  src-tauri\src\lib.rs:125:const CUSTOM_FALLBACK_ENGINE: &str = "lmstudio";
+  src-tauri\src\lib.rs:126:
+> src-tauri\src\lib.rs:127:/// Decide what to launch/pull/serve from the inference config + system
+RAM.
+> src-tauri\src\lib.rs:128:/// Pure: no I/O, no spawning.
+  src-tauri\src\lib.rs:129:fn boot_plan(cfg: &InferenceConfig, ram_gb: f64) -> BootPlan {
+  src-tauri\src\lib.rs:130:    match cfg.kind {
+  src-tauri\src\lib.rs:131:        SourceKind::Ollama => {
+  src-tauri\src\lib.rs:138:                model_to_pull: Some(model.clone()),
+  src-tauri\src\lib.rs:139:                engine_host: None,
+> src-tauri\src\lib.rs:140:                serve_args: vec![
+  src-tauri\src\lib.rs:141:                    "--engine".into(),
+  src-tauri\src\lib.rs:142:                    "ollama".into(),
+  src-tauri\src\lib.rs:143:                    "--model".into(),
+  src-tauri\src\lib.rs:161:                .filter(|h| !h.is_empty())
+  src-tauri\src\lib.rs:162:                .map(|h| (engine.clone(), h));
+> src-tauri\src\lib.rs:163:            // `model` may be empty if the config is malformed; `jarvis
+serve`
+  src-tauri\src\lib.rs:164:            // surfaces a clear error then (there is no universal default
+model
+  src-tauri\src\lib.rs:165:            // for an arbitrary endpoint).
+  src-tauri\src\lib.rs:166:            let model = cfg.model.clone().unwrap_or_default();
+  src-tauri\src\lib.rs:169:                model_to_pull: None,
+  src-tauri\src\lib.rs:170:                engine_host,
+> src-tauri\src\lib.rs:171:                serve_args: vec![
+  src-tauri\src\lib.rs:172:                    "--engine".into(),
+  src-tauri\src\lib.rs:173:                    engine,
+  src-tauri\src\lib.rs:174:                    "--model".into(),
+  src-tauri\src\lib.rs:252:    #[cfg(target_os = "windows")]
+  src-tauri\src\lib.rs:253:    {
+> src-tauri\src\lib.rs:254:        if let Ok(output) = std::process::Command::new("where")
+  src-tauri\src\lib.rs:255:            .arg(format!("{name}.exe"))
+  src-tauri\src\lib.rs:256:            .output()
+  src-tauri\src\lib.rs:257:        {
+  src-tauri\src\lib.rs:269:    #[cfg(not(target_os = "windows"))]
+  src-tauri\src\lib.rs:270:    {
+> src-tauri\src\lib.rs:271:        if let Ok(output) =
+std::process::Command::new("which").arg(name).output() {
+  src-tauri\src\lib.rs:272:            if output.status.success() {
+  src-tauri\src\lib.rs:273:                let stdout = String::from_utf8_lossy(&output.stdout);
+  src-tauri\src\lib.rs:274:                if let Some(first_line) = stdout.lines().next() {
+  src-tauri\src\lib.rs:285:}
+  src-tauri\src\lib.rs:286:
+> src-tauri\src\lib.rs:287:/// Find the OpenJarvis project root (contains pyproject.toml).
+> src-tauri\src\lib.rs:288:/// Checks OPENJARVIS_ROOT env var, the checkout beside the executable,
+  src-tauri\src\lib.rs:289:/// then walks up from the executable before probing common clone
+locations.
+  src-tauri\src\lib.rs:290:fn find_project_root() -> Option<std::path::PathBuf> {
+  src-tauri\src\lib.rs:291:    // 1. Explicit env var override
+> src-tauri\src\lib.rs:292:    if let Ok(root) = std::env::var("OPENJARVIS_ROOT") {
+  src-tauri\src\lib.rs:293:        let path = std::path::PathBuf::from(&root);
+  src-tauri\src\lib.rs:294:        if path.join("pyproject.toml").exists() {
+  src-tauri\src\lib.rs:295:            return Some(path);
+  src-tauri\src\lib.rs:308:    let home = home_dir();
+  src-tauri\src\lib.rs:309:    let direct = [
+> src-tauri\src\lib.rs:310:        format!("{home}/OpenJarvis"),
+> src-tauri\src\lib.rs:311:        format!("{home}/projects/hazy/OpenJarvis"),
+> src-tauri\src\lib.rs:312:        format!("{home}/projects/OpenJarvis"),
+> src-tauri\src\lib.rs:313:        format!("{home}/src/OpenJarvis"),
+> src-tauri\src\lib.rs:314:        format!("{home}/Documents/OpenJarvis"),
+> src-tauri\src\lib.rs:315:        format!("{home}/Desktop/OpenJarvis"),
+> src-tauri\src\lib.rs:316:        format!("{home}/Developer/OpenJarvis"),
+> src-tauri\src\lib.rs:317:        format!("{home}/dev/OpenJarvis"),
+> src-tauri\src\lib.rs:318:        format!("{home}/Code/OpenJarvis"),
+> src-tauri\src\lib.rs:319:        format!("{home}/code/OpenJarvis"),
+> src-tauri\src\lib.rs:320:        format!("{home}/repos/OpenJarvis"),
+> src-tauri\src\lib.rs:321:        format!("{home}/github/OpenJarvis"),
+  src-tauri\src\lib.rs:322:    ];
+  src-tauri\src\lib.rs:323:    for p in &direct {
+  src-tauri\src\lib.rs:324:        let path = std::path::PathBuf::from(p);
+  src-tauri\src\lib.rs:328:    }
+  src-tauri\src\lib.rs:329:
+> src-tauri\src\lib.rs:330:    // 4. Shallow scan: look for OpenJarvis one level inside common
+parent dirs.
+> src-tauri\src\lib.rs:331:    //    This catches clones like ~/Documents/my-stuff/OpenJarvis without
+  src-tauri\src\lib.rs:332:    //    needing to enumerate every possible intermediate folder.
+  src-tauri\src\lib.rs:333:    let scan_parents = [
+  src-tauri\src\lib.rs:334:        format!("{home}/Documents"),
+  src-tauri\src\lib.rs:347:        if let Ok(entries) = std::fs::read_dir(&parent_path) {
+  src-tauri\src\lib.rs:348:            for entry in entries.flatten() {
+> src-tauri\src\lib.rs:349:                let candidate = entry.path().join("OpenJarvis");
+  src-tauri\src\lib.rs:350:                if candidate.join("pyproject.toml").exists() {
+  src-tauri\src\lib.rs:351:                    return Some(candidate);
+  src-tauri\src\lib.rs:352:                }
+> src-tauri\src\lib.rs:353:                // Also check if the entry itself is OpenJarvis
+(case-insensitive match)
+  src-tauri\src\lib.rs:354:                if let Some(name) = entry.file_name().to_str() {
+> src-tauri\src\lib.rs:355:                    if name.eq_ignore_ascii_case("openjarvis")
+  src-tauri\src\lib.rs:356:                        && entry.path().join("pyproject.toml").exists()
+  src-tauri\src\lib.rs:357:                    {
+  src-tauri\src\lib.rs:358:                        return Some(entry.path());
+  src-tauri\src\lib.rs:373:    }
+  src-tauri\src\lib.rs:374:
+> src-tauri\src\lib.rs:375:    // The Windows installer places the desktop executable in OpenJarvis/
+and
+> src-tauri\src\lib.rs:376:    // clones the matching Python backend into OpenJarvis/src/.
+  src-tauri\src\lib.rs:377:    let installed_checkout = exe_dir.join("src");
+  src-tauri\src\lib.rs:378:    if installed_checkout.join("pyproject.toml").is_file() {
+  src-tauri\src\lib.rs:379:        return Some(installed_checkout);
+  src-tauri\src\lib.rs:394:
+  src-tauri\src\lib.rs:395://
+---------------------------------------------------------------------------
+> src-tauri\src\lib.rs:396:// BackendManager — owns the Ollama + Jarvis server child processes
+  src-tauri\src\lib.rs:397://
+---------------------------------------------------------------------------
+  src-tauri\src\lib.rs:398:
+  src-tauri\src\lib.rs:399:struct ChildHandle {
+  src-tauri\src\lib.rs:407:}
+  src-tauri\src\lib.rs:408:
+> src-tauri\src\lib.rs:409:/// Spawn a subprocess whose lifetime cannot escape the async operation
+that
+  src-tauri\src\lib.rs:410:/// created it.  Tokio's default is `kill_on_drop(false)`, which means
+aborting
+> src-tauri\src\lib.rs:411:/// the boot task in the small window between `spawn()` and storing the
+child in
+  src-tauri\src\lib.rs:412:/// `BackendManager` would detach it.  The same default also lets
+one-shot boot
+  src-tauri\src\lib.rs:413:/// commands (`git clone`, `uv sync`, extension verification) continue
+after a
+  src-tauri\src\lib.rs:414:/// source reset.  Every subprocess on the boot path must opt in here (or
+call
+  src-tauri\src\lib.rs:415:/// `kill_on_drop(true)` before `output()`).
+> src-tauri\src\lib.rs:416:fn spawn_owned_child(cmd: &mut tokio::process::Command) ->
+std::io::Result<tokio::process::Child> {
+  src-tauri\src\lib.rs:417:    cmd.kill_on_drop(true);
+> src-tauri\src\lib.rs:418:    cmd.spawn()
+  src-tauri\src\lib.rs:419:}
+  src-tauri\src\lib.rs:420:
+> src-tauri\src\lib.rs:421:/// Rolling buffer holding the most recent ~16 KB of jarvis stderr.
+  src-tauri\src\lib.rs:422:///
+> src-tauri\src\lib.rs:423:/// Populated by a background drainer task spawned at boot so the pipe
+> src-tauri\src\lib.rs:424:/// never fills and back-pressures `jarvis serve`; consumed by the boot
+  src-tauri\src\lib.rs:425:/// path when surfacing failure messages.
+  src-tauri\src\lib.rs:426:type StderrTail = Arc<Mutex<Vec<u8>>>;
+  src-tauri\src\lib.rs:427:
+  src-tauri\src\lib.rs:430:struct BackendManager {
+  src-tauri\src\lib.rs:431:    ollama: Option<ChildHandle>,
+> src-tauri\src\lib.rs:432:    jarvis: Option<ChildHandle>,
+> src-tauri\src\lib.rs:433:    jarvis_stderr_tail: StderrTail,
+  src-tauri\src\lib.rs:434:    boot_task: Option<tauri::async_runtime::JoinHandle<()>>,
+  src-tauri\src\lib.rs:435:}
+  src-tauri\src\lib.rs:436:
+  src-tauri\src\lib.rs:439:        Self {
+  src-tauri\src\lib.rs:440:            ollama: None,
+> src-tauri\src\lib.rs:441:            jarvis: None,
+> src-tauri\src\lib.rs:442:            jarvis_stderr_tail: Arc::new(Mutex::new(Vec::new())),
+  src-tauri\src\lib.rs:443:            boot_task: None,
+  src-tauri\src\lib.rs:444:        }
+  src-tauri\src\lib.rs:445:    }
+  src-tauri\src\lib.rs:455:            let _ = task.await;
+  src-tauri\src\lib.rs:456:        }
+> src-tauri\src\lib.rs:457:        if let Some(ref mut h) = self.jarvis {
+  src-tauri\src\lib.rs:458:            h.kill().await;
+  src-tauri\src\lib.rs:459:        }
+> src-tauri\src\lib.rs:460:        self.jarvis = None;
+  src-tauri\src\lib.rs:461:        if let Some(ref mut h) = self.ollama {
+  src-tauri\src\lib.rs:462:            h.kill().await;
+  src-tauri\src\lib.rs:463:        }
+  src-tauri\src\lib.rs:468:type SharedBackend = Arc<Mutex<BackendManager>>;
+  src-tauri\src\lib.rs:469:
+> src-tauri\src\lib.rs:470:/// Spawn exactly one tracked boot task. Keeping its handle lets recovery
+  src-tauri\src\lib.rs:471:/// abort an in-flight endpoint check/model download before killing
+children.
+  src-tauri\src\lib.rs:472:async fn start_managed_boot(backend: SharedBackend, status: SharedStatus)
+{
+  src-tauri\src\lib.rs:473:    let mut manager = backend.lock().await;
+  src-tauri\src\lib.rs:477:    }
+  src-tauri\src\lib.rs:478:    let task_backend = backend.clone();
+> src-tauri\src\lib.rs:479:    let task = tauri::async_runtime::spawn(boot_backend(task_backend,
+status));
+  src-tauri\src\lib.rs:480:    manager.boot_task = Some(task);
+  src-tauri\src\lib.rs:481:}
+  src-tauri\src\lib.rs:482:
+  src-tauri\src\lib.rs:490:    detail: String,
+  src-tauri\src\lib.rs:491:    ollama_ready: bool,
+> src-tauri\src\lib.rs:492:    server_ready: bool,
+  src-tauri\src\lib.rs:493:    model_ready: bool,
+  src-tauri\src\lib.rs:494:    error: Option<String>,
+  src-tauri\src\lib.rs:495:    /// "unconfigured" | "ollama" | "custom" — lets the setup UI choose
+  src-tauri\src\lib.rs:505:        Self {
+  src-tauri\src\lib.rs:506:            phase: "awaiting_source".into(),
+> src-tauri\src\lib.rs:507:            detail: "Choose where OpenJarvis should run models.".into(),
+  src-tauri\src\lib.rs:508:            ollama_ready: false,
+> src-tauri\src\lib.rs:509:            server_ready: false,
+  src-tauri\src\lib.rs:510:            model_ready: false,
+  src-tauri\src\lib.rs:511:            error: None,
+  src-tauri\src\lib.rs:512:            source: "unconfigured".into(),
+  src-tauri\src\lib.rs:556:
+  src-tauri\src\lib.rs:557:/// True if a custom OpenAI-compatible endpoint answers at all (any HTTP
+> src-tauri\src\lib.rs:558:/// status counts — even a 404 proves the server is up). `host` is the
+bare
+  src-tauri\src\lib.rs:559:/// base URL; we probe `<host>/v1/models`.
+  src-tauri\src\lib.rs:560:async fn endpoint_reachable(host: &str, timeout: Duration) -> bool {
+  src-tauri\src\lib.rs:561:    let client = match reqwest::Client::builder()
+  src-tauri\src\lib.rs:577:}
+  src-tauri\src\lib.rs:578:
+> src-tauri\src\lib.rs:579:/// Outcome of waiting for `jarvis serve` to become healthy.
+  src-tauri\src\lib.rs:580:///
+> src-tauri\src\lib.rs:581:/// Unlike [`wait_for_url`] this differentiates "server is up but
+degraded"
+> src-tauri\src\lib.rs:582:/// (HTTP 503 — usually inference engine failed to load) from "server
+never
+  src-tauri\src\lib.rs:583:/// came up" and from "child process died before serving anything",
+because
+  src-tauri\src\lib.rs:584:/// each needs a different user-facing message.
+  src-tauri\src\lib.rs:585:#[derive(Debug)]
+> src-tauri\src\lib.rs:586:enum JarvisStartResult {
+  src-tauri\src\lib.rs:587:    /// `/health` returned 2xx.
+  src-tauri\src\lib.rs:588:    Ready,
+> src-tauri\src\lib.rs:589:    /// Server replied 503. The body is the actionable message (typically
+  src-tauri\src\lib.rs:590:    /// "engine not ready" or a model-load error).
+  src-tauri\src\lib.rs:591:    ServiceUnavailable(String),
+> src-tauri\src\lib.rs:592:    /// The `jarvis serve` child exited before `/health` returned 2xx.
+  src-tauri\src\lib.rs:593:    EarlyExit { code: Option<i32>, stderr: String },
+  src-tauri\src\lib.rs:594:    /// Deadline elapsed without ever seeing 2xx or an early exit.
+  src-tauri\src\lib.rs:595:    Timeout,
+  src-tauri\src\lib.rs:596:}
+  src-tauri\src\lib.rs:597:
+> src-tauri\src\lib.rs:598:/// Spawn a detached task that continuously drains `jarvis serve`'s
+  src-tauri\src\lib.rs:599:/// stderr into a rolling tail buffer.
+  src-tauri\src\lib.rs:600:///
+> src-tauri\src\lib.rs:601:/// We MUST keep reading stderr for as long as the child runs — `jarvis
+> src-tauri\src\lib.rs:602:/// serve` is chatty (engine load progress, request logs), and the OS
+  src-tauri\src\lib.rs:603:/// pipe buffer is small (4 KB on Windows, 64 KB on Linux). Once full,
+> src-tauri\src\lib.rs:604:/// the child's next stderr write blocks indefinitely and the server
+  src-tauri\src\lib.rs:605:/// hangs mid-operation. The drainer reads in chunks and keeps only the
+  src-tauri\src\lib.rs:606:/// last `STDERR_TAIL_LIMIT` bytes — enough to surface a tail trace if
+  src-tauri\src\lib.rs:607:/// the child later dies, without unbounded memory growth.
+  src-tauri\src\lib.rs:608:///
+> src-tauri\src\lib.rs:609:/// Returns immediately after spawning the task; the task ends naturally
+  src-tauri\src\lib.rs:610:/// when the child closes stderr (i.e. exits).
+> src-tauri\src\lib.rs:611:fn spawn_jarvis_stderr_drainer(mut stderr: tokio::process::ChildStderr,
+tail: StderrTail) {
+  src-tauri\src\lib.rs:612:    use tokio::io::AsyncReadExt;
+> src-tauri\src\lib.rs:613:    tokio::spawn(async move {
+  src-tauri\src\lib.rs:614:        let mut buf = vec![0u8; 4096];
+  src-tauri\src\lib.rs:615:        loop {
+  src-tauri\src\lib.rs:616:            match stderr.read(&mut buf).await {
+  src-tauri\src\lib.rs:634:/// Safe to call at any time; returns an empty string before the
+  src-tauri\src\lib.rs:635:/// drainer has seen any bytes. Trimmed.
+> src-tauri\src\lib.rs:636:async fn read_jarvis_stderr_tail(backend: &SharedBackend) -> String {
+> src-tauri\src\lib.rs:637:    let tail = backend.lock().await.jarvis_stderr_tail.clone();
+  src-tauri\src\lib.rs:638:    let bytes = tail.lock().await.clone();
+  src-tauri\src\lib.rs:639:    String::from_utf8_lossy(&bytes).trim().to_string()
+  src-tauri\src\lib.rs:640:}
+  src-tauri\src\lib.rs:641:
+> src-tauri\src\lib.rs:642:/// Poll `jarvis serve` health, watching the child process state so we
+  src-tauri\src\lib.rs:643:/// never wait 10 minutes for a process that crashed in the first second.
+> src-tauri\src\lib.rs:644:async fn wait_for_jarvis_health(
+  src-tauri\src\lib.rs:645:    url: &str,
+  src-tauri\src\lib.rs:646:    timeout: Duration,
+  src-tauri\src\lib.rs:647:    backend: &SharedBackend,
+> src-tauri\src\lib.rs:648:) -> JarvisStartResult {
+  src-tauri\src\lib.rs:649:    let client = match reqwest::Client::builder()
+  src-tauri\src\lib.rs:650:        .timeout(Duration::from_secs(2))
+  src-tauri\src\lib.rs:651:        .build()
+  src-tauri\src\lib.rs:652:    {
+  src-tauri\src\lib.rs:653:        Ok(c) => c,
+> src-tauri\src\lib.rs:654:        Err(_) => return JarvisStartResult::Timeout,
+  src-tauri\src\lib.rs:655:    };
+  src-tauri\src\lib.rs:656:    let deadline = tokio::time::Instant::now() + timeout;
+  src-tauri\src\lib.rs:657:    loop {
+  src-tauri\src\lib.rs:662:        let exit_status = {
+  src-tauri\src\lib.rs:663:            let mut mgr = backend.lock().await;
+> src-tauri\src\lib.rs:664:            match mgr.jarvis.as_mut() {
+  src-tauri\src\lib.rs:665:                Some(h) => h.child.try_wait().ok().flatten(),
+  src-tauri\src\lib.rs:666:                None => None,
+  src-tauri\src\lib.rs:667:            }
+  src-tauri\src\lib.rs:668:        };
+  src-tauri\src\lib.rs:669:        if let Some(status) = exit_status {
+> src-tauri\src\lib.rs:670:            let stderr = read_jarvis_stderr_tail(backend).await;
+> src-tauri\src\lib.rs:671:            return JarvisStartResult::EarlyExit {
+  src-tauri\src\lib.rs:672:                code: status.code(),
+  src-tauri\src\lib.rs:673:                stderr,
+  src-tauri\src\lib.rs:674:            };
+  src-tauri\src\lib.rs:680:                let status = resp.status();
+  src-tauri\src\lib.rs:681:                if status.is_success() {
+> src-tauri\src\lib.rs:682:                    return JarvisStartResult::Ready;
+  src-tauri\src\lib.rs:683:                }
+  src-tauri\src\lib.rs:684:                if status == reqwest::StatusCode::SERVICE_UNAVAILABLE {
+> src-tauri\src\lib.rs:685:                    // Server is up but the inference engine is not. This
+  src-tauri\src\lib.rs:686:                    // is a terminal-for-us state — polling won't change
+  src-tauri\src\lib.rs:687:                    // anything; the user has to fix their engine config.
+  src-tauri\src\lib.rs:688:                    let body = resp.text().await.unwrap_or_default();
+> src-tauri\src\lib.rs:689:                    return JarvisStartResult::ServiceUnavailable(body);
+  src-tauri\src\lib.rs:690:                }
+  src-tauri\src\lib.rs:691:                // Other non-2xx (e.g. 404 during a brief routing-table
+  src-tauri\src\lib.rs:692:                // warmup window) — fall through and keep polling.
+  src-tauri\src\lib.rs:693:            }
+  src-tauri\src\lib.rs:694:            Err(_) => {
+> src-tauri\src\lib.rs:695:                // Connection refused / DNS / timeout — server still
+  src-tauri\src\lib.rs:696:                // booting. Keep polling.
+  src-tauri\src\lib.rs:697:            }
+  src-tauri\src\lib.rs:698:        }
+  src-tauri\src\lib.rs:699:
+  src-tauri\src\lib.rs:700:        if tokio::time::Instant::now() >= deadline {
+> src-tauri\src\lib.rs:701:            return JarvisStartResult::Timeout;
+  src-tauri\src\lib.rs:702:        }
+  src-tauri\src\lib.rs:703:        tokio::time::sleep(Duration::from_millis(500)).await;
+  src-tauri\src\lib.rs:704:    }
+  src-tauri\src\lib.rs:859:/// Strip AppImage-injected environment from a subprocess command (#455).
+  src-tauri\src\lib.rs:860:///
+> src-tauri\src\lib.rs:861:/// When the OpenJarvis desktop binary is shipped as an AppImage, the
+AppImage
+  src-tauri\src\lib.rs:862:/// runtime sets `LD_LIBRARY_PATH` (and friends) to the extracted-to-/tmp
+> src-tauri\src\lib.rs:863:/// bundled lib dir. Any child we spawn inherits that env by default —
+but the
+> src-tauri\src\lib.rs:864:/// children we spawn (`uv`, `ollama`, `git`) live outside the AppImage
+and
+  src-tauri\src\lib.rs:865:/// must NOT load their shared libraries from the AppImage's bundle. The
+  src-tauri\src\lib.rs:866:/// classic symptom: `uv` finds `python3`, `python3` tries to `import
+numpy`,
+  src-tauri\src\lib.rs:867:/// numpy's `.so` files try to dlopen libstdc++/libssl/libcrypto, the
+linker
+  src-tauri\src\lib.rs:868:/// picks the AppImage's versions which were built against a different
+glibc
+  src-tauri\src\lib.rs:869:/// or libcrypto API, and python dies silently — before any startup log
+> src-tauri\src\lib.rs:870:/// reaches us. The user sees "API Server — starting server..." forever.
+  src-tauri\src\lib.rs:871:///
+  src-tauri\src\lib.rs:872:/// Fix: when we detect we're inside an AppImage (the AppImage runtime
+sets
+  src-tauri\src\lib.rs:873:/// `$APPIMAGE` to the original image path), strip the leaked env vars
+before
+> src-tauri\src\lib.rs:874:/// spawn. Conditional on `APPIMAGE` being set so regular Linux installs
+that
+  src-tauri\src\lib.rs:875:/// legitimately use `LD_LIBRARY_PATH` are untouched. Linux-only — the
+  src-tauri\src\lib.rs:876:/// `#[cfg]` makes this a no-op on macOS / Windows.
+  src-tauri\src\lib.rs:877:#[cfg_attr(not(target_os = "linux"), allow(unused_variables))]
+  src-tauri\src\lib.rs:890:}
+  src-tauri\src\lib.rs:891:
+> src-tauri\src\lib.rs:892:/// Error message shown when `uv sync` can't even be spawned (#331) —
+  src-tauri\src\lib.rs:893:/// e.g. the resolved `uv` binary doesn't exist or isn't executable.
+> src-tauri\src\lib.rs:894:fn format_uv_sync_spawn_error(root: &std::path::Path, uv_bin: &str, err:
+&str) -> String {
+  src-tauri\src\lib.rs:895:    format!(
+  src-tauri\src\lib.rs:896:        "Could not run `uv sync`: {}. Verify uv is installed at \
+> src-tauri\src\lib.rs:897:         `{}` and the OpenJarvis repo is at `{}`.",
+  src-tauri\src\lib.rs:898:        err,
+  src-tauri\src\lib.rs:899:        uv_bin,
+  src-tauri\src\lib.rs:900:        root.display(),
+  src-tauri\src\lib.rs:908:            `rustup target add --toolchain stable
+x86_64-pc-windows-msvc`, then relaunch.";
+  src-tauri\src\lib.rs:909:    #[cfg(not(all(target_os = "windows", target_arch = "aarch64")))]
+> src-tauri\src\lib.rs:910:    "The desktop app needs the Rust toolchain to build `openjarvis_rust`.
+\
+  src-tauri\src\lib.rs:911:     Install Rust from https://rustup.rs. On Windows, also install Visual
+Studio \
+  src-tauri\src\lib.rs:912:     Build Tools with the C++ workload, then relaunch."
+  src-tauri\src\lib.rs:913:}
+  src-tauri\src\lib.rs:938:    let lower = stderr.to_ascii_lowercase();
+  src-tauri\src\lib.rs:939:    [
+> src-tauri\src\lib.rs:940:        "openjarvis-rust",
+> src-tauri\src\lib.rs:941:        "openjarvis_rust",
+  src-tauri\src\lib.rs:942:        "maturin",
+  src-tauri\src\lib.rs:943:        "cargo",
+  src-tauri\src\lib.rs:944:        "rustc",
+  src-tauri\src\lib.rs:962:    let tail = uv_sync_stderr_tail(stderr, 4000);
+  src-tauri\src\lib.rs:963:    format!(
+> src-tauri\src\lib.rs:964:        "`openjarvis_rust` is still not importable after building. Last
+output:\n\n{}\n\n\
+  src-tauri\src\lib.rs:965:         Run these manually for the full build log:\n\n\
+  src-tauri\src\lib.rs:966:           cd {}\n\
+  src-tauri\src\lib.rs:967:           {}\n\
+> src-tauri\src\lib.rs:968:           uv run python -c \"import openjarvis_rust\"",
+  src-tauri\src\lib.rs:969:        if tail.is_empty() {
+  src-tauri\src\lib.rs:970:            "(no stderr output)"
+  src-tauri\src\lib.rs:971:        } else {
+  src-tauri\src\lib.rs:992:}
+  src-tauri\src\lib.rs:993:
+> src-tauri\src\lib.rs:994:async fn verify_openjarvis_rust_extension(
+  src-tauri\src\lib.rs:995:    root: &std::path::Path,
+  src-tauri\src\lib.rs:996:    uv_bin: &str,
+  src-tauri\src\lib.rs:997:) -> Result<(), String> {
+> src-tauri\src\lib.rs:998:    let mut cmd = tokio::process::Command::new(uv_bin);
+> src-tauri\src\lib.rs:999:    cmd.args(["run", "python", "-c", "import openjarvis_rust"])
+  src-tauri\src\lib.rs:1000:        .stdout(std::process::Stdio::null())
+  src-tauri\src\lib.rs:1001:        .stderr(std::process::Stdio::piped())
+  src-tauri\src\lib.rs:1002:        .current_dir(root);
+  src-tauri\src\lib.rs:1013:        }
+  src-tauri\src\lib.rs:1014:        Err(e) => Err(format!(
+> src-tauri\src\lib.rs:1015:            "Could not verify `openjarvis_rust`: {}. Verify uv is
+installed at `{}`.",
+  src-tauri\src\lib.rs:1016:            e, uv_bin
+  src-tauri\src\lib.rs:1017:        )),
+  src-tauri\src\lib.rs:1018:    }
+  src-tauri\src\lib.rs:1021:fn port_owner_hint() -> String {
+  src-tauri\src\lib.rs:1022:    if cfg!(target_os = "windows") {
+> src-tauri\src\lib.rs:1023:        format!("netstat -ano | findstr :{}", JARVIS_PORT)
+  src-tauri\src\lib.rs:1024:    } else {
+> src-tauri\src\lib.rs:1025:        format!("lsof -i :{}", JARVIS_PORT)
+  src-tauri\src\lib.rs:1026:    }
+  src-tauri\src\lib.rs:1027:}
+  src-tauri\src\lib.rs:1028:
+  src-tauri\src\lib.rs:1030:    format!(
+  src-tauri\src\lib.rs:1031:        "Port {} is not available: {}. Stop the process using that port
+or \
+> src-tauri\src\lib.rs:1032:         change the OpenJarvis port, then relaunch.\n\nTo identify it:\n
+ {}",
+  src-tauri\src\lib.rs:1033:        port,
+  src-tauri\src\lib.rs:1034:        reason,
+  src-tauri\src\lib.rs:1035:        port_owner_hint(),
+  src-tauri\src\lib.rs:1037:}
+  src-tauri\src\lib.rs:1038:
+> src-tauri\src\lib.rs:1039:fn check_jarvis_port_available() -> Result<(), String> {
+> src-tauri\src\lib.rs:1040:    match std::net::TcpListener::bind(("127.0.0.1", JARVIS_PORT)) {
+  src-tauri\src\lib.rs:1041:        Ok(listener) => {
+  src-tauri\src\lib.rs:1042:            drop(listener);
+  src-tauri\src\lib.rs:1043:            Ok(())
+  src-tauri\src\lib.rs:1044:        }
+> src-tauri\src\lib.rs:1045:        Err(err) => Err(format_port_unavailable(JARVIS_PORT,
+&err.to_string())),
+  src-tauri\src\lib.rs:1046:    }
+  src-tauri\src\lib.rs:1047:}
+  src-tauri\src\lib.rs:1048:
+  src-tauri\src\lib.rs:1072:
+  src-tauri\src\lib.rs:1073:    // For the Ollama path, model resolution may fall back to
+FALLBACK_MODEL; we
+> src-tauri\src\lib.rs:1074:    // record what is actually available here so the serve command below
+uses
+  src-tauri\src\lib.rs:1075:    // it instead of the originally-planned tag. None on the custom path.
+> src-tauri\src\lib.rs:1076:    let mut serve_model_override: Option<String> = None;
+  src-tauri\src\lib.rs:1077:
+  src-tauri\src\lib.rs:1078:    if plan.launch_ollama {
+  src-tauri\src\lib.rs:1079:        // Phase 1: Start Ollama
+  src-tauri\src\lib.rs:1087:        let ollama_child = {
+  src-tauri\src\lib.rs:1088:            let ollama_bin = resolve_bin("ollama");
+> src-tauri\src\lib.rs:1089:            let mut sidecar_cmd =
+tokio::process::Command::new(&ollama_bin);
+  src-tauri\src\lib.rs:1090:            sidecar_cmd
+> src-tauri\src\lib.rs:1091:                .arg("serve")
+  src-tauri\src\lib.rs:1092:                .env("OLLAMA_HOST", format!("127.0.0.1:{}", OLLAMA_PORT))
+  src-tauri\src\lib.rs:1093:                .stdout(std::process::Stdio::null())
+  src-tauri\src\lib.rs:1094:                .stderr(std::process::Stdio::null());
+  src-tauri\src\lib.rs:1095:            // Avoid LD_LIBRARY_PATH leak when running inside an
+AppImage (#455).
+  src-tauri\src\lib.rs:1096:            prepare_subprocess_for_appimage(&mut sidecar_cmd);
+> src-tauri\src\lib.rs:1097:            match spawn_owned_child(&mut sidecar_cmd) {
+  src-tauri\src\lib.rs:1098:                Ok(child) => Some(child),
+  src-tauri\src\lib.rs:1099:                Err(_) => None,
+  src-tauri\src\lib.rs:1100:            }
+  src-tauri\src\lib.rs:1118:        }
+  src-tauri\src\lib.rs:1119:
+> src-tauri\src\lib.rs:1120:        // Phase 2: Resolve one model to serve. Prefer an installed
+model on
+  src-tauri\src\lib.rs:1121:        // first run so startup does not depend on a download succeeding.
+  src-tauri\src\lib.rs:1122:        let model = plan
+  src-tauri\src\lib.rs:1123:            .model_to_pull
+  src-tauri\src\lib.rs:1180:        }
+  src-tauri\src\lib.rs:1181:
+> src-tauri\src\lib.rs:1182:        serve_model_override = Some(resolved_model.clone());
+  src-tauri\src\lib.rs:1183:
+  src-tauri\src\lib.rs:1184:        // Persist only first-run/default resolution. If the user
+explicitly
+  src-tauri\src\lib.rs:1185:        // configured a model, do not overwrite that choice with a
+temporary
+  src-tauri\src\lib.rs:1213:            let mut s = status.lock().await;
+  src-tauri\src\lib.rs:1214:            s.error = Some(format!(
+> src-tauri\src\lib.rs:1215:                "Could not reach your custom inference server at {}. \
+> src-tauri\src\lib.rs:1216:                 Start the server (e.g. LM Studio), or choose Change
+inference source below.",
+  src-tauri\src\lib.rs:1217:                if host.is_empty() {
+  src-tauri\src\lib.rs:1218:                    "(no URL set)"
+  src-tauri\src\lib.rs:1219:                } else {
+  src-tauri\src\lib.rs:1223:            return;
+  src-tauri\src\lib.rs:1224:        }
+> src-tauri\src\lib.rs:1225:        // Point `jarvis serve` at the user's endpoint by writing the
+engine
+> src-tauri\src\lib.rs:1226:        // host into ~/.openjarvis/config.toml (the env var alone is
+shadowed by
+  src-tauri\src\lib.rs:1227:        // the engine's non-empty default host in the Python layer).
+  src-tauri\src\lib.rs:1228:        if let Some((engine, host)) = &plan.engine_host {
+  src-tauri\src\lib.rs:1229:            if let Err(e) = set_engine_host_in_config(engine, host) {
+  src-tauri\src\lib.rs:1241:    }
+  src-tauri\src\lib.rs:1242:
+> src-tauri\src\lib.rs:1243:    // Phase 3: Start jarvis serve
+  src-tauri\src\lib.rs:1244:    {
+  src-tauri\src\lib.rs:1245:        let mut s = status.lock().await;
+> src-tauri\src\lib.rs:1246:        s.phase = "server".into();
+> src-tauri\src\lib.rs:1247:        s.detail = "Starting API server...".into();
+  src-tauri\src\lib.rs:1248:    }
+  src-tauri\src\lib.rs:1249:
+  src-tauri\src\lib.rs:1250:    let uv_bin = resolve_bin("uv");
+  src-tauri\src\lib.rs:1297:        }
+  src-tauri\src\lib.rs:1298:
+> src-tauri\src\lib.rs:1299:        let target_path =
+std::path::PathBuf::from(home_dir()).join("OpenJarvis");
+  src-tauri\src\lib.rs:1300:        let clone_target = target_path.display().to_string();
+  src-tauri\src\lib.rs:1301:
+  src-tauri\src\lib.rs:1302:        // If the directory exists but is not a valid project, don't
+overwrite
+  src-tauri\src\lib.rs:1304:            let mut s = status.lock().await;
+  src-tauri\src\lib.rs:1305:            s.error = Some(format!(
+> src-tauri\src\lib.rs:1306:                "{} exists but is not a valid OpenJarvis project. \
+> src-tauri\src\lib.rs:1307:                 Remove it and relaunch, or set OPENJARVIS_ROOT to the
+correct path.",
+  src-tauri\src\lib.rs:1308:                clone_target,
+  src-tauri\src\lib.rs:1309:            ));
+  src-tauri\src\lib.rs:1310:            return;
+  src-tauri\src\lib.rs:1313:        {
+  src-tauri\src\lib.rs:1314:            let mut s = status.lock().await;
+> src-tauri\src\lib.rs:1315:            s.detail = "Downloading OpenJarvis (first launch)...".into();
+  src-tauri\src\lib.rs:1316:        }
+  src-tauri\src\lib.rs:1317:
+> src-tauri\src\lib.rs:1318:        let mut clone_cmd = tokio::process::Command::new(&git_bin);
+  src-tauri\src\lib.rs:1319:        clone_cmd
+  src-tauri\src\lib.rs:1320:            .args([
+  src-tauri\src\lib.rs:1321:                "clone",
+  src-tauri\src\lib.rs:1322:                "--depth",
+  src-tauri\src\lib.rs:1323:                "1",
+> src-tauri\src\lib.rs:1324:                "https://github.com/open-jarvis/OpenJarvis.git",
+  src-tauri\src\lib.rs:1325:                &clone_target,
+  src-tauri\src\lib.rs:1326:            ])
+  src-tauri\src\lib.rs:1327:            .stdout(std::process::Stdio::null())
+  src-tauri\src\lib.rs:1328:            .stderr(std::process::Stdio::piped());
+  src-tauri\src\lib.rs:1329:        prepare_subprocess_for_appimage(&mut clone_cmd);
+> src-tauri\src\lib.rs:1330:        let clone_result = spawn_owned_child(&mut clone_cmd);
+  src-tauri\src\lib.rs:1331:
+  src-tauri\src\lib.rs:1332:        match clone_result {
+  src-tauri\src\lib.rs:1333:            Ok(child) => match child.wait_with_output().await {
+  src-tauri\src\lib.rs:1339:                    let mut s = status.lock().await;
+  src-tauri\src\lib.rs:1340:                    s.error = Some(format!(
+> src-tauri\src\lib.rs:1341:                        "Failed to download OpenJarvis: {}. \
+> src-tauri\src\lib.rs:1342:                         Clone manually: git clone
+https://github.com/open-jarvis/OpenJarvis.git {}",
+  src-tauri\src\lib.rs:1343:                        stderr.trim(),
+  src-tauri\src\lib.rs:1344:                        clone_target,
+  src-tauri\src\lib.rs:1345:                    ));
+  src-tauri\src\lib.rs:1349:                    let mut s = status.lock().await;
+  src-tauri\src\lib.rs:1350:                    s.error = Some(format!(
+> src-tauri\src\lib.rs:1351:                        "Failed to download OpenJarvis: {}. \
+> src-tauri\src\lib.rs:1352:                         Clone manually: git clone
+https://github.com/open-jarvis/OpenJarvis.git {}",
+  src-tauri\src\lib.rs:1353:                        e, clone_target,
+  src-tauri\src\lib.rs:1354:                    ));
+  src-tauri\src\lib.rs:1355:                    return;
+  src-tauri\src\lib.rs:1371:    // on what it actually responds with — don't blindly kill it (#455).
+  src-tauri\src\lib.rs:1372:    //
+> src-tauri\src\lib.rs:1373:    // The OLD behaviour was: any HTTP response (even 404) → `fuser -k
+8000/tcp`
+  src-tauri\src\lib.rs:1374:    // / `taskkill /PID /F`. That broke the legitimate case where a user
+had
+> src-tauri\src\lib.rs:1375:    // already started `jarvis serve` in a terminal and then launched the
+> src-tauri\src\lib.rs:1376:    // desktop app — the app killed their server, then raced to spawn its
+  src-tauri\src\lib.rs:1377:    // own, sometimes losing the race and hanging.
+  src-tauri\src\lib.rs:1378:    //
+  src-tauri\src\lib.rs:1379:    // New behaviour, by response shape:
+> src-tauri\src\lib.rs:1380:    //   * 2xx /health        — healthy jarvis serve. Attach to it; skip
+the
+> src-tauri\src\lib.rs:1381:    //                          uv-sync + spawn dance entirely. Done.
+> src-tauri\src\lib.rs:1382:    //   * 503                — server is up but engine isn't ready.
+Surface
+  src-tauri\src\lib.rs:1383:    //                          an actionable message; don't kill
+(matches
+> src-tauri\src\lib.rs:1384:    //                          our wait_for_jarvis_health 503 contract).
+  src-tauri\src\lib.rs:1385:    //   * any other status   — something else is listening on the port.
+Tell
+  src-tauri\src\lib.rs:1386:    //                          the user via the error banner instead of
+  src-tauri\src\lib.rs:1387:    //                          force-killing a foreign service.
+> src-tauri\src\lib.rs:1388:    //   * Err (conn refused) — nothing is listening. Proceed to spawn.
+  src-tauri\src\lib.rs:1389:    //
+  src-tauri\src\lib.rs:1390:    // TODO(#455 follow-up): validate /health response body before
+attaching
+  src-tauri\src\lib.rs:1391:    // so a multi-user host can't trivially spoof us. Also accept a port
+> src-tauri\src\lib.rs:1392:    // override from config instead of hard-coding JARVIS_PORT.
+  src-tauri\src\lib.rs:1393:    {
+  src-tauri\src\lib.rs:1394:        let client = reqwest::Client::builder()
+  src-tauri\src\lib.rs:1395:            .timeout(Duration::from_secs(2))
+  src-tauri\src\lib.rs:1397:            .unwrap();
+  src-tauri\src\lib.rs:1398:        match client
+> src-tauri\src\lib.rs:1399:            .get(format!("http://127.0.0.1:{}/health", JARVIS_PORT))
+  src-tauri\src\lib.rs:1400:            .send()
+  src-tauri\src\lib.rs:1401:            .await
+  src-tauri\src\lib.rs:1402:        {
+  src-tauri\src\lib.rs:1403:            Ok(resp) if resp.status().is_success() => {
+  src-tauri\src\lib.rs:1404:                // Confirm with a second probe — the first might have
+caught
+> src-tauri\src\lib.rs:1405:                // a flickering server (engine half-loaded, dying
+mid-stop,
+  src-tauri\src\lib.rs:1406:                // etc.) and we don't want to claim ready off a 2-second
+> src-tauri\src\lib.rs:1407:                // snapshot. Small sleep between to give the server room.
+  src-tauri\src\lib.rs:1408:                tokio::time::sleep(Duration::from_millis(500)).await;
+  src-tauri\src\lib.rs:1409:                let confirm = client
+> src-tauri\src\lib.rs:1410:                    .get(format!("http://127.0.0.1:{}/health",
+JARVIS_PORT))
+  src-tauri\src\lib.rs:1411:                    .send()
+  src-tauri\src\lib.rs:1412:                    .await
+  src-tauri\src\lib.rs:1413:                    .map(|r| r.status().is_success())
+  src-tauri\src\lib.rs:1415:                if !confirm {
+  src-tauri\src\lib.rs:1416:                    // First probe was 2xx but the second wasn't — fall
+> src-tauri\src\lib.rs:1417:                    // through to the spawn path. The server probably
+went
+  src-tauri\src\lib.rs:1418:                    // away between probes.
+> src-tauri\src\lib.rs:1419:                    // (No early return — we want to spawn our own.)
+  src-tauri\src\lib.rs:1420:                } else {
+  src-tauri\src\lib.rs:1421:                    // A newly staged key may only enter a child process
+that
+  src-tauri\src\lib.rs:1422:                    // this desktop instance launched. A listener that
+merely
+  src-tauri\src\lib.rs:1427:                            let mut s = status.lock().await;
+  src-tauri\src\lib.rs:1428:                            s.error = Some(format!(
+> src-tauri\src\lib.rs:1429:                                "An API server is already running on
+port {}, but OpenJarvis cannot securely apply your new inference API key to a server it did not
+start. Stop that server, then try setup again.",
+> src-tauri\src\lib.rs:1430:                                JARVIS_PORT,
+  src-tauri\src\lib.rs:1431:                            ));
+  src-tauri\src\lib.rs:1432:                            return;
+  src-tauri\src\lib.rs:1433:                        }
+  src-tauri\src\lib.rs:1442:                        Ok(false) => {}
+  src-tauri\src\lib.rs:1443:                    }
+> src-tauri\src\lib.rs:1444:                    // Attach to the existing healthy server. Mark every
+> src-tauri\src\lib.rs:1445:                    // pre-spawn step done so the setup UI doesn't show a
+  src-tauri\src\lib.rs:1446:                    // half-progress bar (model_ready / ollama_ready stay
+  src-tauri\src\lib.rs:1447:                    // false otherwise because we skipped those steps).
+  src-tauri\src\lib.rs:1448:                    if let Err(err) = pending_rollback.confirm(&mut cfg)
+{
+  src-tauri\src\lib.rs:1454:                    s.phase = "ready".into();
+  src-tauri\src\lib.rs:1455:                    s.detail =
+> src-tauri\src\lib.rs:1456:                        format!("Connected to existing API server on
+port {}.", JARVIS_PORT,);
+> src-tauri\src\lib.rs:1457:                    s.server_ready = true;
+  src-tauri\src\lib.rs:1458:                    s.model_ready = true;
+  src-tauri\src\lib.rs:1459:                    s.ollama_ready = true;
+  src-tauri\src\lib.rs:1460:                    return;
+  src-tauri\src\lib.rs:1464:                let mut s = status.lock().await;
+  src-tauri\src\lib.rs:1465:                s.error = Some(format!(
+> src-tauri\src\lib.rs:1466:                    "An API server is already running on port {} but its
+\
+  src-tauri\src\lib.rs:1467:                     inference engine isn't ready (HTTP 503). If this is
+your \
+> src-tauri\src\lib.rs:1468:                     `jarvis serve`, wait for it to finish loading and
+relaunch. \
+  src-tauri\src\lib.rs:1469:                     Otherwise, stop that service or change the port.",
+> src-tauri\src\lib.rs:1470:                    JARVIS_PORT,
+  src-tauri\src\lib.rs:1471:                ));
+  src-tauri\src\lib.rs:1472:                return;
+  src-tauri\src\lib.rs:1473:            }
+  src-tauri\src\lib.rs:1474:            Ok(resp) => {
+> src-tauri\src\lib.rs:1475:                // Something else (a different web server, a stale
+process,
+  src-tauri\src\lib.rs:1476:                // a 4xx-returning instance) is on our port. Don't kill
+it —
+  src-tauri\src\lib.rs:1477:                // give the user actionable info instead.
+  src-tauri\src\lib.rs:1478:                let mut s = status.lock().await;
+  src-tauri\src\lib.rs:1480:                    "Port {} is already in use by another service (it
+answered \
+  src-tauri\src\lib.rs:1481:                     /health with HTTP {}). Stop that service or change
+the \
+> src-tauri\src\lib.rs:1482:                     OpenJarvis port, then relaunch.\n\nTo identify
+it:\n  {}",
+> src-tauri\src\lib.rs:1483:                    JARVIS_PORT,
+  src-tauri\src\lib.rs:1484:                    resp.status(),
+  src-tauri\src\lib.rs:1485:                    port_owner_hint(),
+  src-tauri\src\lib.rs:1486:                ));
+  src-tauri\src\lib.rs:1488:            }
+  src-tauri\src\lib.rs:1489:            Err(_) => {
+> src-tauri\src\lib.rs:1490:                // Nothing listening — proceed to the normal spawn path.
+  src-tauri\src\lib.rs:1491:            }
+  src-tauri\src\lib.rs:1492:        }
+  src-tauri\src\lib.rs:1493:    }
+  src-tauri\src\lib.rs:1494:
+> src-tauri\src\lib.rs:1495:    if let Err(err) = check_jarvis_port_available() {
+  src-tauri\src\lib.rs:1496:        let mut s = status.lock().await;
+  src-tauri\src\lib.rs:1497:        s.error = Some(err);
+  src-tauri\src\lib.rs:1498:        return;
+  src-tauri\src\lib.rs:1513:    // /dev/null and discarded the exit code (`let _ = …`). When `uv
+sync`
+  src-tauri\src\lib.rs:1514:    // failed — Windows path issues, network problems, lockfile
+conflicts —
+> src-tauri\src\lib.rs:1515:    // the user saw no error, the boot continued, `uv run jarvis serve`
+  src-tauri\src\lib.rs:1516:    // then ran in an under-provisioned venv, and the user waited the
+full
+> src-tauri\src\lib.rs:1517:    // 600s health-check window before getting "Jarvis server did not
+  src-tauri\src\lib.rs:1518:    // become healthy in time" with no actionable detail (issue #331).
+  src-tauri\src\lib.rs:1519:    //
+  src-tauri\src\lib.rs:1520:    // Now: capture stderr, check the exit status, surface a useful error
+> src-tauri\src\lib.rs:1521:    // to the user BEFORE the long server-start wait. The status detail
+  src-tauri\src\lib.rs:1522:    // message also indicates this can take a couple of minutes on first
+  src-tauri\src\lib.rs:1523:    // boot so users don't restart the app thinking it's stuck.
+  src-tauri\src\lib.rs:1524:    {
+  src-tauri\src\lib.rs:1526:        s.detail = "Installing dependencies (uv sync — may take 1-2 min
+on first boot)...".into();
+  src-tauri\src\lib.rs:1527:    }
+> src-tauri\src\lib.rs:1528:    let mut sync_cmd = tokio::process::Command::new(&uv_bin);
+  src-tauri\src\lib.rs:1529:    sync_cmd
+  src-tauri\src\lib.rs:1530:        .args([
+  src-tauri\src\lib.rs:1531:            "sync",
+  src-tauri\src\lib.rs:1538:            "--extra",
+  src-tauri\src\lib.rs:1539:            "voice",
+> src-tauri\src\lib.rs:1540:            // openjarvis_rust lives in a uv dependency group (not the
+published
+  src-tauri\src\lib.rs:1541:            // `desktop` extra) so pip installs from PyPI don't require
+it (#584).
+  src-tauri\src\lib.rs:1542:            "--group",
+  src-tauri\src\lib.rs:1543:            "desktop-native",
+  src-tauri\src\lib.rs:1561:        Err(e) => {
+  src-tauri\src\lib.rs:1562:            let mut s = status.lock().await;
+> src-tauri\src\lib.rs:1563:            s.error = Some(format_uv_sync_spawn_error(root, &uv_bin,
+&e.to_string()));
+  src-tauri\src\lib.rs:1564:            return;
+  src-tauri\src\lib.rs:1565:        }
+  src-tauri\src\lib.rs:1566:        Ok(_) => {} // success — fall through
+  src-tauri\src\lib.rs:1569:    {
+  src-tauri\src\lib.rs:1570:        let mut s = status.lock().await;
+> src-tauri\src\lib.rs:1571:        s.detail = "Verifying Rust extension
+(openjarvis_rust)...".into();
+  src-tauri\src\lib.rs:1572:    }
+> src-tauri\src\lib.rs:1573:    if let Err(err) = verify_openjarvis_rust_extension(root,
+&uv_bin).await {
+  src-tauri\src\lib.rs:1574:        let mut s = status.lock().await;
+  src-tauri\src\lib.rs:1575:        s.error = Some(err);
+  src-tauri\src\lib.rs:1576:        return;
+  src-tauri\src\lib.rs:1579:    {
+  src-tauri\src\lib.rs:1580:        let mut s = status.lock().await;
+> src-tauri\src\lib.rs:1581:        s.detail = format!("Starting API server from {}...",
+root.display());
+  src-tauri\src\lib.rs:1582:    }
+  src-tauri\src\lib.rs:1583:
+> src-tauri\src\lib.rs:1584:    let mut cmd = tokio::process::Command::new(&uv_bin);
+> src-tauri\src\lib.rs:1585:    let mut serve_argv: Vec<String> = vec![
+  src-tauri\src\lib.rs:1586:        "run".into(),
+> src-tauri\src\lib.rs:1587:        "jarvis".into(),
+> src-tauri\src\lib.rs:1588:        "serve".into(),
+  src-tauri\src\lib.rs:1589:        "--port".into(),
+> src-tauri\src\lib.rs:1590:        JARVIS_PORT.to_string(),
+  src-tauri\src\lib.rs:1591:    ];
+> src-tauri\src\lib.rs:1592:    serve_argv.extend(plan.serve_args.iter().cloned());
+> src-tauri\src\lib.rs:1593:    // If the Ollama pull fell back to a different tag than planned,
+serve the
+  src-tauri\src\lib.rs:1594:    // tag that is actually present. boot_plan always emits `--model`
+followed
+  src-tauri\src\lib.rs:1595:    // immediately by its value, so `i + 1` is in bounds.
+> src-tauri\src\lib.rs:1596:    if let Some(m) = &serve_model_override {
+> src-tauri\src\lib.rs:1597:        match serve_argv.iter().position(|a| a == "--model") {
+> src-tauri\src\lib.rs:1598:            Some(i) if i + 1 < serve_argv.len() => serve_argv[i + 1] =
+m.clone(),
+  src-tauri\src\lib.rs:1599:            _ => eprintln!(
+  src-tauri\src\lib.rs:1600:                "Warning: resolved model {:?} could not be applied; \
+> src-tauri\src\lib.rs:1601:                 '--model <value>' not found in serve args {:?}",
+> src-tauri\src\lib.rs:1602:                m, serve_argv
+  src-tauri\src\lib.rs:1603:            ),
+  src-tauri\src\lib.rs:1604:        }
+  src-tauri\src\lib.rs:1605:    }
+> src-tauri\src\lib.rs:1606:    cmd.args(&serve_argv)
+  src-tauri\src\lib.rs:1607:        .stdout(std::process::Stdio::null())
+  src-tauri\src\lib.rs:1608:        .stderr(std::process::Stdio::piped())
+  src-tauri\src\lib.rs:1609:        .current_dir(root);
+  src-tauri\src\lib.rs:1618:        cmd.env(&key, &value);
+  src-tauri\src\lib.rs:1619:    }
+> src-tauri\src\lib.rs:1620:    let jarvis_child = spawn_owned_child(&mut cmd);
+  src-tauri\src\lib.rs:1621:
+> src-tauri\src\lib.rs:1622:    match jarvis_child {
+  src-tauri\src\lib.rs:1623:        Ok(mut child) => {
+  src-tauri\src\lib.rs:1624:            // Start draining stderr immediately. If we wait until the
+  src-tauri\src\lib.rs:1625:            // health check returns we risk filling the 4 KB Windows pipe
+  src-tauri\src\lib.rs:1628:            let stderr_handle = child.stderr.take();
+  src-tauri\src\lib.rs:1629:            let mut mgr = backend.lock().await;
+> src-tauri\src\lib.rs:1630:            let tail = mgr.jarvis_stderr_tail.clone();
+> src-tauri\src\lib.rs:1631:            mgr.jarvis = Some(ChildHandle { child });
+  src-tauri\src\lib.rs:1632:            drop(mgr);
+  src-tauri\src\lib.rs:1633:            if let Some(stderr) = stderr_handle {
+> src-tauri\src\lib.rs:1634:                spawn_jarvis_stderr_drainer(stderr, tail);
+  src-tauri\src\lib.rs:1635:            }
+  src-tauri\src\lib.rs:1636:        }
+  src-tauri\src\lib.rs:1637:        Err(e) => {
+  src-tauri\src\lib.rs:1638:            let mut s = status.lock().await;
+  src-tauri\src\lib.rs:1639:            s.error = Some(format!(
+> src-tauri\src\lib.rs:1640:                "Could not start jarvis server: {}. \
+> src-tauri\src\lib.rs:1641:                 Make sure uv is installed (https://astral.sh/uv) and
+the OpenJarvis repo is cloned at {}",
+  src-tauri\src\lib.rs:1642:                e,
+  src-tauri\src\lib.rs:1643:                root.display(),
+  src-tauri\src\lib.rs:1644:            ));
+  src-tauri\src\lib.rs:1647:    }
+  src-tauri\src\lib.rs:1648:
+> src-tauri\src\lib.rs:1649:    let server_url = format!("http://127.0.0.1:{}/health", JARVIS_PORT);
+> src-tauri\src\lib.rs:1650:    match wait_for_jarvis_health(&server_url, Duration::from_secs(600),
+&backend).await {
+> src-tauri\src\lib.rs:1651:        JarvisStartResult::Ready => {}
+> src-tauri\src\lib.rs:1652:        JarvisStartResult::ServiceUnavailable(body) => {
+  src-tauri\src\lib.rs:1653:            let mut s = status.lock().await;
+  src-tauri\src\lib.rs:1654:            s.error = Some(format!(
+> src-tauri\src\lib.rs:1655:                "Jarvis server is running but the inference engine is
+not available \
+  src-tauri\src\lib.rs:1656:                 (HTTP 503). This usually means the configured model
+couldn't be loaded.\n\n\
+> src-tauri\src\lib.rs:1657:                 Check the server logs, or run 'uv run jarvis serve
+--port {}{}' \
+  src-tauri\src\lib.rs:1658:                 from {} to see the engine error.\n\n\
+> src-tauri\src\lib.rs:1659:                 Server response:\n{}",
+> src-tauri\src\lib.rs:1660:                JARVIS_PORT,
+> src-tauri\src\lib.rs:1661:                // Show the args actually passed (after `serve --port
+<port>`),
+  src-tauri\src\lib.rs:1662:                // including any post-fallback `--model` override.
+> src-tauri\src\lib.rs:1663:                match serve_argv.get(5..) {
+  src-tauri\src\lib.rs:1664:                    Some(rest) if !rest.is_empty() => format!(" {}",
+rest.join(" ")),
+  src-tauri\src\lib.rs:1665:                    _ => String::new(),
+  src-tauri\src\lib.rs:1666:                },
+  src-tauri\src\lib.rs:1670:            return;
+  src-tauri\src\lib.rs:1671:        }
+> src-tauri\src\lib.rs:1672:        JarvisStartResult::EarlyExit { code, stderr } => {
+  src-tauri\src\lib.rs:1673:            // `None` here means the OS didn't expose an exit code — on
+  src-tauri\src\lib.rs:1674:            // Unix that's a signal kill (SIGKILL/SIGSEGV/...), on
+Windows
+  src-tauri\src\lib.rs:1675:            // it means the process was terminated externally (Task
+  src-tauri\src\lib.rs:1681:            s.error = Some(if stderr.is_empty() {
+  src-tauri\src\lib.rs:1682:                format!(
+> src-tauri\src\lib.rs:1683:                    "Jarvis server exited (code {}) before becoming
+ready.\n\n\
+  src-tauri\src\lib.rs:1684:                     No stderr output. Check that:\n\
+  src-tauri\src\lib.rs:1685:                     1. uv is installed ({})\n\
+> src-tauri\src\lib.rs:1686:                     2. The OpenJarvis repo is at {}\n\
+  src-tauri\src\lib.rs:1687:                     3. 'uv sync' completes in that directory",
+  src-tauri\src\lib.rs:1688:                    code_str,
+  src-tauri\src\lib.rs:1689:                    uv_bin,
+  src-tauri\src\lib.rs:1692:            } else {
+  src-tauri\src\lib.rs:1693:                format!(
+> src-tauri\src\lib.rs:1694:                    "Jarvis server exited (code {}) before becoming
+ready.\n\nStderr:\n{}",
+  src-tauri\src\lib.rs:1695:                    code_str, stderr,
+  src-tauri\src\lib.rs:1696:                )
+  src-tauri\src\lib.rs:1697:            });
+  src-tauri\src\lib.rs:1698:            return;
+  src-tauri\src\lib.rs:1699:        }
+> src-tauri\src\lib.rs:1700:        JarvisStartResult::Timeout => {
+> src-tauri\src\lib.rs:1701:            let stderr = read_jarvis_stderr_tail(&backend).await;
+  src-tauri\src\lib.rs:1702:            let mut s = status.lock().await;
+  src-tauri\src\lib.rs:1703:            s.error = Some(if stderr.is_empty() {
+  src-tauri\src\lib.rs:1704:                format!(
+> src-tauri\src\lib.rs:1705:                    "Jarvis server did not become ready within 10
+minutes. Check that:\n\
+  src-tauri\src\lib.rs:1706:                     1. uv is installed ({})\n\
+> src-tauri\src\lib.rs:1707:                     2. The OpenJarvis repo is at {}\n\
+  src-tauri\src\lib.rs:1708:                     3. Run 'uv sync' in that directory",
+  src-tauri\src\lib.rs:1709:                    uv_bin,
+  src-tauri\src\lib.rs:1710:                    root.display(),
+  src-tauri\src\lib.rs:1712:            } else {
+  src-tauri\src\lib.rs:1713:                format!(
+> src-tauri\src\lib.rs:1714:                    "Jarvis server did not become ready within 10
+minutes.\n\nStderr:\n{}",
+  src-tauri\src\lib.rs:1715:                    stderr,
+  src-tauri\src\lib.rs:1716:                )
+  src-tauri\src\lib.rs:1717:            });
+  src-tauri\src\lib.rs:1728:    {
+  src-tauri\src\lib.rs:1729:        let mut s = status.lock().await;
+> src-tauri\src\lib.rs:1730:        s.server_ready = true;
+  src-tauri\src\lib.rs:1731:        s.phase = "ready".into();
+  src-tauri\src\lib.rs:1732:        s.detail = "All systems ready.".into();
+  src-tauri\src\lib.rs:1733:    }
+  src-tauri\src\lib.rs:1748:
+  src-tauri\src\lib.rs:1749:fn api_base() -> String {
+> src-tauri\src\lib.rs:1750:    format!("http://127.0.0.1:{}", JARVIS_PORT)
+  src-tauri\src\lib.rs:1751:}
+  src-tauri\src\lib.rs:1752:
+  src-tauri\src\lib.rs:1753:#[tauri::command]
+  src-tauri\src\lib.rs:1768:    if read_configured_inference_config().is_none() {
+  src-tauri\src\lib.rs:1769:        *status.lock().await = SetupStatus::default();
+> src-tauri\src\lib.rs:1770:        return Err("Choose an inference source before starting
+OpenJarvis.".into());
+  src-tauri\src\lib.rs:1771:    }
+  src-tauri\src\lib.rs:1772:    let b = backend.inner().clone();
+  src-tauri\src\lib.rs:1773:    let s = status.inner().clone();
+  src-tauri\src\lib.rs:1972:
+  src-tauri\src\lib.rs:1973:#[tauri::command]
+> src-tauri\src\lib.rs:1974:async fn run_jarvis_command(args: Vec<String>) -> Result<String, String>
+{
+  src-tauri\src\lib.rs:1975:    let uv_bin = resolve_bin("uv");
+  src-tauri\src\lib.rs:1976:
+> src-tauri\src\lib.rs:1977:    let mut cmd_args = vec!["run".to_string(), "jarvis".to_string()];
+  src-tauri\src\lib.rs:1978:    cmd_args.extend(args.iter().cloned());
+  src-tauri\src\lib.rs:1979:
+> src-tauri\src\lib.rs:1980:    let mut cmd = tokio::process::Command::new(&uv_bin);
+  src-tauri\src\lib.rs:1981:    cmd.args(&cmd_args);
+> src-tauri\src\lib.rs:1982:    // Run from the project root so `uv run jarvis` resolves the
+OpenJarvis
+  src-tauri\src\lib.rs:1983:    // project regardless of the app's launch cwd. In a packaged install
+the
+> src-tauri\src\lib.rs:1984:    // cwd isn't the checkout, so without this `jarvis` isn't found and
+the
+  src-tauri\src\lib.rs:1985:    // backend never starts — the UI then shows "Failed to get response"
+  src-tauri\src\lib.rs:1986:    // (see #531).
+  src-tauri\src\lib.rs:1987:    if let Some(ref root) = find_project_root() {
+  src-tauri\src\lib.rs:1989:    }
+  src-tauri\src\lib.rs:1990:
+> src-tauri\src\lib.rs:1991:    let is_serve = args.first().map(|a| a.as_str() ==
+"serve").unwrap_or(false);
+  src-tauri\src\lib.rs:1992:
+> src-tauri\src\lib.rs:1993:    if !is_serve {
+  src-tauri\src\lib.rs:1994:        // Short-lived command (e.g. `stop`, `status`): wait for it and
+return
+  src-tauri\src\lib.rs:1995:        // its captured output.
+  src-tauri\src\lib.rs:1996:        let output = cmd
+  src-tauri\src\lib.rs:1997:            .output()
+  src-tauri\src\lib.rs:1998:            .await
+> src-tauri\src\lib.rs:1999:            .map_err(|e| format!("Failed to launch jarvis: {}", e))?;
+  src-tauri\src\lib.rs:2000:        return if output.status.success() {
+  src-tauri\src\lib.rs:2001:            Ok(String::from_utf8_lossy(&output.stdout).to_string())
+  src-tauri\src\lib.rs:2002:        } else {
+  src-tauri\src\lib.rs:2005:    }
+  src-tauri\src\lib.rs:2006:
+> src-tauri\src\lib.rs:2007:    // `jarvis serve` is a long-running server that never exits. The old
+code
+  src-tauri\src\lib.rs:2008:    // used `.output()`, which waits for the process to exit and so hung
+this
+> src-tauri\src\lib.rs:2009:    // command forever — the "Start" button never resolved (#531). Spawn
+it
+  src-tauri\src\lib.rs:2010:    // detached instead, drain stderr (a full 4 KB Windows pipe can
+otherwise
+  src-tauri\src\lib.rs:2011:    // stall the child mid-startup, #309), and poll /health for
+readiness.
+  src-tauri\src\lib.rs:2012:    cmd.stdout(std::process::Stdio::null())
+  src-tauri\src\lib.rs:2013:        .stderr(std::process::Stdio::piped());
+  src-tauri\src\lib.rs:2014:    let mut child = cmd
+> src-tauri\src\lib.rs:2015:        .spawn()
+> src-tauri\src\lib.rs:2016:        .map_err(|e| format!("Failed to launch jarvis serve: {}", e))?;
+  src-tauri\src\lib.rs:2017:
+  src-tauri\src\lib.rs:2018:    let tail: StderrTail = Arc::new(Mutex::new(Vec::new()));
+  src-tauri\src\lib.rs:2019:    if let Some(stderr) = child.stderr.take() {
+> src-tauri\src\lib.rs:2020:        spawn_jarvis_stderr_drainer(stderr, tail.clone());
+  src-tauri\src\lib.rs:2021:    }
+  src-tauri\src\lib.rs:2022:
+  src-tauri\src\lib.rs:2023:    let client = reqwest::Client::builder()
+  src-tauri\src\lib.rs:2025:        .build()
+  src-tauri\src\lib.rs:2026:        .map_err(|e| format!("Failed to build HTTP client: {}", e))?;
+> src-tauri\src\lib.rs:2027:    let url = format!("http://127.0.0.1:{}/health", JARVIS_PORT);
+  src-tauri\src\lib.rs:2028:    let deadline = tokio::time::Instant::now() +
+Duration::from_secs(120);
+  src-tauri\src\lib.rs:2029:
+  src-tauri\src\lib.rs:2030:    loop {
+  src-tauri\src\lib.rs:2034:            let stderr =
+String::from_utf8_lossy(tail.lock().await.as_slice()).into_owned();
+  src-tauri\src\lib.rs:2035:            return Err(format!(
+> src-tauri\src\lib.rs:2036:                "jarvis serve exited (code {:?}) before becoming
+healthy:\n{}",
+  src-tauri\src\lib.rs:2037:                status.code(),
+  src-tauri\src\lib.rs:2038:                stderr.trim()
+  src-tauri\src\lib.rs:2039:            ));
+  src-tauri\src\lib.rs:2041:        if let Ok(resp) = client.get(&url).send().await {
+  src-tauri\src\lib.rs:2042:            if resp.status().is_success() {
+> src-tauri\src\lib.rs:2043:                // Leave the server running (the Child is detached on
+drop —
+  src-tauri\src\lib.rs:2044:                // kill_on_drop defaults to false); `stop` tears it down.
+  src-tauri\src\lib.rs:2045:                return Ok(format!(
+> src-tauri\src\lib.rs:2046:                    "jarvis serve is ready on http://127.0.0.1:{}",
+> src-tauri\src\lib.rs:2047:                    JARVIS_PORT
+  src-tauri\src\lib.rs:2048:                ));
+  src-tauri\src\lib.rs:2049:            }
+  src-tauri\src\lib.rs:2050:        }
+  src-tauri\src\lib.rs:2051:        if tokio::time::Instant::now() >= deadline {
+  src-tauri\src\lib.rs:2052:            return Err(format!(
+> src-tauri\src\lib.rs:2053:                "jarvis serve did not become healthy on port {} within
+120s.",
+> src-tauri\src\lib.rs:2054:                JARVIS_PORT
+  src-tauri\src\lib.rs:2055:            ));
+  src-tauri\src\lib.rs:2056:        }
+  src-tauri\src\lib.rs:2057:        tokio::time::sleep(Duration::from_millis(500)).await;
+  src-tauri\src\lib.rs:2153://
+---------------------------------------------------------------------------
+  src-tauri\src\lib.rs:2154:
+> src-tauri\src\lib.rs:2155:const SECURE_KEY_SERVICE: &str = "OpenJarvis Cloud Keys";
+  src-tauri\src\lib.rs:2156:// A first-run custom credential is kept in its own secure-storage slot
+until
+  src-tauri\src\lib.rs:2157:// the managed backend has passed every readiness gate.  In particular,
+do not
+  src-tauri\src\lib.rs:2158:// overwrite an existing <ENGINE>_API_KEY while setup can still be
+cancelled.
+> src-tauri\src\lib.rs:2159:const PENDING_INFERENCE_API_KEY: &str =
+"OPENJARVIS_PENDING_INFERENCE_API_KEY";
+  src-tauri\src\lib.rs:2160:const MANAGED_CLOUD_KEY_NAMES: &[&str] = &[
+  src-tauri\src\lib.rs:2161:    "OPENAI_API_KEY",
+  src-tauri\src\lib.rs:2162:    "ANTHROPIC_API_KEY",
+  src-tauri\src\lib.rs:2173:    let home = home_dir();
+  src-tauri\src\lib.rs:2174:    std::path::PathBuf::from(home)
+> src-tauri\src\lib.rs:2175:        .join(".openjarvis")
+  src-tauri\src\lib.rs:2176:        .join("cloud-keys.env")
+  src-tauri\src\lib.rs:2177:}
+  src-tauri\src\lib.rs:2178:
+  src-tauri\src\lib.rs:2378:}
+  src-tauri\src\lib.rs:2379:
+> src-tauri\src\lib.rs:2380:/// Hot-reload only a live server process launched and owned by this
+desktop
+  src-tauri\src\lib.rs:2381:/// process.  A healthy-looking loopback listener is not proof of
+ownership and
+  src-tauri\src\lib.rs:2382:/// must never receive raw credentials.
+  src-tauri\src\lib.rs:2383:async fn reload_cloud_keys_for_owned_backend(
+  src-tauri\src\lib.rs:2386:    keys: Vec<(String, String)>,
+  src-tauri\src\lib.rs:2387:) {
+> src-tauri\src\lib.rs:2388:    let reload_url = format!("http://127.0.0.1:{}/v1/cloud/reload",
+JARVIS_PORT);
+  src-tauri\src\lib.rs:2389:    reload_cloud_keys_for_owned_backend_at(backend, status, keys,
+&reload_url).await;
+  src-tauri\src\lib.rs:2390:}
+  src-tauri\src\lib.rs:2391:
+  src-tauri\src\lib.rs:2396:    reload_url: &str,
+  src-tauri\src\lib.rs:2397:) {
+> src-tauri\src\lib.rs:2398:    if !status.lock().await.server_ready {
+  src-tauri\src\lib.rs:2399:        return;
+  src-tauri\src\lib.rs:2400:    }
+  src-tauri\src\lib.rs:2401:
+  src-tauri\src\lib.rs:2404:    // check and the credential POST.
+  src-tauri\src\lib.rs:2405:    let mut manager = backend.lock().await;
+> src-tauri\src\lib.rs:2406:    let Some(handle) = manager.jarvis.as_mut() else {
+  src-tauri\src\lib.rs:2407:        return;
+  src-tauri\src\lib.rs:2408:    };
+  src-tauri\src\lib.rs:2409:    if !matches!(handle.child.try_wait(), Ok(None)) {
+  src-tauri\src\lib.rs:2485:    if let SourceKind::Custom = cfg.kind {
+  src-tauri\src\lib.rs:2486:        if cfg.host.is_none() {
+> src-tauri\src\lib.rs:2487:            return Err("A server URL is required for a custom
+endpoint.".into());
+  src-tauri\src\lib.rs:2488:        }
+  src-tauri\src\lib.rs:2489:        if cfg.model.as_deref().unwrap_or("").is_empty() {
+  src-tauri\src\lib.rs:2490:            return Err("A model name is required for a custom
+endpoint.".into());
+  src-tauri\src\lib.rs:2530:
+  src-tauri\src\lib.rs:2531://
+---------------------------------------------------------------------------
+> src-tauri\src\lib.rs:2532:// Inference-source selection (~/.openjarvis/inference.json)
+  src-tauri\src\lib.rs:2533://
+---------------------------------------------------------------------------
+  src-tauri\src\lib.rs:2534:
+  src-tauri\src\lib.rs:2535:#[derive(serde::Serialize, serde::Deserialize, Clone, Copy, Debug,
+PartialEq, Eq)]
+  src-tauri\src\lib.rs:2568:}
+  src-tauri\src\lib.rs:2569:
+> src-tauri\src\lib.rs:2570:/// Path to the inference-source config (~/.openjarvis/inference.json).
+  src-tauri\src\lib.rs:2571:fn inference_config_path() -> std::path::PathBuf {
+  src-tauri\src\lib.rs:2572:    std::path::PathBuf::from(home_dir())
+> src-tauri\src\lib.rs:2573:        .join(".openjarvis")
+  src-tauri\src\lib.rs:2574:        .join("inference.json")
+  src-tauri\src\lib.rs:2575:}
+  src-tauri\src\lib.rs:2576:
+  src-tauri\src\lib.rs:2652:
+  src-tauri\src\lib.rs:2653:/// Stage a first-run key in a dedicated secure slot. The real provider
+key is
+> src-tauri\src\lib.rs:2654:/// not touched until the managed server is healthy and setup is
+confirmed.
+  src-tauri\src\lib.rs:2655:fn stage_pending_inference_config(
+  src-tauri\src\lib.rs:2656:    cfg: &InferenceConfig,
+  src-tauri\src\lib.rs:2657:    api_key: Option<&str>,
+  src-tauri\src\lib.rs:2894:}
+  src-tauri\src\lib.rs:2895:
+> src-tauri\src\lib.rs:2896:/// Write the custom-endpoint host into ~/.openjarvis/config.toml so
+> src-tauri\src\lib.rs:2897:/// `jarvis serve` (which reads that file via load_config) points at it.
+  src-tauri\src\lib.rs:2898:/// The `<ENGINE>_HOST` env var is unreliable — it is shadowed by the
+engine's
+  src-tauri\src\lib.rs:2899:/// non-empty default host in the Python layer — so config.toml is the
+override.
+  src-tauri\src\lib.rs:2900:fn set_engine_host_in_config(engine: &str, host: &str) -> Result<(),
+String> {
+  src-tauri\src\lib.rs:2901:    let path = std::path::PathBuf::from(home_dir())
+> src-tauri\src\lib.rs:2902:        .join(".openjarvis")
+  src-tauri\src\lib.rs:2903:        .join("config.toml");
+  src-tauri\src\lib.rs:2904:    if let Some(parent) = path.parent() {
+  src-tauri\src\lib.rs:2905:        let _ = std::fs::create_dir_all(parent);
+  src-tauri\src\lib.rs:2910:}
+  src-tauri\src\lib.rs:2911:
+> src-tauri\src\lib.rs:2912:/// Normalize a user-entered server URL to a bare base host: trim
+whitespace,
+  src-tauri\src\lib.rs:2913:/// drop a trailing `/v1` segment (the engine re-appends its own api
+prefix),
+  src-tauri\src\lib.rs:2914:/// then drop any trailing slash.
+  src-tauri\src\lib.rs:2915:fn normalize_host(raw: &str) -> String {
+  src-tauri\src\lib.rs:2989:    fn conversation_path() -> std::path::PathBuf {
+  src-tauri\src\lib.rs:2990:        std::path::PathBuf::from(super::home_dir())
+> src-tauri\src\lib.rs:2991:            .join(".openjarvis")
+  src-tauri\src\lib.rs:2992:            .join("overlay-conversation.json")
+  src-tauri\src\lib.rs:2993:    }
+  src-tauri\src\lib.rs:2994:
+  src-tauri\src\lib.rs:3052:    pub unsafe fn create(html: &str, api_port: u16) {
+  src-tauri\src\lib.rs:3053:        // --- Custom NSPanel subclass that accepts keyboard input ------
+> src-tauri\src\lib.rs:3054:        if Class::get("JarvisOverlayPanel").is_none() {
+  src-tauri\src\lib.rs:3055:            let sup = Class::get("NSPanel").unwrap();
+> src-tauri\src\lib.rs:3056:            let mut decl = ClassDecl::new("JarvisOverlayPanel",
+sup).unwrap();
+  src-tauri\src\lib.rs:3057:            extern "C" fn yes(_: &Object, _: Sel) -> BOOL {
+  src-tauri\src\lib.rs:3058:                YES
+  src-tauri\src\lib.rs:3059:            }
+  src-tauri\src\lib.rs:3066:
+  src-tauri\src\lib.rs:3067:        // --- WKNavigationDelegate — re-apply transparency after load --
+> src-tauri\src\lib.rs:3068:        if Class::get("JarvisOverlayNavDelegate").is_none() {
+  src-tauri\src\lib.rs:3069:            let sup = Class::get("NSObject").unwrap();
+> src-tauri\src\lib.rs:3070:            let mut decl = ClassDecl::new("JarvisOverlayNavDelegate",
+sup).unwrap();
+  src-tauri\src\lib.rs:3071:            extern "C" fn did_finish(_: &Object, _: Sel, wv: *mut
+Object, _nav: *mut Object) {
+  src-tauri\src\lib.rs:3072:                unsafe {
+  src-tauri\src\lib.rs:3073:                    force_transparent(wv);
+  src-tauri\src\lib.rs:3082:
+  src-tauri\src\lib.rs:3083:        // --- WKScriptMessageHandler so JS can call hide() ------------
+> src-tauri\src\lib.rs:3084:        if Class::get("JarvisOverlayMsgHandler").is_none() {
+  src-tauri\src\lib.rs:3085:            let sup = Class::get("NSObject").unwrap();
+> src-tauri\src\lib.rs:3086:            let mut decl = ClassDecl::new("JarvisOverlayMsgHandler",
+sup).unwrap();
+  src-tauri\src\lib.rs:3087:            extern "C" fn on_msg(_: &Object, _: Sel, _ctrl: *mut Object,
+msg: *mut Object) {
+  src-tauri\src\lib.rs:3088:                unsafe {
+  src-tauri\src\lib.rs:3089:                    let body: *mut Object = msg_send![msg, body];
+  src-tauri\src\lib.rs:3124:        let style: u64 = 1 << 7;
+  src-tauri\src\lib.rs:3125:
+> src-tauri\src\lib.rs:3126:        let cls = Class::get("JarvisOverlayPanel").unwrap();
+  src-tauri\src\lib.rs:3127:        let panel: *mut Object = msg_send![cls, alloc];
+  src-tauri\src\lib.rs:3128:        let panel: *mut Object = msg_send![panel,
+  src-tauri\src\lib.rs:3129:            initWithContentRect: frame
+  src-tauri\src\lib.rs:3151:
+  src-tauri\src\lib.rs:3152:        // Attach message handler ("overlay" channel)
+> src-tauri\src\lib.rs:3153:        let hcls = Class::get("JarvisOverlayMsgHandler").unwrap();
+  src-tauri\src\lib.rs:3154:        let handler: *mut Object = msg_send![hcls, alloc];
+  src-tauri\src\lib.rs:3155:        let handler: *mut Object = msg_send![handler, init];
+  src-tauri\src\lib.rs:3156:        let uc: *mut Object = msg_send![cfg, userContentController];
+  src-tauri\src\lib.rs:3170:
+  src-tauri\src\lib.rs:3171:        // Set navigation delegate so we re-apply after page loads
+> src-tauri\src\lib.rs:3172:        let nav_cls = Class::get("JarvisOverlayNavDelegate").unwrap();
+  src-tauri\src\lib.rs:3173:        let nav_del: *mut Object = msg_send![nav_cls, alloc];
+  src-tauri\src\lib.rs:3174:        let nav_del: *mut Object = msg_send![nav_del, init];
+  src-tauri\src\lib.rs:3175:        let _: () = msg_send![wv, setNavigationDelegate: nav_del];
+  src-tauri\src\lib.rs:3179:
+  src-tauri\src\lib.rs:3180:        // Inject saved conversation into the HTML template, then load
+it.
+> src-tauri\src\lib.rs:3181:        // Use the API server as the base URL so fetch() is same-origin.
+  src-tauri\src\lib.rs:3182:        // Escape "</" so the JSON can't prematurely close the <script>
+tag.
+  src-tauri\src\lib.rs:3183:        // ("\/" is valid JSON — resolves back to "/" when parsed.)
+  src-tauri\src\lib.rs:3184:        let saved = load_conversation().replace("</", "<\\/");
+  src-tauri\src\lib.rs:3382:                .enabled(false)
+  src-tauri\src\lib.rs:3383:                .build(app)?;
+> src-tauri\src\lib.rs:3384:            let quit = MenuItemBuilder::with_id("quit", "Quit
+OpenJarvis").build(app)?;
+  src-tauri\src\lib.rs:3385:
+  src-tauri\src\lib.rs:3386:            let menu = MenuBuilder::new(app)
+  src-tauri\src\lib.rs:3387:                .item(&show)
+  src-tauri\src\lib.rs:3394:            let _tray = TrayIconBuilder::with_id("main")
+  src-tauri\src\lib.rs:3395:                .icon(app.default_window_icon().unwrap().clone())
+> src-tauri\src\lib.rs:3396:                .tooltip("OpenJarvis")
+  src-tauri\src\lib.rs:3397:                .menu(&menu)
+  src-tauri\src\lib.rs:3398:                .on_menu_event(move |app, event| match
+event.id().as_ref() {
+  src-tauri\src\lib.rs:3399:                    "show" => {
+  src-tauri\src\lib.rs:3417:            #[cfg(target_os = "macos")]
+  src-tauri\src\lib.rs:3418:            unsafe {
+> src-tauri\src\lib.rs:3419:                native_overlay::create(include_str!("overlay.html"),
+JARVIS_PORT);
+  src-tauri\src\lib.rs:3420:            }
+  src-tauri\src\lib.rs:3421:
+  src-tauri\src\lib.rs:3422:            // Register Cmd+Shift+Space to toggle the overlay
+  src-tauri\src\lib.rs:3442:            // explicit consent and invokes `start_backend`.
+  src-tauri\src\lib.rs:3443:            if configured_at_launch.is_some() {
+> src-tauri\src\lib.rs:3444:
+tauri::async_runtime::spawn(start_managed_boot(boot_backend_ref, boot_status_ref));
+  src-tauri\src\lib.rs:3445:            }
+  src-tauri\src\lib.rs:3446:
+  src-tauri\src\lib.rs:3447:            Ok(())
+  src-tauri\src\lib.rs:3464:            fetch_agents,
+  src-tauri\src\lib.rs:3465:            fetch_models,
+> src-tauri\src\lib.rs:3466:            run_jarvis_command,
+  src-tauri\src\lib.rs:3467:            fetch_savings,
+  src-tauri\src\lib.rs:3468:            submit_savings,
+  src-tauri\src\lib.rs:3469:            transcribe_audio,
+  src-tauri\src\lib.rs:3480:        ])
+  src-tauri\src\lib.rs:3481:        .build(tauri::generate_context!())
+> src-tauri\src\lib.rs:3482:        .expect("error while building OpenJarvis Desktop")
+  src-tauri\src\lib.rs:3483:        .run(move |_app, event| {
+  src-tauri\src\lib.rs:3484:            if let tauri::RunEvent::ExitRequested { .. } = event {
+  src-tauri\src\lib.rs:3485:                let b = backend.clone();
+> src-tauri\src\lib.rs:3486:                tauri::async_runtime::spawn(async move {
+  src-tauri\src\lib.rs:3487:                    b.lock().await.stop_all().await;
+  src-tauri\src\lib.rs:3488:                });
+  src-tauri\src\lib.rs:3489:            }
+  src-tauri\src\lib.rs:3500:        boot_plan, default_local_model,
+discard_pending_inference_setup_at,
+  src-tauri\src\lib.rs:3501:        format_extension_import_failure, format_missing_rust_toolchain,
+format_port_unavailable,
+> src-tauri\src\lib.rs:3502:        format_uv_sync_failure, format_uv_sync_spawn_error,
+managed_cloud_key_names,
+  src-tauri\src\lib.rs:3503:        matching_installed_model, model_names_match, normalize_host,
+  src-tauri\src\lib.rs:3504:        parse_configured_inference_config, parse_ollama_model_names,
+  src-tauri\src\lib.rs:3505:        persist_confirmed_inference_config_at, preferred_installed_model,
+  src-tauri\src\lib.rs:3506:        project_root_near_executable,
+reload_cloud_keys_for_owned_backend_at,
+> src-tauri\src\lib.rs:3507:        should_persist_resolved_model, spawn_owned_child,
+stage_pending_inference_config_at,
+  src-tauri\src\lib.rs:3508:        startup_installed_model, upsert_engine_host,
+uv_sync_stderr_tail, BackendManager,
+  src-tauri\src\lib.rs:3509:        InferenceConfig, InferenceCredentialStore,
+PendingInferenceRollback, SetupStatus,
+  src-tauri\src\lib.rs:3510:        SourceKind, DESKTOP_UV_SYNC_COMMAND, PENDING_INFERENCE_API_KEY,
+  src-tauri\src\lib.rs:3559:            .as_nanos();
+  src-tauri\src\lib.rs:3560:        std::env::temp_dir().join(format!(
+> src-tauri\src\lib.rs:3561:            "openjarvis-{}-{}-{}",
+  src-tauri\src\lib.rs:3562:            label,
+  src-tauri\src\lib.rs:3563:            std::process::id(),
+  src-tauri\src\lib.rs:3564:            nonce
+  src-tauri\src\lib.rs:3569:    fn project_root_installed_desktop_finds_checkout_beside_executable()
+{
+  src-tauri\src\lib.rs:3570:        let root = unique_test_root("installed-desktop-root");
+> src-tauri\src\lib.rs:3571:        let install_dir = root.join("localappdata").join("OpenJarvis");
+  src-tauri\src\lib.rs:3572:        let bundled_checkout = install_dir.join("src");
+> src-tauri\src\lib.rs:3573:        let unrelated_clone = root.join("home").join("OpenJarvis");
+  src-tauri\src\lib.rs:3574:        std::fs::create_dir_all(&bundled_checkout).unwrap();
+  src-tauri\src\lib.rs:3575:        std::fs::create_dir_all(&unrelated_clone).unwrap();
+  src-tauri\src\lib.rs:3576:        std::fs::write(bundled_checkout.join("pyproject.toml"),
+"[project]\n").unwrap();
+  src-tauri\src\lib.rs:3577:        std::fs::write(unrelated_clone.join("pyproject.toml"),
+"[project]\n").unwrap();
+  src-tauri\src\lib.rs:3578:
+> src-tauri\src\lib.rs:3579:        let exe = install_dir.join("openjarvis-desktop.exe");
+  src-tauri\src\lib.rs:3580:        assert_eq!(project_root_near_executable(&exe),
+Some(bundled_checkout));
+  src-tauri\src\lib.rs:3581:
+  src-tauri\src\lib.rs:3582:        std::fs::remove_dir_all(root).unwrap();
+  src-tauri\src\lib.rs:3590:        std::fs::write(root.join("pyproject.toml"),
+"[project]\n").unwrap();
+  src-tauri\src\lib.rs:3591:
+> src-tauri\src\lib.rs:3592:        let exe = exe_dir.join("openjarvis-desktop");
+  src-tauri\src\lib.rs:3593:        assert_eq!(project_root_near_executable(&exe),
+Some(root.clone()));
+  src-tauri\src\lib.rs:3594:
+  src-tauri\src\lib.rs:3595:        std::fs::remove_dir_all(root).unwrap();
+  src-tauri\src\lib.rs:3629:    fn failure_message_includes_exit_code_and_tail_and_hint() {
+  src-tauri\src\lib.rs:3630:        let msg = format_uv_sync_failure(
+> src-tauri\src\lib.rs:3631:            Path::new("/home/u/.openjarvis/src"),
+  src-tauri\src\lib.rs:3632:            Some(2),
+  src-tauri\src\lib.rs:3633:            "error: failed to resolve numpy==2.1.3",
+  src-tauri\src\lib.rs:3634:        );
+  src-tauri\src\lib.rs:3635:        assert!(msg.contains("exit 2"));
+> src-tauri\src\lib.rs:3636:        assert!(msg.contains("/home/u/.openjarvis/src"));
+  src-tauri\src\lib.rs:3637:        assert!(msg.contains("failed to resolve numpy==2.1.3"));
+  src-tauri\src\lib.rs:3638:        assert!(msg.contains(DESKTOP_UV_SYNC_COMMAND)); // actionable
+next step
+  src-tauri\src\lib.rs:3639:    }
+  src-tauri\src\lib.rs:3648:
+  src-tauri\src\lib.rs:3649:    #[test]
+> src-tauri\src\lib.rs:3650:    fn spawn_error_names_the_binary_and_root() {
+> src-tauri\src\lib.rs:3651:        let msg = format_uv_sync_spawn_error(
+  src-tauri\src\lib.rs:3652:            Path::new("/repo"),
+  src-tauri\src\lib.rs:3653:            "C:\\Users\\me\\.local\\bin\\uv.exe",
+  src-tauri\src\lib.rs:3654:            "No such file or directory (os error 2)",
+  src-tauri\src\lib.rs:3664:        assert!(msg.contains("cargo"));
+  src-tauri\src\lib.rs:3665:        assert!(msg.contains("https://rustup.rs"));
+> src-tauri\src\lib.rs:3666:        assert!(msg.contains("openjarvis_rust"));
+  src-tauri\src\lib.rs:3667:        assert!(msg.contains("Visual Studio Build Tools"));
+  src-tauri\src\lib.rs:3668:    }
+  src-tauri\src\lib.rs:3669:
+  src-tauri\src\lib.rs:3671:    fn uv_sync_rust_failure_mentions_toolchain() {
+  src-tauri\src\lib.rs:3672:        let msg = format_uv_sync_failure(
+> src-tauri\src\lib.rs:3673:            Path::new("C:\\Users\\me\\OpenJarvis"),
+  src-tauri\src\lib.rs:3674:            Some(1),
+> src-tauri\src\lib.rs:3675:            "maturin failed: linker `link.exe` not found while building
+openjarvis-rust",
+  src-tauri\src\lib.rs:3676:        );
+  src-tauri\src\lib.rs:3677:        assert!(msg.contains("exit 1"));
+  src-tauri\src\lib.rs:3678:        assert!(msg.contains("link.exe"));
+  src-tauri\src\lib.rs:3684:    fn extension_import_failure_names_verification_command() {
+  src-tauri\src\lib.rs:3685:        let msg = format_extension_import_failure(
+> src-tauri\src\lib.rs:3686:            Path::new("C:\\Users\\me\\OpenJarvis"),
+> src-tauri\src\lib.rs:3687:            "ModuleNotFoundError: No module named 'openjarvis_rust'",
+  src-tauri\src\lib.rs:3688:        );
+> src-tauri\src\lib.rs:3689:        assert!(msg.contains("openjarvis_rust"));
+  src-tauri\src\lib.rs:3690:        assert!(msg.contains(DESKTOP_UV_SYNC_COMMAND));
+> src-tauri\src\lib.rs:3691:        assert!(msg.contains("uv run python -c \"import
+openjarvis_rust\""));
+  src-tauri\src\lib.rs:3692:        assert!(msg.contains("ModuleNotFoundError"));
+  src-tauri\src\lib.rs:3693:    }
+  src-tauri\src\lib.rs:3694:
+  src-tauri\src\lib.rs:3695:    #[test]
+  src-tauri\src\lib.rs:3696:    fn port_unavailable_message_names_port_and_owner_hint() {
+> src-tauri\src\lib.rs:3697:        let msg = format_port_unavailable(8000, "address already in
+use");
+> src-tauri\src\lib.rs:3698:        assert!(msg.contains("Port 8000 is not available"));
+  src-tauri\src\lib.rs:3699:        assert!(msg.contains("address already in use"));
+  src-tauri\src\lib.rs:3700:        assert!(msg.contains("To identify it"));
+> src-tauri\src\lib.rs:3701:        assert!(msg.contains("8000"));
+  src-tauri\src\lib.rs:3702:    }
+  src-tauri\src\lib.rs:3703:
+  src-tauri\src\lib.rs:3704:    #[test]
+  src-tauri\src\lib.rs:3843:        assert!(!status.ollama_ready);
+  src-tauri\src\lib.rs:3844:        assert!(!status.model_ready);
+> src-tauri\src\lib.rs:3845:        assert!(!status.server_ready);
+  src-tauri\src\lib.rs:3846:    }
+  src-tauri\src\lib.rs:3847:
+  src-tauri\src\lib.rs:3848:    #[test]
+  src-tauri\src\lib.rs:3887:            "http://localhost:1234"
+  src-tauri\src\lib.rs:3888:        );
+> src-tauri\src\lib.rs:3889:        assert_eq!(normalize_host("http://host:8000"),
+"http://host:8000");
+  src-tauri\src\lib.rs:3890:    }
+  src-tauri\src\lib.rs:3891:
+  src-tauri\src\lib.rs:3892:    #[test]
+  src-tauri\src\lib.rs:3901:        assert!(plan.engine_host.is_none());
+  src-tauri\src\lib.rs:3902:        assert!(plan
+> src-tauri\src\lib.rs:3903:            .serve_args
+  src-tauri\src\lib.rs:3904:            .windows(2)
+  src-tauri\src\lib.rs:3905:            .any(|w| w == ["--engine", "ollama"]));
+  src-tauri\src\lib.rs:3906:        assert!(plan
+> src-tauri\src\lib.rs:3907:            .serve_args
+  src-tauri\src\lib.rs:3908:            .windows(2)
+  src-tauri\src\lib.rs:3909:            .any(|w| w == ["--model", "qwen3.5:4b"]));
+  src-tauri\src\lib.rs:3910:    }
+  src-tauri\src\lib.rs:3938:        );
+  src-tauri\src\lib.rs:3939:        assert!(plan
+> src-tauri\src\lib.rs:3940:            .serve_args
+  src-tauri\src\lib.rs:3941:            .windows(2)
+  src-tauri\src\lib.rs:3942:            .any(|w| w == ["--engine", "lmstudio"]));
+  src-tauri\src\lib.rs:3943:        assert!(plan
+> src-tauri\src\lib.rs:3944:            .serve_args
+  src-tauri\src\lib.rs:3945:            .windows(2)
+  src-tauri\src\lib.rs:3946:            .any(|w| w == ["--model", "qwen2.5-7b"]));
+  src-tauri\src\lib.rs:3947:    }
+  src-tauri\src\lib.rs:3959:        assert_eq!(plan.engine_host.as_ref().unwrap().0, "lmstudio");
+  src-tauri\src\lib.rs:3960:        assert!(plan
+> src-tauri\src\lib.rs:3961:            .serve_args
+  src-tauri\src\lib.rs:3962:            .windows(2)
+  src-tauri\src\lib.rs:3963:            .any(|w| w == ["--engine", "lmstudio"]));
+  src-tauri\src\lib.rs:3964:    }
+  src-tauri\src\lib.rs:3981:    fn pending_config_rolls_back_unless_boot_confirms_it() {
+  src-tauri\src\lib.rs:3982:        let root = std::env::temp_dir().join(format!(
+> src-tauri\src\lib.rs:3983:            "openjarvis-pending-inference-{}",
+  src-tauri\src\lib.rs:3984:            std::process::id()
+  src-tauri\src\lib.rs:3985:        ));
+  src-tauri\src\lib.rs:3986:        std::fs::create_dir_all(&root).unwrap();
+  src-tauri\src\lib.rs:4062:
+  src-tauri\src\lib.rs:4063:    #[test]
+> src-tauri\src\lib.rs:4064:    fn
+cancelled_pending_setup_discards_stage_and_preserves_existing_key() {
+  src-tauri\src\lib.rs:4065:        let root = unique_test_root("cancel-inference-key");
+  src-tauri\src\lib.rs:4066:        std::fs::create_dir_all(&root).unwrap();
+  src-tauri\src\lib.rs:4067:        let path = root.join("inference.json");
+  src-tauri\src\lib.rs:4233:        let backend =
+std::sync::Arc::new(tokio::sync::Mutex::new(BackendManager::default()));
+  src-tauri\src\lib.rs:4234:        let mut setup_status = SetupStatus::default();
+> src-tauri\src\lib.rs:4235:        setup_status.server_ready = true;
+  src-tauri\src\lib.rs:4236:        let status =
+std::sync::Arc::new(tokio::sync::Mutex::new(setup_status));
+  src-tauri\src\lib.rs:4237:
+  src-tauri\src\lib.rs:4238:        reload_cloud_keys_for_owned_backend_at(
+  src-tauri\src\lib.rs:4262:        let dropped = Arc::new(AtomicBool::new(false));
+  src-tauri\src\lib.rs:4263:        let signal = DropSignal(dropped.clone());
+> src-tauri\src\lib.rs:4264:        let task = tokio::spawn(async move {
+  src-tauri\src\lib.rs:4265:            let _signal = signal;
+  src-tauri\src\lib.rs:4266:            std::future::pending::<()>().await;
+  src-tauri\src\lib.rs:4267:        });
+  src-tauri\src\lib.rs:4281:    #[test]
+  src-tauri\src\lib.rs:4282:    fn owned_child_process_helper() {
+> src-tauri\src\lib.rs:4283:        let Some(started) =
+std::env::var_os("OPENJARVIS_OWNED_CHILD_STARTED") else {
+  src-tauri\src\lib.rs:4284:            return;
+  src-tauri\src\lib.rs:4285:        };
+> src-tauri\src\lib.rs:4286:        let completed =
+std::env::var_os("OPENJARVIS_OWNED_CHILD_COMPLETED").unwrap();
+  src-tauri\src\lib.rs:4287:        std::fs::write(started, "started").unwrap();
+  src-tauri\src\lib.rs:4288:        std::thread::sleep(std::time::Duration::from_millis(500));
+  src-tauri\src\lib.rs:4289:        std::fs::write(completed, "completed").unwrap();
+  src-tauri\src\lib.rs:4297:            .as_nanos();
+  src-tauri\src\lib.rs:4298:        let root = std::env::temp_dir().join(format!(
+> src-tauri\src\lib.rs:4299:            "openjarvis-owned-child-{}-{unique}",
+  src-tauri\src\lib.rs:4300:            std::process::id()
+  src-tauri\src\lib.rs:4301:        ));
+  src-tauri\src\lib.rs:4302:        std::fs::create_dir_all(&root).unwrap();
+  src-tauri\src\lib.rs:4304:        let completed = root.join("completed");
+  src-tauri\src\lib.rs:4305:
+> src-tauri\src\lib.rs:4306:        let (spawned_tx, spawned_rx) = tokio::sync::oneshot::channel();
+  src-tauri\src\lib.rs:4307:        let started_for_child = started.clone();
+  src-tauri\src\lib.rs:4308:        let completed_for_child = completed.clone();
+> src-tauri\src\lib.rs:4309:        let task = tokio::spawn(async move {
+> src-tauri\src\lib.rs:4310:            let mut cmd =
+tokio::process::Command::new(std::env::current_exe().unwrap());
+  src-tauri\src\lib.rs:4311:            cmd.args([
+  src-tauri\src\lib.rs:4312:                "--exact",
+  src-tauri\src\lib.rs:4313:                "tests::owned_child_process_helper",
+  src-tauri\src\lib.rs:4314:                "--nocapture",
+  src-tauri\src\lib.rs:4315:            ])
+> src-tauri\src\lib.rs:4316:            .env("OPENJARVIS_OWNED_CHILD_STARTED", started_for_child)
+> src-tauri\src\lib.rs:4317:            .env("OPENJARVIS_OWNED_CHILD_COMPLETED", completed_for_child)
+  src-tauri\src\lib.rs:4318:            .stdout(std::process::Stdio::null())
+  src-tauri\src\lib.rs:4319:            .stderr(std::process::Stdio::null());
+> src-tauri\src\lib.rs:4320:            let child = spawn_owned_child(&mut cmd).unwrap();
+> src-tauri\src\lib.rs:4321:            spawned_tx.send(()).unwrap();
+  src-tauri\src\lib.rs:4322:            let _unregistered_child = child;
+  src-tauri\src\lib.rs:4323:            std::future::pending::<()>().await;
+  src-tauri\src\lib.rs:4324:        });
+> src-tauri\src\lib.rs:4325:        spawned_rx.await.unwrap();
+  src-tauri\src\lib.rs:4326:
+  src-tauri\src\lib.rs:4327:        for _ in 0..100 {
+  src-tauri\src\lib.rs:4328:            if started.exists() {
+  src-tauri\src\lib.rs:4366:
+  src-tauri\src\lib.rs:4367:    #[test]
+> src-tauri\src\lib.rs:4368:    fn upsert_engine_host_preserves_existing_content() {
+  src-tauri\src\lib.rs:4369:        let existing = "[intelligence]\ndefault_model = \"keep-me\"\n";
+> src-tauri\src\lib.rs:4370:        let out = upsert_engine_host(existing, "vllm",
+"http://host:8000").unwrap();
+  src-tauri\src\lib.rs:4371:        let doc: toml_edit::DocumentMut = out.parse().unwrap();
+  src-tauri\src\lib.rs:4372:        assert_eq!(
+  src-tauri\src\lib.rs:4373:            doc["intelligence"]["default_model"].as_str(),
+  src-tauri\src\lib.rs:4376:        assert_eq!(
+  src-tauri\src\lib.rs:4377:            doc["engine"]["vllm"]["host"].as_str(),
+> src-tauri\src\lib.rs:4378:            Some("http://host:8000")
+  src-tauri\src\lib.rs:4379:        );
+  src-tauri\src\lib.rs:4380:    }
+  src-tauri\src\lib.rs:4381:
+  src-tauri\src\lib.rs:4400:    // detected by the presence of the `APPIMAGE` env variable that the
+  src-tauri\src\lib.rs:4401:    // AppImage runtime sets to the original .AppImage path. We can't
+> src-tauri\src\lib.rs:4402:    // observe the env_remove calls directly through tokio's Command
+  src-tauri\src\lib.rs:4403:    // API (it doesn't expose its env map publicly), so these tests
+  src-tauri\src\lib.rs:4404:    // exercise the documented contract on each platform:
+  src-tauri\src\lib.rs:4405:    //
+  src-tauri\src\lib.rs:4437:            std::env::remove_var("APPIMAGE");
+  src-tauri\src\lib.rs:4438:        }
+> src-tauri\src\lib.rs:4439:        let mut cmd = tokio::process::Command::new(HARMLESS_BIN);
+  src-tauri\src\lib.rs:4440:        super::prepare_subprocess_for_appimage(&mut cmd);
+  src-tauri\src\lib.rs:4441:        if let Some(v) = prev {
+  src-tauri\src\lib.rs:4442:            unsafe {
+  src-tauri\src\lib.rs:4454:            std::env::set_var("APPIMAGE", "/tmp/test.AppImage");
+  src-tauri\src\lib.rs:4455:        }
+> src-tauri\src\lib.rs:4456:        let mut cmd = tokio::process::Command::new(HARMLESS_BIN);
+  src-tauri\src\lib.rs:4457:        super::prepare_subprocess_for_appimage(&mut cmd);
+  src-tauri\src\lib.rs:4458:        unsafe {
+  src-tauri\src\lib.rs:4459:            if let Some(v) = prev {
+  src-tauri\src\main.rs:3:
+  src-tauri\src\main.rs:4:fn main() {
+> src-tauri\src\main.rs:5:    openjarvis_desktop::run();
+  src-tauri\src\main.rs:6:}
+
+
+PS C:\Users\mavmu\AppData\Local\OpenJarvis\src\frontend>
