@@ -1,0 +1,763 @@
+PS C:\Users\mavmu\AppData\Local\OpenJarvis\src\frontend> Select-String -Path ".\src-tauri\src\lib.rs" -Pattern "boot_backend|Command::new|spawn\(|stderr|stdout|eprintln!|tracing::|log::" -Context 3,6
+
+  src-tauri\src\lib.rs:38:    #[cfg(target_os = "macos")]
+  src-tauri\src\lib.rs:39:    {
+  src-tauri\src\lib.rs:40:        use std::process::Command;
+> src-tauri\src\lib.rs:41:        if let Ok(output) = Command::new("sysctl").args(["-n",
+"hw.memsize"]).output() {
+> src-tauri\src\lib.rs:42:            if let Ok(s) = String::from_utf8(output.stdout) {
+  src-tauri\src\lib.rs:43:                if let Ok(bytes) = s.trim().parse::<u64>() {
+  src-tauri\src\lib.rs:44:                    return bytes as f64 / (1024.0 * 1024.0 * 1024.0);
+  src-tauri\src\lib.rs:45:                }
+  src-tauri\src\lib.rs:46:            }
+  src-tauri\src\lib.rs:47:        }
+  src-tauri\src\lib.rs:48:    }
+  src-tauri\src\lib.rs:64:    {
+  src-tauri\src\lib.rs:65:        use std::process::Command;
+  src-tauri\src\lib.rs:66:        // wmic returns TotalVisibleMemorySize in KB
+> src-tauri\src\lib.rs:67:        if let Ok(output) = Command::new("wmic")
+  src-tauri\src\lib.rs:68:            .args(["OS", "get", "TotalVisibleMemorySize", "/value"])
+  src-tauri\src\lib.rs:69:            .output()
+  src-tauri\src\lib.rs:70:        {
+> src-tauri\src\lib.rs:71:            if let Ok(s) = String::from_utf8(output.stdout) {
+  src-tauri\src\lib.rs:72:                for line in s.lines() {
+  src-tauri\src\lib.rs:73:                    if let Some(val) = line.strip_prefix("TotalVisibleMemorySize=") {
+  src-tauri\src\lib.rs:74:                        if let Ok(kb) = val.trim().parse::<u64>() {
+  src-tauri\src\lib.rs:75:                            return kb as f64 / (1024.0 * 1024.0);
+  src-tauri\src\lib.rs:76:                        }
+  src-tauri\src\lib.rs:77:                    }
+  src-tauri\src\lib.rs:251:    // On Windows this uses `where.exe`, on Unix `which`.
+  src-tauri\src\lib.rs:252:    #[cfg(target_os = "windows")]
+  src-tauri\src\lib.rs:253:    {
+> src-tauri\src\lib.rs:254:        if let Ok(output) = std::process::Command::new("where")
+  src-tauri\src\lib.rs:255:            .arg(format!("{name}.exe"))
+  src-tauri\src\lib.rs:256:            .output()
+  src-tauri\src\lib.rs:257:        {
+  src-tauri\src\lib.rs:258:            if output.status.success() {
+> src-tauri\src\lib.rs:259:                let stdout = String::from_utf8_lossy(&output.stdout);
+> src-tauri\src\lib.rs:260:                if let Some(first_line) = stdout.lines().next() {
+  src-tauri\src\lib.rs:261:                    let p = first_line.trim();
+  src-tauri\src\lib.rs:262:                    if !p.is_empty() && std::path::Path::new(p).exists() {
+  src-tauri\src\lib.rs:263:                        return p.to_string();
+  src-tauri\src\lib.rs:264:                    }
+  src-tauri\src\lib.rs:265:                }
+  src-tauri\src\lib.rs:266:            }
+  src-tauri\src\lib.rs:268:    }
+  src-tauri\src\lib.rs:269:    #[cfg(not(target_os = "windows"))]
+  src-tauri\src\lib.rs:270:    {
+> src-tauri\src\lib.rs:271:        if let Ok(output) = std::process::Command::new("which").arg(name).output() {
+  src-tauri\src\lib.rs:272:            if output.status.success() {
+> src-tauri\src\lib.rs:273:                let stdout = String::from_utf8_lossy(&output.stdout);
+> src-tauri\src\lib.rs:274:                if let Some(first_line) = stdout.lines().next() {
+  src-tauri\src\lib.rs:275:                    let p = first_line.trim();
+  src-tauri\src\lib.rs:276:                    if !p.is_empty() && std::path::Path::new(p).exists() {
+  src-tauri\src\lib.rs:277:                        return p.to_string();
+  src-tauri\src\lib.rs:278:                    }
+  src-tauri\src\lib.rs:279:                }
+  src-tauri\src\lib.rs:280:            }
+  src-tauri\src\lib.rs:408:
+  src-tauri\src\lib.rs:409:/// Spawn a subprocess whose lifetime cannot escape the async operation that
+  src-tauri\src\lib.rs:410:/// created it.  Tokio's default is `kill_on_drop(false)`, which means aborting
+> src-tauri\src\lib.rs:411:/// the boot task in the small window between `spawn()` and storing the child in
+  src-tauri\src\lib.rs:412:/// `BackendManager` would detach it.  The same default also lets one-shot boot
+  src-tauri\src\lib.rs:413:/// commands (`git clone`, `uv sync`, extension verification) continue after a
+  src-tauri\src\lib.rs:414:/// source reset.  Every subprocess on the boot path must opt in here (or call
+  src-tauri\src\lib.rs:415:/// `kill_on_drop(true)` before `output()`).
+  src-tauri\src\lib.rs:416:fn spawn_owned_child(cmd: &mut tokio::process::Command) ->
+std::io::Result<tokio::process::Child> {
+  src-tauri\src\lib.rs:417:    cmd.kill_on_drop(true);
+> src-tauri\src\lib.rs:418:    cmd.spawn()
+  src-tauri\src\lib.rs:419:}
+  src-tauri\src\lib.rs:420:
+> src-tauri\src\lib.rs:421:/// Rolling buffer holding the most recent ~16 KB of jarvis stderr.
+  src-tauri\src\lib.rs:422:///
+  src-tauri\src\lib.rs:423:/// Populated by a background drainer task spawned at boot so the pipe
+  src-tauri\src\lib.rs:424:/// never fills and back-pressures `jarvis serve`; consumed by the boot
+  src-tauri\src\lib.rs:425:/// path when surfacing failure messages.
+> src-tauri\src\lib.rs:426:type StderrTail = Arc<Mutex<Vec<u8>>>;
+  src-tauri\src\lib.rs:427:
+> src-tauri\src\lib.rs:428:const STDERR_TAIL_LIMIT: usize = 16 * 1024;
+  src-tauri\src\lib.rs:429:
+  src-tauri\src\lib.rs:430:struct BackendManager {
+  src-tauri\src\lib.rs:431:    ollama: Option<ChildHandle>,
+  src-tauri\src\lib.rs:432:    jarvis: Option<ChildHandle>,
+> src-tauri\src\lib.rs:433:    jarvis_stderr_tail: StderrTail,
+  src-tauri\src\lib.rs:434:    boot_task: Option<tauri::async_runtime::JoinHandle<()>>,
+  src-tauri\src\lib.rs:435:}
+  src-tauri\src\lib.rs:436:
+  src-tauri\src\lib.rs:437:impl Default for BackendManager {
+  src-tauri\src\lib.rs:438:    fn default() -> Self {
+  src-tauri\src\lib.rs:439:        Self {
+  src-tauri\src\lib.rs:440:            ollama: None,
+  src-tauri\src\lib.rs:441:            jarvis: None,
+> src-tauri\src\lib.rs:442:            jarvis_stderr_tail: Arc::new(Mutex::new(Vec::new())),
+  src-tauri\src\lib.rs:443:            boot_task: None,
+  src-tauri\src\lib.rs:444:        }
+  src-tauri\src\lib.rs:445:    }
+  src-tauri\src\lib.rs:446:}
+  src-tauri\src\lib.rs:447:
+  src-tauri\src\lib.rs:448:impl BackendManager {
+  src-tauri\src\lib.rs:476:        let _ = task.await;
+  src-tauri\src\lib.rs:477:    }
+  src-tauri\src\lib.rs:478:    let task_backend = backend.clone();
+> src-tauri\src\lib.rs:479:    let task = tauri::async_runtime::spawn(boot_backend(task_backend, status));
+  src-tauri\src\lib.rs:480:    manager.boot_task = Some(task);
+  src-tauri\src\lib.rs:481:}
+  src-tauri\src\lib.rs:482:
+  src-tauri\src\lib.rs:483:// ---------------------------------------------------------------------------
+  src-tauri\src\lib.rs:484:// Setup status (reported to frontend)
+  src-tauri\src\lib.rs:485:// ---------------------------------------------------------------------------
+  src-tauri\src\lib.rs:590:    /// "engine not ready" or a model-load error).
+  src-tauri\src\lib.rs:591:    ServiceUnavailable(String),
+  src-tauri\src\lib.rs:592:    /// The `jarvis serve` child exited before `/health` returned 2xx.
+> src-tauri\src\lib.rs:593:    EarlyExit { code: Option<i32>, stderr: String },
+  src-tauri\src\lib.rs:594:    /// Deadline elapsed without ever seeing 2xx or an early exit.
+  src-tauri\src\lib.rs:595:    Timeout,
+  src-tauri\src\lib.rs:596:}
+  src-tauri\src\lib.rs:597:
+  src-tauri\src\lib.rs:598:/// Spawn a detached task that continuously drains `jarvis serve`'s
+> src-tauri\src\lib.rs:599:/// stderr into a rolling tail buffer.
+  src-tauri\src\lib.rs:600:///
+> src-tauri\src\lib.rs:601:/// We MUST keep reading stderr for as long as the child runs — `jarvis
+  src-tauri\src\lib.rs:602:/// serve` is chatty (engine load progress, request logs), and the OS
+  src-tauri\src\lib.rs:603:/// pipe buffer is small (4 KB on Windows, 64 KB on Linux). Once full,
+> src-tauri\src\lib.rs:604:/// the child's next stderr write blocks indefinitely and the server
+  src-tauri\src\lib.rs:605:/// hangs mid-operation. The drainer reads in chunks and keeps only the
+> src-tauri\src\lib.rs:606:/// last `STDERR_TAIL_LIMIT` bytes — enough to surface a tail trace if
+  src-tauri\src\lib.rs:607:/// the child later dies, without unbounded memory growth.
+  src-tauri\src\lib.rs:608:///
+  src-tauri\src\lib.rs:609:/// Returns immediately after spawning the task; the task ends naturally
+> src-tauri\src\lib.rs:610:/// when the child closes stderr (i.e. exits).
+> src-tauri\src\lib.rs:611:fn spawn_jarvis_stderr_drainer(mut stderr: tokio::process::ChildStderr, tail:
+StderrTail) {
+  src-tauri\src\lib.rs:612:    use tokio::io::AsyncReadExt;
+> src-tauri\src\lib.rs:613:    tokio::spawn(async move {
+  src-tauri\src\lib.rs:614:        let mut buf = vec![0u8; 4096];
+  src-tauri\src\lib.rs:615:        loop {
+> src-tauri\src\lib.rs:616:            match stderr.read(&mut buf).await {
+> src-tauri\src\lib.rs:617:                Ok(0) => break,  // EOF — child closed stderr
+  src-tauri\src\lib.rs:618:                Err(_) => break, // pipe broke — also done
+  src-tauri\src\lib.rs:619:                Ok(n) => {
+  src-tauri\src\lib.rs:620:                    let mut t = tail.lock().await;
+  src-tauri\src\lib.rs:621:                    t.extend_from_slice(&buf[..n]);
+> src-tauri\src\lib.rs:622:                    if t.len() > STDERR_TAIL_LIMIT {
+> src-tauri\src\lib.rs:623:                        let drop_n = t.len() - STDERR_TAIL_LIMIT;
+  src-tauri\src\lib.rs:624:                        t.drain(..drop_n);
+  src-tauri\src\lib.rs:625:                    }
+  src-tauri\src\lib.rs:626:                }
+  src-tauri\src\lib.rs:627:            }
+  src-tauri\src\lib.rs:628:        }
+  src-tauri\src\lib.rs:629:    });
+  src-tauri\src\lib.rs:630:}
+  src-tauri\src\lib.rs:631:
+> src-tauri\src\lib.rs:632:/// Read whatever the stderr drainer has buffered so far.
+  src-tauri\src\lib.rs:633:///
+  src-tauri\src\lib.rs:634:/// Safe to call at any time; returns an empty string before the
+  src-tauri\src\lib.rs:635:/// drainer has seen any bytes. Trimmed.
+> src-tauri\src\lib.rs:636:async fn read_jarvis_stderr_tail(backend: &SharedBackend) -> String {
+> src-tauri\src\lib.rs:637:    let tail = backend.lock().await.jarvis_stderr_tail.clone();
+  src-tauri\src\lib.rs:638:    let bytes = tail.lock().await.clone();
+  src-tauri\src\lib.rs:639:    String::from_utf8_lossy(&bytes).trim().to_string()
+  src-tauri\src\lib.rs:640:}
+  src-tauri\src\lib.rs:641:
+  src-tauri\src\lib.rs:642:/// Poll `jarvis serve` health, watching the child process state so we
+  src-tauri\src\lib.rs:643:/// never wait 10 minutes for a process that crashed in the first second.
+  src-tauri\src\lib.rs:667:            }
+  src-tauri\src\lib.rs:668:        };
+  src-tauri\src\lib.rs:669:        if let Some(status) = exit_status {
+> src-tauri\src\lib.rs:670:            let stderr = read_jarvis_stderr_tail(backend).await;
+  src-tauri\src\lib.rs:671:            return JarvisStartResult::EarlyExit {
+  src-tauri\src\lib.rs:672:                code: status.code(),
+> src-tauri\src\lib.rs:673:                stderr,
+  src-tauri\src\lib.rs:674:            };
+  src-tauri\src\lib.rs:675:        }
+  src-tauri\src\lib.rs:676:
+  src-tauri\src\lib.rs:677:        // 2. Try the health endpoint.
+  src-tauri\src\lib.rs:678:        match client.get(url).send().await {
+  src-tauri\src\lib.rs:679:            Ok(resp) => {
+  src-tauri\src\lib.rs:812:// uv sync error formatting (pure helpers — unit-tested, see #331)
+  src-tauri\src\lib.rs:813:// ---------------------------------------------------------------------------
+  src-tauri\src\lib.rs:814:
+> src-tauri\src\lib.rs:815:/// Last `max_chars` characters of a `uv sync` stderr stream, trimmed.
+  src-tauri\src\lib.rs:816:///
+  src-tauri\src\lib.rs:817:/// uv's actionable diagnostic almost always lands at the tail of the
+  src-tauri\src\lib.rs:818:/// stream, so when surfacing a failure to the user we show the end, not
+  src-tauri\src\lib.rs:819:/// the (usually noisy progress-spinner) beginning. Operates on `char`
+  src-tauri\src\lib.rs:820:/// boundaries so it never splits a multi-byte UTF-8 codepoint — important
+  src-tauri\src\lib.rs:821:/// because Windows consoles emit non-ASCII (cp9xx) bytes.
+> src-tauri\src\lib.rs:822:fn uv_sync_stderr_tail(stderr: &str, max_chars: usize) -> String {
+> src-tauri\src\lib.rs:823:    let total = stderr.chars().count();
+  src-tauri\src\lib.rs:824:    let skip = total.saturating_sub(max_chars);
+> src-tauri\src\lib.rs:825:    stderr
+  src-tauri\src\lib.rs:826:        .chars()
+  src-tauri\src\lib.rs:827:        .skip(skip)
+  src-tauri\src\lib.rs:828:        .collect::<String>()
+  src-tauri\src\lib.rs:829:        .trim()
+  src-tauri\src\lib.rs:830:        .to_string()
+  src-tauri\src\lib.rs:831:}
+  src-tauri\src\lib.rs:834:///
+  src-tauri\src\lib.rs:835:/// `exit_code` is `None` when the process was terminated by a signal with
+  src-tauri\src\lib.rs:836:/// no exit code (rendered as "unknown" rather than a misleading -1).
+> src-tauri\src\lib.rs:837:fn format_uv_sync_failure(root: &std::path::Path, exit_code: Option<i32>, stderr:
+&str) -> String {
+  src-tauri\src\lib.rs:838:    let code = exit_code
+  src-tauri\src\lib.rs:839:        .map(|c| c.to_string())
+  src-tauri\src\lib.rs:840:        .unwrap_or_else(|| "unknown".to_string());
+> src-tauri\src\lib.rs:841:    let tail = uv_sync_stderr_tail(stderr, 800);
+> src-tauri\src\lib.rs:842:    let rust_hint = if looks_like_rust_extension_build_error(stderr) {
+  src-tauri\src\lib.rs:843:        format!("\n\n{}", rust_toolchain_install_hint())
+  src-tauri\src\lib.rs:844:    } else {
+  src-tauri\src\lib.rs:845:        String::new()
+  src-tauri\src\lib.rs:846:    };
+  src-tauri\src\lib.rs:847:    format!(
+  src-tauri\src\lib.rs:848:        "`uv sync` failed in {} (exit {}). Last output:\n\n{}\n\n\
+  src-tauri\src\lib.rs:934:    }
+  src-tauri\src\lib.rs:935:}
+  src-tauri\src\lib.rs:936:
+> src-tauri\src\lib.rs:937:fn looks_like_rust_extension_build_error(stderr: &str) -> bool {
+> src-tauri\src\lib.rs:938:    let lower = stderr.to_ascii_lowercase();
+  src-tauri\src\lib.rs:939:    [
+  src-tauri\src\lib.rs:940:        "openjarvis-rust",
+  src-tauri\src\lib.rs:941:        "openjarvis_rust",
+  src-tauri\src\lib.rs:942:        "maturin",
+  src-tauri\src\lib.rs:943:        "cargo",
+  src-tauri\src\lib.rs:944:        "rustc",
+  src-tauri\src\lib.rs:958:    )
+  src-tauri\src\lib.rs:959:}
+  src-tauri\src\lib.rs:960:
+> src-tauri\src\lib.rs:961:fn format_extension_import_failure(root: &std::path::Path, stderr: &str) -> String {
+> src-tauri\src\lib.rs:962:    let tail = uv_sync_stderr_tail(stderr, 4000);
+  src-tauri\src\lib.rs:963:    format!(
+  src-tauri\src\lib.rs:964:        "`openjarvis_rust` is still not importable after building. Last
+output:\n\n{}\n\n\
+  src-tauri\src\lib.rs:965:         Run these manually for the full build log:\n\n\
+  src-tauri\src\lib.rs:966:           cd {}\n\
+  src-tauri\src\lib.rs:967:           {}\n\
+  src-tauri\src\lib.rs:968:           uv run python -c \"import openjarvis_rust\"",
+  src-tauri\src\lib.rs:969:        if tail.is_empty() {
+> src-tauri\src\lib.rs:970:            "(no stderr output)"
+  src-tauri\src\lib.rs:971:        } else {
+  src-tauri\src\lib.rs:972:            &tail
+  src-tauri\src\lib.rs:973:        },
+  src-tauri\src\lib.rs:974:        root.display(),
+  src-tauri\src\lib.rs:975:        DESKTOP_UV_SYNC_COMMAND,
+  src-tauri\src\lib.rs:976:    )
+  src-tauri\src\lib.rs:995:    root: &std::path::Path,
+  src-tauri\src\lib.rs:996:    uv_bin: &str,
+  src-tauri\src\lib.rs:997:) -> Result<(), String> {
+> src-tauri\src\lib.rs:998:    let mut cmd = tokio::process::Command::new(uv_bin);
+  src-tauri\src\lib.rs:999:    cmd.args(["run", "python", "-c", "import openjarvis_rust"])
+> src-tauri\src\lib.rs:1000:        .stdout(std::process::Stdio::null())
+> src-tauri\src\lib.rs:1001:        .stderr(std::process::Stdio::piped())
+  src-tauri\src\lib.rs:1002:        .current_dir(root);
+  src-tauri\src\lib.rs:1003:    prepare_subprocess_for_appimage(&mut cmd);
+  src-tauri\src\lib.rs:1004:    prepare_backend_python(&mut cmd);
+  src-tauri\src\lib.rs:1005:    add_cargo_bin_to_path(&mut cmd);
+  src-tauri\src\lib.rs:1006:    cmd.kill_on_drop(true);
+  src-tauri\src\lib.rs:1007:
+  src-tauri\src\lib.rs:1008:    match cmd.output().await {
+  src-tauri\src\lib.rs:1009:        Ok(out) if out.status.success() => Ok(()),
+  src-tauri\src\lib.rs:1010:        Ok(out) => {
+> src-tauri\src\lib.rs:1011:            let stderr = String::from_utf8_lossy(&out.stderr);
+> src-tauri\src\lib.rs:1012:            Err(format_extension_import_failure(root, &stderr))
+  src-tauri\src\lib.rs:1013:        }
+  src-tauri\src\lib.rs:1014:        Err(e) => Err(format!(
+  src-tauri\src\lib.rs:1015:            "Could not verify `openjarvis_rust`: {}. Verify uv is installed at
+`{}`.",
+  src-tauri\src\lib.rs:1016:            e, uv_bin
+  src-tauri\src\lib.rs:1017:        )),
+  src-tauri\src\lib.rs:1018:    }
+  src-tauri\src\lib.rs:1050:// Backend boot sequence (runs in background after app launch)
+  src-tauri\src\lib.rs:1051:// ---------------------------------------------------------------------------
+  src-tauri\src\lib.rs:1052:
+> src-tauri\src\lib.rs:1053:async fn boot_backend(backend: SharedBackend, status: SharedStatus) {
+  src-tauri\src\lib.rs:1054:    // Never infer consent from a missing or malformed config. A fresh desktop
+  src-tauri\src\lib.rs:1055:    // install must persist an explicit source choice before this function can
+  src-tauri\src\lib.rs:1056:    // launch Ollama, contact a custom endpoint, or download a model.
+  src-tauri\src\lib.rs:1057:    let Some(mut cfg) = read_configured_inference_config() else {
+  src-tauri\src\lib.rs:1058:        *status.lock().await = SetupStatus::default();
+  src-tauri\src\lib.rs:1059:        return;
+  src-tauri\src\lib.rs:1086:        // Try the bundled sidecar first, fall back to system ollama
+  src-tauri\src\lib.rs:1087:        let ollama_child = {
+  src-tauri\src\lib.rs:1088:            let ollama_bin = resolve_bin("ollama");
+> src-tauri\src\lib.rs:1089:            let mut sidecar_cmd = tokio::process::Command::new(&ollama_bin);
+  src-tauri\src\lib.rs:1090:            sidecar_cmd
+  src-tauri\src\lib.rs:1091:                .arg("serve")
+  src-tauri\src\lib.rs:1092:                .env("OLLAMA_HOST", format!("127.0.0.1:{}", OLLAMA_PORT))
+> src-tauri\src\lib.rs:1093:                .stdout(std::process::Stdio::null())
+> src-tauri\src\lib.rs:1094:                .stderr(std::process::Stdio::null());
+  src-tauri\src\lib.rs:1095:            // Avoid LD_LIBRARY_PATH leak when running inside an AppImage (#455).
+  src-tauri\src\lib.rs:1096:            prepare_subprocess_for_appimage(&mut sidecar_cmd);
+  src-tauri\src\lib.rs:1097:            match spawn_owned_child(&mut sidecar_cmd) {
+  src-tauri\src\lib.rs:1098:                Ok(child) => Some(child),
+  src-tauri\src\lib.rs:1099:                Err(_) => None,
+  src-tauri\src\lib.rs:1100:            }
+  src-tauri\src\lib.rs:1142:            match pull_model(&model).await {
+  src-tauri\src\lib.rs:1143:                Ok(()) => model.clone(),
+  src-tauri\src\lib.rs:1144:                Err(e) => {
+> src-tauri\src\lib.rs:1145:                    eprintln!("Warning: failed to pull {}: {}", model, e);
+  src-tauri\src\lib.rs:1146:
+  src-tauri\src\lib.rs:1147:                    // If a local model appeared while pulling, use it instead of
+  src-tauri\src\lib.rs:1148:                    // making startup depend on another network pull.
+  src-tauri\src\lib.rs:1149:                    if let Some(installed) =
+preferred_installed_model(&ollama_model_names().await)
+  src-tauri\src\lib.rs:1150:                    {
+  src-tauri\src\lib.rs:1151:                        installed
+  src-tauri\src\lib.rs:1315:            s.detail = "Downloading OpenJarvis (first launch)...".into();
+  src-tauri\src\lib.rs:1316:        }
+  src-tauri\src\lib.rs:1317:
+> src-tauri\src\lib.rs:1318:        let mut clone_cmd = tokio::process::Command::new(&git_bin);
+  src-tauri\src\lib.rs:1319:        clone_cmd
+  src-tauri\src\lib.rs:1320:            .args([
+  src-tauri\src\lib.rs:1321:                "clone",
+  src-tauri\src\lib.rs:1322:                "--depth",
+  src-tauri\src\lib.rs:1323:                "1",
+  src-tauri\src\lib.rs:1324:                "https://github.com/open-jarvis/OpenJarvis.git",
+  src-tauri\src\lib.rs:1325:                &clone_target,
+  src-tauri\src\lib.rs:1326:            ])
+> src-tauri\src\lib.rs:1327:            .stdout(std::process::Stdio::null())
+> src-tauri\src\lib.rs:1328:            .stderr(std::process::Stdio::piped());
+  src-tauri\src\lib.rs:1329:        prepare_subprocess_for_appimage(&mut clone_cmd);
+  src-tauri\src\lib.rs:1330:        let clone_result = spawn_owned_child(&mut clone_cmd);
+  src-tauri\src\lib.rs:1331:
+  src-tauri\src\lib.rs:1332:        match clone_result {
+  src-tauri\src\lib.rs:1333:            Ok(child) => match child.wait_with_output().await {
+  src-tauri\src\lib.rs:1334:                Ok(output) if output.status.success() => {
+  src-tauri\src\lib.rs:1335:                    project_root = Some(target_path);
+  src-tauri\src\lib.rs:1336:                }
+  src-tauri\src\lib.rs:1337:                Ok(output) => {
+> src-tauri\src\lib.rs:1338:                    let stderr = String::from_utf8_lossy(&output.stderr);
+  src-tauri\src\lib.rs:1339:                    let mut s = status.lock().await;
+  src-tauri\src\lib.rs:1340:                    s.error = Some(format!(
+  src-tauri\src\lib.rs:1341:                        "Failed to download OpenJarvis: {}. \
+  src-tauri\src\lib.rs:1342:                         Clone manually: git clone
+https://github.com/open-jarvis/OpenJarvis.git {}",
+> src-tauri\src\lib.rs:1343:                        stderr.trim(),
+  src-tauri\src\lib.rs:1344:                        clone_target,
+  src-tauri\src\lib.rs:1345:                    ));
+  src-tauri\src\lib.rs:1346:                    return;
+  src-tauri\src\lib.rs:1347:                }
+  src-tauri\src\lib.rs:1348:                Err(e) => {
+  src-tauri\src\lib.rs:1349:                    let mut s = status.lock().await;
+  src-tauri\src\lib.rs:1509:
+  src-tauri\src\lib.rs:1510:    // Install dependencies automatically (handles fresh clones).
+  src-tauri\src\lib.rs:1511:    //
+> src-tauri\src\lib.rs:1512:    // Previously we ran `uv sync` with both stdout AND stderr piped to
+  src-tauri\src\lib.rs:1513:    // /dev/null and discarded the exit code (`let _ = …`). When `uv sync`
+  src-tauri\src\lib.rs:1514:    // failed — Windows path issues, network problems, lockfile conflicts —
+  src-tauri\src\lib.rs:1515:    // the user saw no error, the boot continued, `uv run jarvis serve`
+  src-tauri\src\lib.rs:1516:    // then ran in an under-provisioned venv, and the user waited the full
+  src-tauri\src\lib.rs:1517:    // 600s health-check window before getting "Jarvis server did not
+  src-tauri\src\lib.rs:1518:    // become healthy in time" with no actionable detail (issue #331).
+  src-tauri\src\lib.rs:1519:    //
+> src-tauri\src\lib.rs:1520:    // Now: capture stderr, check the exit status, surface a useful error
+  src-tauri\src\lib.rs:1521:    // to the user BEFORE the long server-start wait. The status detail
+  src-tauri\src\lib.rs:1522:    // message also indicates this can take a couple of minutes on first
+  src-tauri\src\lib.rs:1523:    // boot so users don't restart the app thinking it's stuck.
+  src-tauri\src\lib.rs:1524:    {
+  src-tauri\src\lib.rs:1525:        let mut s = status.lock().await;
+  src-tauri\src\lib.rs:1526:        s.detail = "Installing dependencies (uv sync — may take 1-2 min on first
+boot)...".into();
+  src-tauri\src\lib.rs:1527:    }
+> src-tauri\src\lib.rs:1528:    let mut sync_cmd = tokio::process::Command::new(&uv_bin);
+  src-tauri\src\lib.rs:1529:    sync_cmd
+  src-tauri\src\lib.rs:1530:        .args([
+  src-tauri\src\lib.rs:1531:            "sync",
+  src-tauri\src\lib.rs:1532:            "--extra",
+  src-tauri\src\lib.rs:1533:            "desktop",
+  src-tauri\src\lib.rs:1534:            "--extra",
+  src-tauri\src\lib.rs:1542:            "--group",
+  src-tauri\src\lib.rs:1543:            "desktop-native",
+  src-tauri\src\lib.rs:1544:        ])
+> src-tauri\src\lib.rs:1545:        .stdout(std::process::Stdio::null())
+> src-tauri\src\lib.rs:1546:        .stderr(std::process::Stdio::piped())
+  src-tauri\src\lib.rs:1547:        .current_dir(root);
+  src-tauri\src\lib.rs:1548:    // Avoid LD_LIBRARY_PATH leak when running inside an AppImage (#455).
+  src-tauri\src\lib.rs:1549:    prepare_subprocess_for_appimage(&mut sync_cmd);
+  src-tauri\src\lib.rs:1550:    prepare_backend_python(&mut sync_cmd);
+  src-tauri\src\lib.rs:1551:    add_cargo_bin_to_path(&mut sync_cmd);
+  src-tauri\src\lib.rs:1552:    sync_cmd.kill_on_drop(true);
+  src-tauri\src\lib.rs:1553:    let sync_output = sync_cmd.output().await;
+  src-tauri\src\lib.rs:1554:    match sync_output {
+  src-tauri\src\lib.rs:1555:        Ok(out) if !out.status.success() => {
+> src-tauri\src\lib.rs:1556:            let stderr = String::from_utf8_lossy(&out.stderr);
+  src-tauri\src\lib.rs:1557:            let mut s = status.lock().await;
+> src-tauri\src\lib.rs:1558:            s.error = Some(format_uv_sync_failure(root, out.status.code(),
+&stderr));
+  src-tauri\src\lib.rs:1559:            return;
+  src-tauri\src\lib.rs:1560:        }
+  src-tauri\src\lib.rs:1561:        Err(e) => {
+  src-tauri\src\lib.rs:1562:            let mut s = status.lock().await;
+  src-tauri\src\lib.rs:1563:            s.error = Some(format_uv_sync_spawn_error(root, &uv_bin,
+&e.to_string()));
+  src-tauri\src\lib.rs:1564:            return;
+  src-tauri\src\lib.rs:1581:        s.detail = format!("Starting API server from {}...", root.display());
+  src-tauri\src\lib.rs:1582:    }
+  src-tauri\src\lib.rs:1583:
+> src-tauri\src\lib.rs:1584:    let mut cmd = tokio::process::Command::new(&uv_bin);
+  src-tauri\src\lib.rs:1585:    let mut serve_argv: Vec<String> = vec![
+  src-tauri\src\lib.rs:1586:        "run".into(),
+  src-tauri\src\lib.rs:1587:        "jarvis".into(),
+  src-tauri\src\lib.rs:1588:        "serve".into(),
+  src-tauri\src\lib.rs:1589:        "--port".into(),
+  src-tauri\src\lib.rs:1590:        JARVIS_PORT.to_string(),
+  src-tauri\src\lib.rs:1596:    if let Some(m) = &serve_model_override {
+  src-tauri\src\lib.rs:1597:        match serve_argv.iter().position(|a| a == "--model") {
+  src-tauri\src\lib.rs:1598:            Some(i) if i + 1 < serve_argv.len() => serve_argv[i + 1] = m.clone(),
+> src-tauri\src\lib.rs:1599:            _ => eprintln!(
+  src-tauri\src\lib.rs:1600:                "Warning: resolved model {:?} could not be applied; \
+  src-tauri\src\lib.rs:1601:                 '--model <value>' not found in serve args {:?}",
+  src-tauri\src\lib.rs:1602:                m, serve_argv
+  src-tauri\src\lib.rs:1603:            ),
+  src-tauri\src\lib.rs:1604:        }
+  src-tauri\src\lib.rs:1605:    }
+  src-tauri\src\lib.rs:1606:    cmd.args(&serve_argv)
+> src-tauri\src\lib.rs:1607:        .stdout(std::process::Stdio::null())
+> src-tauri\src\lib.rs:1608:        .stderr(std::process::Stdio::piped())
+  src-tauri\src\lib.rs:1609:        .current_dir(root);
+  src-tauri\src\lib.rs:1610:    // Avoid LD_LIBRARY_PATH leak when running inside an AppImage (#455) —
+  src-tauri\src\lib.rs:1611:    // do this BEFORE cmd.env() calls below so our explicit cloud-key env
+  src-tauri\src\lib.rs:1612:    // additions aren't accidentally stripped.
+  src-tauri\src\lib.rs:1613:    prepare_subprocess_for_appimage(&mut cmd);
+  src-tauri\src\lib.rs:1614:    prepare_backend_python(&mut cmd);
+  src-tauri\src\lib.rs:1621:
+  src-tauri\src\lib.rs:1622:    match jarvis_child {
+  src-tauri\src\lib.rs:1623:        Ok(mut child) => {
+> src-tauri\src\lib.rs:1624:            // Start draining stderr immediately. If we wait until the
+  src-tauri\src\lib.rs:1625:            // health check returns we risk filling the 4 KB Windows pipe
+  src-tauri\src\lib.rs:1626:            // buffer during startup logging and hanging the child before
+  src-tauri\src\lib.rs:1627:            // it can bind its HTTP port — exactly the symptom in #309.
+> src-tauri\src\lib.rs:1628:            let stderr_handle = child.stderr.take();
+  src-tauri\src\lib.rs:1629:            let mut mgr = backend.lock().await;
+> src-tauri\src\lib.rs:1630:            let tail = mgr.jarvis_stderr_tail.clone();
+  src-tauri\src\lib.rs:1631:            mgr.jarvis = Some(ChildHandle { child });
+  src-tauri\src\lib.rs:1632:            drop(mgr);
+> src-tauri\src\lib.rs:1633:            if let Some(stderr) = stderr_handle {
+> src-tauri\src\lib.rs:1634:                spawn_jarvis_stderr_drainer(stderr, tail);
+  src-tauri\src\lib.rs:1635:            }
+  src-tauri\src\lib.rs:1636:        }
+  src-tauri\src\lib.rs:1637:        Err(e) => {
+  src-tauri\src\lib.rs:1638:            let mut s = status.lock().await;
+  src-tauri\src\lib.rs:1639:            s.error = Some(format!(
+  src-tauri\src\lib.rs:1640:                "Could not start jarvis server: {}. \
+  src-tauri\src\lib.rs:1669:            ));
+  src-tauri\src\lib.rs:1670:            return;
+  src-tauri\src\lib.rs:1671:        }
+> src-tauri\src\lib.rs:1672:        JarvisStartResult::EarlyExit { code, stderr } => {
+  src-tauri\src\lib.rs:1673:            // `None` here means the OS didn't expose an exit code — on
+  src-tauri\src\lib.rs:1674:            // Unix that's a signal kill (SIGKILL/SIGSEGV/...), on Windows
+  src-tauri\src\lib.rs:1675:            // it means the process was terminated externally (Task
+  src-tauri\src\lib.rs:1676:            // Manager, parent-of-parent, AV). "unknown" covers both.
+  src-tauri\src\lib.rs:1677:            let code_str = code
+  src-tauri\src\lib.rs:1678:                .map(|c| c.to_string())
+  src-tauri\src\lib.rs:1679:                .unwrap_or_else(|| "unknown".into());
+  src-tauri\src\lib.rs:1680:            let mut s = status.lock().await;
+> src-tauri\src\lib.rs:1681:            s.error = Some(if stderr.is_empty() {
+  src-tauri\src\lib.rs:1682:                format!(
+  src-tauri\src\lib.rs:1683:                    "Jarvis server exited (code {}) before becoming ready.\n\n\
+> src-tauri\src\lib.rs:1684:                     No stderr output. Check that:\n\
+  src-tauri\src\lib.rs:1685:                     1. uv is installed ({})\n\
+  src-tauri\src\lib.rs:1686:                     2. The OpenJarvis repo is at {}\n\
+  src-tauri\src\lib.rs:1687:                     3. 'uv sync' completes in that directory",
+  src-tauri\src\lib.rs:1688:                    code_str,
+  src-tauri\src\lib.rs:1689:                    uv_bin,
+  src-tauri\src\lib.rs:1690:                    root.display(),
+  src-tauri\src\lib.rs:1691:                )
+  src-tauri\src\lib.rs:1692:            } else {
+  src-tauri\src\lib.rs:1693:                format!(
+> src-tauri\src\lib.rs:1694:                    "Jarvis server exited (code {}) before becoming
+ready.\n\nStderr:\n{}",
+> src-tauri\src\lib.rs:1695:                    code_str, stderr,
+  src-tauri\src\lib.rs:1696:                )
+  src-tauri\src\lib.rs:1697:            });
+  src-tauri\src\lib.rs:1698:            return;
+  src-tauri\src\lib.rs:1699:        }
+  src-tauri\src\lib.rs:1700:        JarvisStartResult::Timeout => {
+> src-tauri\src\lib.rs:1701:            let stderr = read_jarvis_stderr_tail(&backend).await;
+  src-tauri\src\lib.rs:1702:            let mut s = status.lock().await;
+> src-tauri\src\lib.rs:1703:            s.error = Some(if stderr.is_empty() {
+  src-tauri\src\lib.rs:1704:                format!(
+  src-tauri\src\lib.rs:1705:                    "Jarvis server did not become ready within 10 minutes. Check
+that:\n\
+  src-tauri\src\lib.rs:1706:                     1. uv is installed ({})\n\
+  src-tauri\src\lib.rs:1707:                     2. The OpenJarvis repo is at {}\n\
+  src-tauri\src\lib.rs:1708:                     3. Run 'uv sync' in that directory",
+  src-tauri\src\lib.rs:1709:                    uv_bin,
+  src-tauri\src\lib.rs:1711:                )
+  src-tauri\src\lib.rs:1712:            } else {
+  src-tauri\src\lib.rs:1713:                format!(
+> src-tauri\src\lib.rs:1714:                    "Jarvis server did not become ready within 10
+minutes.\n\nStderr:\n{}",
+> src-tauri\src\lib.rs:1715:                    stderr,
+  src-tauri\src\lib.rs:1716:                )
+  src-tauri\src\lib.rs:1717:            });
+  src-tauri\src\lib.rs:1718:            return;
+  src-tauri\src\lib.rs:1719:        }
+  src-tauri\src\lib.rs:1720:    }
+  src-tauri\src\lib.rs:1721:
+  src-tauri\src\lib.rs:1977:    let mut cmd_args = vec!["run".to_string(), "jarvis".to_string()];
+  src-tauri\src\lib.rs:1978:    cmd_args.extend(args.iter().cloned());
+  src-tauri\src\lib.rs:1979:
+> src-tauri\src\lib.rs:1980:    let mut cmd = tokio::process::Command::new(&uv_bin);
+  src-tauri\src\lib.rs:1981:    cmd.args(&cmd_args);
+  src-tauri\src\lib.rs:1982:    // Run from the project root so `uv run jarvis` resolves the OpenJarvis
+  src-tauri\src\lib.rs:1983:    // project regardless of the app's launch cwd. In a packaged install the
+  src-tauri\src\lib.rs:1984:    // cwd isn't the checkout, so without this `jarvis` isn't found and the
+  src-tauri\src\lib.rs:1985:    // backend never starts — the UI then shows "Failed to get response"
+  src-tauri\src\lib.rs:1986:    // (see #531).
+  src-tauri\src\lib.rs:1998:            .await
+  src-tauri\src\lib.rs:1999:            .map_err(|e| format!("Failed to launch jarvis: {}", e))?;
+  src-tauri\src\lib.rs:2000:        return if output.status.success() {
+> src-tauri\src\lib.rs:2001:            Ok(String::from_utf8_lossy(&output.stdout).to_string())
+  src-tauri\src\lib.rs:2002:        } else {
+> src-tauri\src\lib.rs:2003:            Err(String::from_utf8_lossy(&output.stderr).to_string())
+  src-tauri\src\lib.rs:2004:        };
+  src-tauri\src\lib.rs:2005:    }
+  src-tauri\src\lib.rs:2006:
+  src-tauri\src\lib.rs:2007:    // `jarvis serve` is a long-running server that never exits. The old code
+  src-tauri\src\lib.rs:2008:    // used `.output()`, which waits for the process to exit and so hung this
+  src-tauri\src\lib.rs:2009:    // command forever — the "Start" button never resolved (#531). Spawn it
+> src-tauri\src\lib.rs:2010:    // detached instead, drain stderr (a full 4 KB Windows pipe can otherwise
+  src-tauri\src\lib.rs:2011:    // stall the child mid-startup, #309), and poll /health for readiness.
+> src-tauri\src\lib.rs:2012:    cmd.stdout(std::process::Stdio::null())
+> src-tauri\src\lib.rs:2013:        .stderr(std::process::Stdio::piped());
+  src-tauri\src\lib.rs:2014:    let mut child = cmd
+> src-tauri\src\lib.rs:2015:        .spawn()
+  src-tauri\src\lib.rs:2016:        .map_err(|e| format!("Failed to launch jarvis serve: {}", e))?;
+  src-tauri\src\lib.rs:2017:
+> src-tauri\src\lib.rs:2018:    let tail: StderrTail = Arc::new(Mutex::new(Vec::new()));
+> src-tauri\src\lib.rs:2019:    if let Some(stderr) = child.stderr.take() {
+> src-tauri\src\lib.rs:2020:        spawn_jarvis_stderr_drainer(stderr, tail.clone());
+  src-tauri\src\lib.rs:2021:    }
+  src-tauri\src\lib.rs:2022:
+  src-tauri\src\lib.rs:2023:    let client = reqwest::Client::builder()
+  src-tauri\src\lib.rs:2024:        .timeout(Duration::from_secs(2))
+  src-tauri\src\lib.rs:2025:        .build()
+  src-tauri\src\lib.rs:2026:        .map_err(|e| format!("Failed to build HTTP client: {}", e))?;
+  src-tauri\src\lib.rs:2031:        // Surface an early crash (bad venv, missing Rust ext, etc.) right away
+  src-tauri\src\lib.rs:2032:        // instead of waiting out the full readiness timeout.
+  src-tauri\src\lib.rs:2033:        if let Ok(Some(status)) = child.try_wait() {
+> src-tauri\src\lib.rs:2034:            let stderr =
+String::from_utf8_lossy(tail.lock().await.as_slice()).into_owned();
+  src-tauri\src\lib.rs:2035:            return Err(format!(
+  src-tauri\src\lib.rs:2036:                "jarvis serve exited (code {:?}) before becoming healthy:\n{}",
+  src-tauri\src\lib.rs:2037:                status.code(),
+> src-tauri\src\lib.rs:2038:                stderr.trim()
+  src-tauri\src\lib.rs:2039:            ));
+  src-tauri\src\lib.rs:2040:        }
+  src-tauri\src\lib.rs:2041:        if let Ok(resp) = client.get(&url).send().await {
+  src-tauri\src\lib.rs:2042:            if resp.status().is_success() {
+  src-tauri\src\lib.rs:2043:                // Leave the server running (the Child is detached on drop —
+  src-tauri\src\lib.rs:2044:                // kill_on_drop defaults to false); `stop` tears it down.
+  src-tauri\src\lib.rs:3354:        .unwrap_or_default();
+  src-tauri\src\lib.rs:3355:    let status: SharedStatus = Arc::new(Mutex::new(initial_status));
+  src-tauri\src\lib.rs:3356:
+> src-tauri\src\lib.rs:3357:    let boot_backend_ref = backend.clone();
+  src-tauri\src\lib.rs:3358:    let boot_status_ref = status.clone();
+  src-tauri\src\lib.rs:3359:
+  src-tauri\src\lib.rs:3360:    tauri::Builder::default()
+  src-tauri\src\lib.rs:3361:        .manage(backend.clone())
+  src-tauri\src\lib.rs:3362:        .manage(status.clone())
+  src-tauri\src\lib.rs:3363:        .plugin(tauri_plugin_notification::init())
+  src-tauri\src\lib.rs:3369:        ))
+  src-tauri\src\lib.rs:3370:        .plugin(tauri_plugin_updater::Builder::new().build())
+  src-tauri\src\lib.rs:3371:        .plugin(tauri_plugin_process::init())
+> src-tauri\src\lib.rs:3372:        .plugin(tauri_plugin_dialog::init())
+  src-tauri\src\lib.rs:3373:        .plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
+  src-tauri\src\lib.rs:3374:            if let Some(window) = app.get_webview_window("main") {
+  src-tauri\src\lib.rs:3375:                let _ = window.set_focus();
+  src-tauri\src\lib.rs:3376:            }
+  src-tauri\src\lib.rs:3377:        }))
+  src-tauri\src\lib.rs:3378:        .setup(move |app| {
+  src-tauri\src\lib.rs:3433:                        }
+  src-tauri\src\lib.rs:3434:                    }
+  src-tauri\src\lib.rs:3435:                }) {
+> src-tauri\src\lib.rs:3436:                    eprintln!("Warning: could not register Cmd+Shift+Space: {e}");
+  src-tauri\src\lib.rs:3437:                }
+  src-tauri\src\lib.rs:3438:            }
+  src-tauri\src\lib.rs:3439:
+  src-tauri\src\lib.rs:3440:            // Returning users keep automatic startup after they have persisted
+  src-tauri\src\lib.rs:3441:            // a source. Fresh installs stay inert until the setup UI records
+  src-tauri\src\lib.rs:3442:            // explicit consent and invokes `start_backend`.
+  src-tauri\src\lib.rs:3443:            if configured_at_launch.is_some() {
+> src-tauri\src\lib.rs:3444:                tauri::async_runtime::spawn(start_managed_boot(boot_backend_ref,
+boot_status_ref));
+  src-tauri\src\lib.rs:3445:            }
+  src-tauri\src\lib.rs:3446:
+  src-tauri\src\lib.rs:3447:            Ok(())
+  src-tauri\src\lib.rs:3448:        })
+  src-tauri\src\lib.rs:3449:        .invoke_handler(tauri::generate_handler![
+  src-tauri\src\lib.rs:3450:            get_setup_status,
+  src-tauri\src\lib.rs:3483:        .run(move |_app, event| {
+  src-tauri\src\lib.rs:3484:            if let tauri::RunEvent::ExitRequested { .. } = event {
+  src-tauri\src\lib.rs:3485:                let b = backend.clone();
+> src-tauri\src\lib.rs:3486:                tauri::async_runtime::spawn(async move {
+  src-tauri\src\lib.rs:3487:                    b.lock().await.stop_all().await;
+  src-tauri\src\lib.rs:3488:                });
+  src-tauri\src\lib.rs:3489:            }
+  src-tauri\src\lib.rs:3490:        });
+  src-tauri\src\lib.rs:3491:}
+  src-tauri\src\lib.rs:3492:
+  src-tauri\src\lib.rs:3505:        persist_confirmed_inference_config_at, preferred_installed_model,
+  src-tauri\src\lib.rs:3506:        project_root_near_executable, reload_cloud_keys_for_owned_backend_at,
+  src-tauri\src\lib.rs:3507:        should_persist_resolved_model, spawn_owned_child,
+stage_pending_inference_config_at,
+> src-tauri\src\lib.rs:3508:        startup_installed_model, upsert_engine_host, uv_sync_stderr_tail,
+BackendManager,
+  src-tauri\src\lib.rs:3509:        InferenceConfig, InferenceCredentialStore, PendingInferenceRollback,
+SetupStatus,
+  src-tauri\src\lib.rs:3510:        SourceKind, DESKTOP_UV_SYNC_COMMAND, PENDING_INFERENCE_API_KEY,
+  src-tauri\src\lib.rs:3511:    };
+  src-tauri\src\lib.rs:3512:    use std::collections::HashMap;
+  src-tauri\src\lib.rs:3513:    use std::path::Path;
+  src-tauri\src\lib.rs:3514:    use std::sync::Mutex as StdMutex;
+  src-tauri\src\lib.rs:3597:
+  src-tauri\src\lib.rs:3598:    #[test]
+  src-tauri\src\lib.rs:3599:    fn tail_returns_whole_string_when_shorter_than_limit() {
+> src-tauri\src\lib.rs:3600:        assert_eq!(uv_sync_stderr_tail("short error", 800), "short error");
+  src-tauri\src\lib.rs:3601:    }
+  src-tauri\src\lib.rs:3602:
+  src-tauri\src\lib.rs:3603:    #[test]
+  src-tauri\src\lib.rs:3604:    fn tail_keeps_the_end_not_the_beginning() {
+  src-tauri\src\lib.rs:3605:        // uv's actionable line is at the end; the spinner noise is at the start.
+  src-tauri\src\lib.rs:3606:        let s = format!("{}ACTUAL ERROR HERE", "spinner-noise ".repeat(200));
+> src-tauri\src\lib.rs:3607:        let tail = uv_sync_stderr_tail(&s, 40);
+  src-tauri\src\lib.rs:3608:        assert!(tail.ends_with("ACTUAL ERROR HERE"), "tail was: {tail:?}");
+  src-tauri\src\lib.rs:3609:        assert!(!tail.contains("spinner-noise spinner-noise spinner-noise"));
+  src-tauri\src\lib.rs:3610:        assert!(tail.chars().count() <= 40);
+  src-tauri\src\lib.rs:3611:    }
+  src-tauri\src\lib.rs:3612:
+  src-tauri\src\lib.rs:3613:    #[test]
+  src-tauri\src\lib.rs:3614:    fn tail_trims_surrounding_whitespace() {
+> src-tauri\src\lib.rs:3615:        assert_eq!(uv_sync_stderr_tail("  \n padded \n  ", 800), "padded");
+  src-tauri\src\lib.rs:3616:    }
+  src-tauri\src\lib.rs:3617:
+  src-tauri\src\lib.rs:3618:    #[test]
+  src-tauri\src\lib.rs:3619:    fn tail_never_splits_a_multibyte_codepoint() {
+  src-tauri\src\lib.rs:3620:        // Each "é" is 2 bytes / 1 char. A byte-based slice could panic or
+  src-tauri\src\lib.rs:3621:        // produce invalid UTF-8; the char-based tail must not.
+  src-tauri\src\lib.rs:3622:        let s = "é".repeat(500);
+> src-tauri\src\lib.rs:3623:        let tail = uv_sync_stderr_tail(&s, 100);
+  src-tauri\src\lib.rs:3624:        assert_eq!(tail.chars().count(), 100);
+  src-tauri\src\lib.rs:3625:        assert!(tail.chars().all(|c| c == 'é'));
+  src-tauri\src\lib.rs:3626:    }
+  src-tauri\src\lib.rs:3627:
+  src-tauri\src\lib.rs:3628:    #[test]
+  src-tauri\src\lib.rs:3629:    fn failure_message_includes_exit_code_and_tail_and_hint() {
+  src-tauri\src\lib.rs:4261:
+  src-tauri\src\lib.rs:4262:        let dropped = Arc::new(AtomicBool::new(false));
+  src-tauri\src\lib.rs:4263:        let signal = DropSignal(dropped.clone());
+> src-tauri\src\lib.rs:4264:        let task = tokio::spawn(async move {
+  src-tauri\src\lib.rs:4265:            let _signal = signal;
+  src-tauri\src\lib.rs:4266:            std::future::pending::<()>().await;
+  src-tauri\src\lib.rs:4267:        });
+  src-tauri\src\lib.rs:4268:        tokio::task::yield_now().await;
+  src-tauri\src\lib.rs:4269:
+  src-tauri\src\lib.rs:4270:        let mut manager = BackendManager::default();
+  src-tauri\src\lib.rs:4306:        let (spawned_tx, spawned_rx) = tokio::sync::oneshot::channel();
+  src-tauri\src\lib.rs:4307:        let started_for_child = started.clone();
+  src-tauri\src\lib.rs:4308:        let completed_for_child = completed.clone();
+> src-tauri\src\lib.rs:4309:        let task = tokio::spawn(async move {
+tokio::process::Command::new(std::env::current_exe().unwrap());
+  src-tauri\src\lib.rs:4312:                "--exact",
+  src-tauri\src\lib.rs:4313:                "tests::owned_child_process_helper",
+  src-tauri\src\lib.rs:4314:                "--nocapture",
+  src-tauri\src\lib.rs:4315:            ])
+  src-tauri\src\lib.rs:4316:            .env("OPENJARVIS_OWNED_CHILD_STARTED", started_for_child)
+  src-tauri\src\lib.rs:4317:            .env("OPENJARVIS_OWNED_CHILD_COMPLETED", completed_for_child)
+> src-tauri\src\lib.rs:4318:            .stdout(std::process::Stdio::null())
+> src-tauri\src\lib.rs:4319:            .stderr(std::process::Stdio::null());
+  src-tauri\src\lib.rs:4320:            let child = spawn_owned_child(&mut cmd).unwrap();
+  src-tauri\src\lib.rs:4321:            spawned_tx.send(()).unwrap();
+  src-tauri\src\lib.rs:4322:            let _unregistered_child = child;
+  src-tauri\src\lib.rs:4323:            std::future::pending::<()>().await;
+  src-tauri\src\lib.rs:4324:        });
+  src-tauri\src\lib.rs:4325:        spawned_rx.await.unwrap();
+  src-tauri\src\lib.rs:4436:        unsafe {
+  src-tauri\src\lib.rs:4437:            std::env::remove_var("APPIMAGE");
+  src-tauri\src\lib.rs:4438:        }
+> src-tauri\src\lib.rs:4439:        let mut cmd = tokio::process::Command::new(HARMLESS_BIN);
+  src-tauri\src\lib.rs:4440:        super::prepare_subprocess_for_appimage(&mut cmd);
+  src-tauri\src\lib.rs:4441:        if let Some(v) = prev {
+  src-tauri\src\lib.rs:4442:            unsafe {
+  src-tauri\src\lib.rs:4443:                std::env::set_var("APPIMAGE", v);
+  src-tauri\src\lib.rs:4444:            }
+  src-tauri\src\lib.rs:4445:        }
+  src-tauri\src\lib.rs:4453:        unsafe {
+  src-tauri\src\lib.rs:4454:            std::env::set_var("APPIMAGE", "/tmp/test.AppImage");
+  src-tauri\src\lib.rs:4455:        }
+> src-tauri\src\lib.rs:4456:        let mut cmd = tokio::process::Command::new(HARMLESS_BIN);
+  src-tauri\src\lib.rs:4457:        super::prepare_subprocess_for_appimage(&mut cmd);
+  src-tauri\src\lib.rs:4458:        unsafe {
+  src-tauri\src\lib.rs:4459:            if let Some(v) = prev {
+  src-tauri\src\lib.rs:4460:                std::env::set_var("APPIMAGE", v);
+  src-tauri\src\lib.rs:4461:            } else {
+  src-tauri\src\lib.rs:4462:                std::env::remove_var("APPIMAGE");
+
+
+PS C:\Users\mavmu\AppData\Local\OpenJarvis\src\frontend> Get-CimInstance Win32_Process | Where-Object { $_.Name -in @("uv.exe","python.exe","jarvis.exe") } | Select-Object Name,ProcessId,ParentProcessId,ExecutablePath,CommandLine | Format-List
+PS C:\Users\mavmu\AppData\Local\OpenJarvis\src\frontend> Select-String -Path ".\src-tauri\src\lib.rs" -Pattern 'resolve_bin\("uv"\)|let uv_bin|uv_bin.is_empty|Failed to find.*uv|Could not find.*uv' -Context 5,10
+
+  src-tauri\src\lib.rs:1245:        let mut s = status.lock().await;
+  src-tauri\src\lib.rs:1246:        s.phase = "server".into();
+  src-tauri\src\lib.rs:1247:        s.detail = "Starting API server...".into();
+  src-tauri\src\lib.rs:1248:    }
+  src-tauri\src\lib.rs:1249:
+> src-tauri\src\lib.rs:1250:    let uv_bin = resolve_bin("uv");
+  src-tauri\src\lib.rs:1251:
+  src-tauri\src\lib.rs:1252:    // Verify uv is actually installed. Concrete per-OS instructions —
+  src-tauri\src\lib.rs:1253:    // the generic "install it from astral.sh" was the #1 source of
+  src-tauri\src\lib.rs:1254:    // confusion on the Discord support thread; users couldn't tell whether
+  src-tauri\src\lib.rs:1255:    // to use winget, scoop, pip, or the official installer.
+  src-tauri\src\lib.rs:1256:    if !std::path::Path::new(&uv_bin).exists() && uv_bin == "uv" {
+  src-tauri\src\lib.rs:1257:        let mut s = status.lock().await;
+  src-tauri\src\lib.rs:1258:        #[cfg(target_os = "windows")]
+> src-tauri\src\lib.rs:1259:        let msg = "Could not find 'uv' (Python package manager). \
+  src-tauri\src\lib.rs:1260:                   To install on Windows, open PowerShell and run:\n\n\
+  src-tauri\src\lib.rs:1261:                   powershell -ExecutionPolicy Bypass -c \"irm
+https://astral.sh/uv/install.ps1 | iex\"\n\n\
+  src-tauri\src\lib.rs:1262:                   Then close and relaunch this app. \
+  src-tauri\src\lib.rs:1263:                   (If the install completes but the app still can't find uv, \
+  src-tauri\src\lib.rs:1264:                   you may need to log out and back in so PATH refreshes.)";
+  src-tauri\src\lib.rs:1265:        #[cfg(target_os = "macos")]
+> src-tauri\src\lib.rs:1266:        let msg = "Could not find 'uv' (Python package manager). \
+  src-tauri\src\lib.rs:1267:                   To install on macOS, open Terminal and run:\n\n\
+  src-tauri\src\lib.rs:1268:                   curl -LsSf https://astral.sh/uv/install.sh | sh\n\n\
+  src-tauri\src\lib.rs:1269:                   Then relaunch this app.";
+  src-tauri\src\lib.rs:1270:        #[cfg(target_os = "linux")]
+> src-tauri\src\lib.rs:1271:        let msg = "Could not find 'uv' (Python package manager). \
+  src-tauri\src\lib.rs:1272:                   To install on Linux, open a terminal and run:\n\n\
+  src-tauri\src\lib.rs:1273:                   curl -LsSf https://astral.sh/uv/install.sh | sh\n\n\
+  src-tauri\src\lib.rs:1274:                   Then relaunch this app.";
+  src-tauri\src\lib.rs:1275:        #[cfg(not(any(target_os = "windows", target_os = "macos", target_os =
+"linux")))]
+> src-tauri\src\lib.rs:1276:        let msg = "Could not find 'uv' (Python package manager). \
+  src-tauri\src\lib.rs:1277:                   Install it from https://astral.sh/uv then relaunch.";
+  src-tauri\src\lib.rs:1278:        s.error = Some(msg.into());
+  src-tauri\src\lib.rs:1279:        return;
+  src-tauri\src\lib.rs:1280:    }
+  src-tauri\src\lib.rs:1281:
+  src-tauri\src\lib.rs:1282:    let mut project_root = find_project_root();
+  src-tauri\src\lib.rs:1283:
+  src-tauri\src\lib.rs:1284:    if project_root.is_none() {
+  src-tauri\src\lib.rs:1285:        // Auto-clone on first launch
+  src-tauri\src\lib.rs:1286:        let git_bin = resolve_bin("git");
+  src-tauri\src\lib.rs:1970:        .map_err(|e| format!("Invalid response: {}", e))
+  src-tauri\src\lib.rs:1971:}
+  src-tauri\src\lib.rs:1972:
+  src-tauri\src\lib.rs:1973:#[tauri::command]
+  src-tauri\src\lib.rs:1974:async fn run_jarvis_command(args: Vec<String>) -> Result<String, String> {
+> src-tauri\src\lib.rs:1975:    let uv_bin = resolve_bin("uv");
+  src-tauri\src\lib.rs:1976:
+  src-tauri\src\lib.rs:1977:    let mut cmd_args = vec!["run".to_string(), "jarvis".to_string()];
+  src-tauri\src\lib.rs:1978:    cmd_args.extend(args.iter().cloned());
+  src-tauri\src\lib.rs:1979:
+  src-tauri\src\lib.rs:1980:    let mut cmd = tokio::process::Command::new(&uv_bin);
+  src-tauri\src\lib.rs:1981:    cmd.args(&cmd_args);
+  src-tauri\src\lib.rs:1982:    // Run from the project root so `uv run jarvis` resolves the OpenJarvis
+  src-tauri\src\lib.rs:1983:    // project regardless of the app's launch cwd. In a packaged install the
+  src-tauri\src\lib.rs:1984:    // cwd isn't the checkout, so without this `jarvis` isn't found and the
+  src-tauri\src\lib.rs:1985:    // backend never starts — the UI then shows "Failed to get response"
+
+
+PS C:\Users\mavmu\AppData\Local\OpenJarvis\src\frontend>
