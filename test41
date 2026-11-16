@@ -1,0 +1,250 @@
+PS C:\Users\mavmu\AppData\Local\OpenJarvis\src\frontend> Get-Content ".\src-tauri\src\lib.rs" | Select-String -Pattern "read_configured_inference_config|parse_configured_inference_config|configured_at_launch" -Context 8,15
+
+  // ---------------------------------------------------------------------------
+  // Backend boot sequence (runs in background after app launch)
+  // ---------------------------------------------------------------------------
+
+  async fn boot_backend(backend: SharedBackend, status: SharedStatus) {
+      // Never infer consent from a missing or malformed config. A fresh desktop
+      // install must persist an explicit source choice before this function can
+      // launch Ollama, contact a custom endpoint, or download a model.
+>     let Some(mut cfg) = read_configured_inference_config() else {
+          *status.lock().await = SetupStatus::default();
+          return;
+      };
+      let mut pending_rollback = PendingInferenceRollback::new(&cfg);
+      let plan = boot_plan(&cfg, total_ram_gb());
+      {
+          let mut s = status.lock().await;
+          *s = SetupStatus::starting(&cfg);
+          s.source = match cfg.kind {
+              SourceKind::Ollama => "ollama",
+              SourceKind::Custom => "custom",
+          }
+          .into();
+      }
+
+      api_base()
+  }
+
+  #[tauri::command]
+  async fn start_backend(
+      backend: tauri::State<'_, SharedBackend>,
+      status: tauri::State<'_, SharedStatus>,
+  ) -> Result<(), String> {
+>     if read_configured_inference_config().is_none() {
+          *status.lock().await = SetupStatus::default();
+          return Err("Choose an inference source before starting OpenJarvis.".into());
+      }
+      let b = backend.inner().clone();
+      let s = status.inner().clone();
+      start_managed_boot(b, s).await;
+      Ok(())
+  }
+
+  #[tauri::command]
+  async fn stop_backend(backend: tauri::State<'_, SharedBackend>) -> Result<(), String> {
+      backend.lock().await.stop_all().await;
+      Ok(())
+  }
+
+              }
+          }
+      }
+  }
+
+  /// Parse only an explicitly persisted source choice. Missing/invalid config is
+  /// intentionally `None`: callers on the boot path must wait for setup rather
+  /// than silently falling back to Ollama.
+> fn parse_configured_inference_config(text: &str) -> Option<InferenceConfig> {
+      let value = serde_json::from_str::<serde_json::Value>(text).ok()?;
+      if !value.as_object()?.contains_key("kind") {
+          return None;
+      }
+      serde_json::from_value::<InferenceConfig>(value).ok()
+  }
+
+> fn read_configured_inference_config() -> Option<InferenceConfig> {
+      std::fs::read_to_string(inference_config_path())
+          .ok()
+>         .and_then(|text| parse_configured_inference_config(&text))
+  }
+
+  /// Read the on-disk inference config, or the Ollama default if absent.
+  fn read_inference_config() -> InferenceConfig {
+>     read_configured_inference_config().unwrap_or_default()
+  }
+
+  /// Write the inference config to disk (pretty JSON).
+  fn write_inference_config(cfg: &InferenceConfig) -> Result<(), String> {
+      let path = inference_config_path();
+      write_inference_config_at(cfg, &path)
+  }
+
+  fn write_inference_config_at(cfg: &InferenceConfig, path: &std::path::Path) -> Result<(), String> {
+      if let Some(parent) = path.parent() {
+          let _ = std::fs::create_dir_all(parent);
+      }
+      let json = serde_json::to_string_pretty(cfg).map_err(|e| e.to_string())?;
+      std::fs::write(path, json + "\n").map_err(|e| format!("Failed to save inference config: {}",
+e))
+  }
+
+  // ---------------------------------------------------------------------------
+  // App entry point
+  // ---------------------------------------------------------------------------
+
+  #[cfg_attr(mobile, tauri::mobile_entry_point)]
+  pub fn run() {
+      let backend: SharedBackend = Arc::new(Mutex::new(BackendManager::default()));
+>     let configured_at_launch = match read_configured_inference_config() {
+          Some(cfg) if cfg.confirmed => {
+              // A confirmed source never consumes a staging slot. Clear any
+              // remnant from a prior interrupted config write.
+              let _ = secure_store_set(PENDING_INFERENCE_API_KEY, "");
+              Some(cfg)
+          }
+          Some(_) => {
+              // A prior first-run boot was interrupted or failed before it
+              // reached ready. Never replay that unvalidated choice on launch.
+              let _ = discard_pending_inference_setup();
+              None
+          }
+          None => {
+              // Clean up a stage left behind if the process exited between the
+              // secure-store write and the pending config write.
+              let _ = secure_store_set(PENDING_INFERENCE_API_KEY, "");
+              None
+          }
+      };
+>     let initial_status = configured_at_launch
+          .as_ref()
+          .map(SetupStatus::starting)
+          .unwrap_or_default();
+      let status: SharedStatus = Arc::new(Mutex::new(initial_status));
+
+      let boot_backend_ref = backend.clone();
+      let boot_status_ref = status.clone();
+
+      tauri::Builder::default()
+          .manage(backend.clone())
+          .manage(status.clone())
+          .plugin(tauri_plugin_notification::init())
+          .plugin(tauri_plugin_shell::init())
+          .plugin(tauri_plugin_global_shortcut::Builder::new().build())
+          .plugin(tauri_plugin_autostart::init(
+                  }) {
+                      eprintln!("Warning: could not register Cmd+Shift+Space: {e}");
+                  }
+              }
+
+              // Returning users keep automatic startup after they have persisted
+              // a source. Fresh installs stay inert until the setup UI records
+              // explicit consent and invokes `start_backend`.
+>             if configured_at_launch.is_some() {
+                  tauri::async_runtime::spawn(start_managed_boot(boot_backend_ref, boot_status_ref));
+              }
+
+              Ok(())
+          })
+          .invoke_handler(tauri::generate_handler![
+              get_setup_status,
+              get_api_base,
+              start_backend,
+              stop_backend,
+              reset_inference_source,
+              check_health,
+              fetch_energy,
+              fetch_telemetry,
+              fetch_traces,
+
+  #[cfg(test)]
+  mod tests {
+      use super::{
+          boot_plan, default_local_model, discard_pending_inference_setup_at,
+          format_extension_import_failure, format_missing_rust_toolchain, format_port_unavailable,
+          format_uv_sync_failure, format_uv_sync_spawn_error, managed_cloud_key_names,
+          matching_installed_model, model_names_match, normalize_host,
+>         parse_configured_inference_config, parse_ollama_model_names,
+          persist_confirmed_inference_config_at, preferred_installed_model,
+          project_root_near_executable, reload_cloud_keys_for_owned_backend_at,
+          should_persist_resolved_model, spawn_owned_child, stage_pending_inference_config_at,
+          startup_installed_model, upsert_engine_host, uv_sync_stderr_tail, BackendManager,
+          InferenceConfig, InferenceCredentialStore, PendingInferenceRollback, SetupStatus,
+          SourceKind, DESKTOP_UV_SYNC_COMMAND, PENDING_INFERENCE_API_KEY,
+      };
+      use std::collections::HashMap;
+      use std::path::Path;
+      use std::sync::Mutex as StdMutex;
+
+      #[test]
+      fn atlas_cloud_key_is_loaded_with_managed_desktop_keys() {
+          assert!(managed_cloud_key_names().contains(&"ATLASCLOUD_API_KEY".to_string()));
+      }
+              model: Some("qwen3.5:9b".into()),
+              ..Default::default()
+          };
+          assert!(!should_persist_resolved_model(&user_cfg));
+      }
+
+      #[test]
+      fn startup_requires_an_explicit_valid_source_config() {
+>         assert!(parse_configured_inference_config("").is_none());
+>         assert!(parse_configured_inference_config("not json").is_none());
+>         assert!(parse_configured_inference_config("{}").is_none());
+
+>         let ollama = parse_configured_inference_config(r#"{"kind":"ollama"}"#).unwrap();
+          assert!(matches!(ollama.kind, SourceKind::Ollama));
+          assert!(ollama.confirmed, "legacy explicit configs remain trusted");
+
+>         let custom = parse_configured_inference_config(
+              r#"{"kind":"custom","model":"m","host":"http://localhost:1234"}"#,
+          )
+          .unwrap();
+          assert!(matches!(custom.kind, SourceKind::Custom));
+          assert!(custom.confirmed);
+
+>         let pending = parse_configured_inference_config(
+              r#"{"kind":"custom","confirmed":false,"model":"m","host":"http://localhost:1234"}"#,
+          )
+          .unwrap();
+          assert!(!pending.confirmed);
+      }
+
+      #[test]
+      fn initial_setup_status_is_inert_until_a_source_is_chosen() {
+          let status = SetupStatus::default();
+          assert!(status.requires_source);
+          assert_eq!(status.phase, "awaiting_source");
+          assert_eq!(status.source, "unconfigured");
+          assert!(!status.ollama_ready);
+          assert!(!status.model_ready);
+          assert!(!status.server_ready);
+          let status = SetupStatus::starting(&cfg);
+          assert!(!status.requires_source);
+          assert_eq!(status.phase, "starting");
+          assert_eq!(status.source, "custom");
+      }
+
+      #[test]
+      fn parse_reads_custom_endpoint() {
+>         let cfg = parse_configured_inference_config(
+
+r#"{"kind":"custom","model":"qwen2.5-7b","host":"http://localhost:1234","engine":"lmstudio"}"#,
+          )
+          .unwrap();
+          assert!(matches!(cfg.kind, SourceKind::Custom));
+          assert_eq!(cfg.model.as_deref(), Some("qwen2.5-7b"));
+          assert_eq!(cfg.host.as_deref(), Some("http://localhost:1234"));
+          assert_eq!(cfg.engine.as_deref(), Some("lmstudio"));
+      }
+
+      #[test]
+      fn normalize_host_strips_trailing_slash_and_v1() {
+          assert_eq!(
+              normalize_host("http://localhost:1234/v1"),
+              "http://localhost:1234"
+          );
+
+
+PS C:\Users\mavmu\AppData\Local\OpenJarvis\src\frontend>
