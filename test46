@@ -1,0 +1,235 @@
+PS C:\Users\mavmu\AppData\Local\OpenJarvis\src\frontend> Select-String -Path ".\src-tauri\src\lib.rs" -Pattern 'struct InferenceConfig|enum SourceKind|parse_configured_inference_config|read_configured_inference_config' -Context 3,18
+
+  src-tauri\src\lib.rs:1054:    // Never infer consent from a missing or malformed config. A fresh desktop
+  src-tauri\src\lib.rs:1055:    // install must persist an explicit source choice before this function can
+  src-tauri\src\lib.rs:1056:    // launch Ollama, contact a custom endpoint, or download a model.
+> src-tauri\src\lib.rs:1057:    let Some(mut cfg) = read_configured_inference_config() else {
+  src-tauri\src\lib.rs:1058:        *status.lock().await = SetupStatus::default();
+  src-tauri\src\lib.rs:1059:        return;
+  src-tauri\src\lib.rs:1060:    };
+  src-tauri\src\lib.rs:1061:    let mut pending_rollback = PendingInferenceRollback::new(&cfg);
+  src-tauri\src\lib.rs:1062:    let plan = boot_plan(&cfg, total_ram_gb());
+  src-tauri\src\lib.rs:1063:    {
+  src-tauri\src\lib.rs:1064:        let mut s = status.lock().await;
+  src-tauri\src\lib.rs:1065:        *s = SetupStatus::starting(&cfg);
+  src-tauri\src\lib.rs:1066:        s.source = match cfg.kind {
+  src-tauri\src\lib.rs:1067:            SourceKind::Ollama => "ollama",
+  src-tauri\src\lib.rs:1068:            SourceKind::Custom => "custom",
+  src-tauri\src\lib.rs:1069:        }
+  src-tauri\src\lib.rs:1070:        .into();
+  src-tauri\src\lib.rs:1071:    }
+  src-tauri\src\lib.rs:1072:
+  src-tauri\src\lib.rs:1073:    // For the Ollama path, model resolution may fall back to FALLBACK_MODEL; we
+  src-tauri\src\lib.rs:1074:    // record what is actually available here so the serve command below uses
+  src-tauri\src\lib.rs:1075:    // it instead of the originally-planned tag. None on the custom path.
+  src-tauri\src\lib.rs:1765:    backend: tauri::State<'_, SharedBackend>,
+  src-tauri\src\lib.rs:1766:    status: tauri::State<'_, SharedStatus>,
+  src-tauri\src\lib.rs:1767:) -> Result<(), String> {
+> src-tauri\src\lib.rs:1768:    if read_configured_inference_config().is_none() {
+  src-tauri\src\lib.rs:1769:        *status.lock().await = SetupStatus::default();
+  src-tauri\src\lib.rs:1770:        return Err("Choose an inference source before starting OpenJarvis.".into());
+  src-tauri\src\lib.rs:1771:    }
+  src-tauri\src\lib.rs:1772:    let b = backend.inner().clone();
+  src-tauri\src\lib.rs:1773:    let s = status.inner().clone();
+  src-tauri\src\lib.rs:1774:    start_managed_boot(b, s).await;
+  src-tauri\src\lib.rs:1775:    Ok(())
+  src-tauri\src\lib.rs:1776:}
+  src-tauri\src\lib.rs:1777:
+  src-tauri\src\lib.rs:1778:#[tauri::command]
+  src-tauri\src\lib.rs:1779:async fn stop_backend(backend: tauri::State<'_, SharedBackend>) -> Result<(),
+String> {
+  src-tauri\src\lib.rs:1780:    backend.lock().await.stop_all().await;
+  src-tauri\src\lib.rs:1781:    Ok(())
+  src-tauri\src\lib.rs:1782:}
+  src-tauri\src\lib.rs:1783:
+  src-tauri\src\lib.rs:1784:/// Abort startup, stop every child, discard an unworkable source, and return
+  src-tauri\src\lib.rs:1785:/// the UI to the inert chooser. This is the recovery path for setup failures.
+  src-tauri\src\lib.rs:1786:#[tauri::command]
+  src-tauri\src\lib.rs:2534:
+  src-tauri\src\lib.rs:2535:#[derive(serde::Serialize, serde::Deserialize, Clone, Copy, Debug, PartialEq, Eq)]
+  src-tauri\src\lib.rs:2536:#[serde(rename_all = "lowercase")]
+> src-tauri\src\lib.rs:2537:enum SourceKind {
+  src-tauri\src\lib.rs:2538:    Ollama,
+  src-tauri\src\lib.rs:2539:    Custom,
+  src-tauri\src\lib.rs:2540:}
+  src-tauri\src\lib.rs:2541:
+  src-tauri\src\lib.rs:2542:impl Default for SourceKind {
+  src-tauri\src\lib.rs:2543:    fn default() -> Self {
+  src-tauri\src\lib.rs:2544:        SourceKind::Ollama
+  src-tauri\src\lib.rs:2545:    }
+  src-tauri\src\lib.rs:2546:}
+  src-tauri\src\lib.rs:2547:
+  src-tauri\src\lib.rs:2548:#[derive(serde::Serialize, serde::Deserialize, Clone, Debug, Default)]
+> src-tauri\src\lib.rs:2549:struct InferenceConfig {
+  src-tauri\src\lib.rs:2550:    #[serde(default)]
+  src-tauri\src\lib.rs:2551:    kind: SourceKind,
+  src-tauri\src\lib.rs:2552:    /// First-run choices stay pending until the complete backend reaches
+  src-tauri\src\lib.rs:2553:    /// ready. Legacy configs predate this field and remain trusted.
+  src-tauri\src\lib.rs:2554:    #[serde(default = "legacy_config_is_confirmed")]
+  src-tauri\src\lib.rs:2555:    confirmed: bool,
+  src-tauri\src\lib.rs:2556:    #[serde(default, skip_serializing_if = "Option::is_none")]
+  src-tauri\src\lib.rs:2557:    model: Option<String>,
+  src-tauri\src\lib.rs:2558:    /// Bare base URL (no trailing `/v1`), custom only.
+  src-tauri\src\lib.rs:2559:    #[serde(default, skip_serializing_if = "Option::is_none")]
+  src-tauri\src\lib.rs:2560:    host: Option<String>,
+  src-tauri\src\lib.rs:2561:    /// OpenAI-compatible engine key (e.g. "lmstudio"), custom only.
+  src-tauri\src\lib.rs:2562:    #[serde(default, skip_serializing_if = "Option::is_none")]
+  src-tauri\src\lib.rs:2563:    engine: Option<String>,
+  src-tauri\src\lib.rs:2564:}
+  src-tauri\src\lib.rs:2565:
+  src-tauri\src\lib.rs:2566:fn legacy_config_is_confirmed() -> bool {
+  src-tauri\src\lib.rs:2567:    true
+  src-tauri\src\lib.rs:2850:/// Parse only an explicitly persisted source choice. Missing/invalid config is
+  src-tauri\src\lib.rs:2851:/// intentionally `None`: callers on the boot path must wait for setup rather
+  src-tauri\src\lib.rs:2852:/// than silently falling back to Ollama.
+> src-tauri\src\lib.rs:2853:fn parse_configured_inference_config(text: &str) -> Option<InferenceConfig> {
+  src-tauri\src\lib.rs:2854:    let value = serde_json::from_str::<serde_json::Value>(text).ok()?;
+  src-tauri\src\lib.rs:2855:    if !value.as_object()?.contains_key("kind") {
+  src-tauri\src\lib.rs:2856:        return None;
+  src-tauri\src\lib.rs:2857:    }
+  src-tauri\src\lib.rs:2858:    serde_json::from_value::<InferenceConfig>(value).ok()
+  src-tauri\src\lib.rs:2859:}
+  src-tauri\src\lib.rs:2860:
+> src-tauri\src\lib.rs:2861:fn read_configured_inference_config() -> Option<InferenceConfig> {
+  src-tauri\src\lib.rs:2862:    std::fs::read_to_string(inference_config_path())
+  src-tauri\src\lib.rs:2863:        .ok()
+> src-tauri\src\lib.rs:2864:        .and_then(|text| parse_configured_inference_config(&text))
+  src-tauri\src\lib.rs:2865:}
+  src-tauri\src\lib.rs:2866:
+  src-tauri\src\lib.rs:2867:/// Read the on-disk inference config, or the Ollama default if absent.
+  src-tauri\src\lib.rs:2868:fn read_inference_config() -> InferenceConfig {
+> src-tauri\src\lib.rs:2869:    read_configured_inference_config().unwrap_or_default()
+  src-tauri\src\lib.rs:2870:}
+  src-tauri\src\lib.rs:2871:
+  src-tauri\src\lib.rs:2872:/// Write the inference config to disk (pretty JSON).
+  src-tauri\src\lib.rs:2873:fn write_inference_config(cfg: &InferenceConfig) -> Result<(), String> {
+  src-tauri\src\lib.rs:2874:    let path = inference_config_path();
+  src-tauri\src\lib.rs:2875:    write_inference_config_at(cfg, &path)
+  src-tauri\src\lib.rs:2876:}
+  src-tauri\src\lib.rs:2877:
+  src-tauri\src\lib.rs:2878:fn write_inference_config_at(cfg: &InferenceConfig, path: &std::path::Path) ->
+Result<(), String> {
+  src-tauri\src\lib.rs:2879:    if let Some(parent) = path.parent() {
+  src-tauri\src\lib.rs:2880:        let _ = std::fs::create_dir_all(parent);
+  src-tauri\src\lib.rs:2881:    }
+  src-tauri\src\lib.rs:2882:    let json = serde_json::to_string_pretty(cfg).map_err(|e| e.to_string())?;
+  src-tauri\src\lib.rs:2883:    std::fs::write(path, json + "\n").map_err(|e| format!("Failed to save inference
+config: {}", e))
+  src-tauri\src\lib.rs:2884:}
+  src-tauri\src\lib.rs:2885:
+  src-tauri\src\lib.rs:2886:/// Upsert `[engine.<engine>] host = "<host>"` into an existing config.toml
+  src-tauri\src\lib.rs:2887:/// string, preserving all other content/formatting. Pure: string in, string out.
+  src-tauri\src\lib.rs:3328:#[cfg_attr(mobile, tauri::mobile_entry_point)]
+  src-tauri\src\lib.rs:3329:pub fn run() {
+  src-tauri\src\lib.rs:3330:    let backend: SharedBackend = Arc::new(Mutex::new(BackendManager::default()));
+> src-tauri\src\lib.rs:3331:    let configured_at_launch = match read_configured_inference_config() {
+  src-tauri\src\lib.rs:3332:        Some(cfg) if cfg.confirmed => {
+  src-tauri\src\lib.rs:3333:            // A confirmed source never consumes a staging slot. Clear any
+  src-tauri\src\lib.rs:3334:            // remnant from a prior interrupted config write.
+  src-tauri\src\lib.rs:3335:            let _ = secure_store_set(PENDING_INFERENCE_API_KEY, "");
+  src-tauri\src\lib.rs:3336:            Some(cfg)
+  src-tauri\src\lib.rs:3337:        }
+  src-tauri\src\lib.rs:3338:        Some(_) => {
+  src-tauri\src\lib.rs:3339:            // A prior first-run boot was interrupted or failed before it
+  src-tauri\src\lib.rs:3340:            // reached ready. Never replay that unvalidated choice on launch.
+  src-tauri\src\lib.rs:3341:            let _ = discard_pending_inference_setup();
+  src-tauri\src\lib.rs:3342:            None
+  src-tauri\src\lib.rs:3343:        }
+  src-tauri\src\lib.rs:3344:        None => {
+  src-tauri\src\lib.rs:3345:            // Clean up a stage left behind if the process exited between the
+  src-tauri\src\lib.rs:3346:            // secure-store write and the pending config write.
+  src-tauri\src\lib.rs:3347:            let _ = secure_store_set(PENDING_INFERENCE_API_KEY, "");
+  src-tauri\src\lib.rs:3348:            None
+  src-tauri\src\lib.rs:3349:        }
+  src-tauri\src\lib.rs:3501:        format_extension_import_failure, format_missing_rust_toolchain,
+format_port_unavailable,
+  src-tauri\src\lib.rs:3502:        format_uv_sync_failure, format_uv_sync_spawn_error, managed_cloud_key_names,
+  src-tauri\src\lib.rs:3503:        matching_installed_model, model_names_match, normalize_host,
+> src-tauri\src\lib.rs:3504:        parse_configured_inference_config, parse_ollama_model_names,
+  src-tauri\src\lib.rs:3505:        persist_confirmed_inference_config_at, preferred_installed_model,
+  src-tauri\src\lib.rs:3506:        project_root_near_executable, reload_cloud_keys_for_owned_backend_at,
+  src-tauri\src\lib.rs:3507:        should_persist_resolved_model, spawn_owned_child,
+stage_pending_inference_config_at,
+  src-tauri\src\lib.rs:3508:        startup_installed_model, upsert_engine_host, uv_sync_stderr_tail,
+BackendManager,
+  src-tauri\src\lib.rs:3509:        InferenceConfig, InferenceCredentialStore, PendingInferenceRollback,
+SetupStatus,
+  src-tauri\src\lib.rs:3510:        SourceKind, DESKTOP_UV_SYNC_COMMAND, PENDING_INFERENCE_API_KEY,
+  src-tauri\src\lib.rs:3511:    };
+  src-tauri\src\lib.rs:3512:    use std::collections::HashMap;
+  src-tauri\src\lib.rs:3513:    use std::path::Path;
+  src-tauri\src\lib.rs:3514:    use std::sync::Mutex as StdMutex;
+  src-tauri\src\lib.rs:3515:
+  src-tauri\src\lib.rs:3516:    #[test]
+  src-tauri\src\lib.rs:3517:    fn atlas_cloud_key_is_loaded_with_managed_desktop_keys() {
+  src-tauri\src\lib.rs:3518:
+assert!(managed_cloud_key_names().contains(&"ATLASCLOUD_API_KEY".to_string()));
+  src-tauri\src\lib.rs:3519:    }
+  src-tauri\src\lib.rs:3520:
+  src-tauri\src\lib.rs:3521:    #[derive(Default)]
+  src-tauri\src\lib.rs:3522:    struct MemoryCredentialStore {
+  src-tauri\src\lib.rs:3812:
+  src-tauri\src\lib.rs:3813:    #[test]
+  src-tauri\src\lib.rs:3814:    fn startup_requires_an_explicit_valid_source_config() {
+> src-tauri\src\lib.rs:3815:        assert!(parse_configured_inference_config("").is_none());
+> src-tauri\src\lib.rs:3816:        assert!(parse_configured_inference_config("not json").is_none());
+> src-tauri\src\lib.rs:3817:        assert!(parse_configured_inference_config("{}").is_none());
+  src-tauri\src\lib.rs:3818:
+> src-tauri\src\lib.rs:3819:        let ollama =
+parse_configured_inference_config(r#"{"kind":"ollama"}"#).unwrap();
+  src-tauri\src\lib.rs:3820:        assert!(matches!(ollama.kind, SourceKind::Ollama));
+  src-tauri\src\lib.rs:3821:        assert!(ollama.confirmed, "legacy explicit configs remain trusted");
+  src-tauri\src\lib.rs:3822:
+> src-tauri\src\lib.rs:3823:        let custom = parse_configured_inference_config(
+  src-tauri\src\lib.rs:3824:            r#"{"kind":"custom","model":"m","host":"http://localhost:1234"}"#,
+  src-tauri\src\lib.rs:3825:        )
+  src-tauri\src\lib.rs:3826:        .unwrap();
+  src-tauri\src\lib.rs:3827:        assert!(matches!(custom.kind, SourceKind::Custom));
+  src-tauri\src\lib.rs:3828:        assert!(custom.confirmed);
+  src-tauri\src\lib.rs:3829:
+> src-tauri\src\lib.rs:3830:        let pending = parse_configured_inference_config(
+  src-tauri\src\lib.rs:3831:
+r#"{"kind":"custom","confirmed":false,"model":"m","host":"http://localhost:1234"}"#,
+  src-tauri\src\lib.rs:3832:        )
+  src-tauri\src\lib.rs:3833:        .unwrap();
+  src-tauri\src\lib.rs:3834:        assert!(!pending.confirmed);
+  src-tauri\src\lib.rs:3835:    }
+  src-tauri\src\lib.rs:3836:
+  src-tauri\src\lib.rs:3837:    #[test]
+  src-tauri\src\lib.rs:3838:    fn initial_setup_status_is_inert_until_a_source_is_chosen() {
+  src-tauri\src\lib.rs:3839:        let status = SetupStatus::default();
+  src-tauri\src\lib.rs:3840:        assert!(status.requires_source);
+  src-tauri\src\lib.rs:3841:        assert_eq!(status.phase, "awaiting_source");
+  src-tauri\src\lib.rs:3842:        assert_eq!(status.source, "unconfigured");
+  src-tauri\src\lib.rs:3843:        assert!(!status.ollama_ready);
+  src-tauri\src\lib.rs:3844:        assert!(!status.model_ready);
+  src-tauri\src\lib.rs:3845:        assert!(!status.server_ready);
+  src-tauri\src\lib.rs:3846:    }
+  src-tauri\src\lib.rs:3847:
+  src-tauri\src\lib.rs:3848:    #[test]
+  src-tauri\src\lib.rs:3862:
+  src-tauri\src\lib.rs:3863:    #[test]
+  src-tauri\src\lib.rs:3864:    fn parse_reads_custom_endpoint() {
+> src-tauri\src\lib.rs:3865:        let cfg = parse_configured_inference_config(
+  src-tauri\src\lib.rs:3866:
+r#"{"kind":"custom","model":"qwen2.5-7b","host":"http://localhost:1234","engine":"lmstudio"}"#,
+  src-tauri\src\lib.rs:3867:        )
+  src-tauri\src\lib.rs:3868:        .unwrap();
+  src-tauri\src\lib.rs:3869:        assert!(matches!(cfg.kind, SourceKind::Custom));
+  src-tauri\src\lib.rs:3870:        assert_eq!(cfg.model.as_deref(), Some("qwen2.5-7b"));
+  src-tauri\src\lib.rs:3871:        assert_eq!(cfg.host.as_deref(), Some("http://localhost:1234"));
+  src-tauri\src\lib.rs:3872:        assert_eq!(cfg.engine.as_deref(), Some("lmstudio"));
+  src-tauri\src\lib.rs:3873:    }
+  src-tauri\src\lib.rs:3874:
+  src-tauri\src\lib.rs:3875:    #[test]
+  src-tauri\src\lib.rs:3876:    fn normalize_host_strips_trailing_slash_and_v1() {
+  src-tauri\src\lib.rs:3877:        assert_eq!(
+  src-tauri\src\lib.rs:3878:            normalize_host("http://localhost:1234/v1"),
+  src-tauri\src\lib.rs:3879:            "http://localhost:1234"
+  src-tauri\src\lib.rs:3880:        );
+  src-tauri\src\lib.rs:3881:        assert_eq!(
+  src-tauri\src\lib.rs:3882:            normalize_host("http://localhost:1234/v1/"),
+  src-tauri\src\lib.rs:3883:            "http://localhost:1234"
+
+
+PS C:\Users\mavmu\AppData\Local\OpenJarvis\src\frontend>
