@@ -1,0 +1,252 @@
+PS C:\Users\mavmu\AppData\Local\OpenJarvis\src\frontend> Select-String -Path "..\src\openjarvis\cli\daemon_cmd.py" -Pattern "Another server is already registered|def _read_pid|def _write_pid|PID_FILE|pid_file|STATE_FILE" -Context 3,7
+
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:20:from openjarvis.core.utils
+import process_alive, terminate_process
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:21:from
+openjarvis.security.file_utils import secure_write_json, secure_write_text
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:22:
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:23:_PID_FILE =
+DEFAULT_CONFIG_DIR / "server.pid"
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:24:_LOG_FILE =
+DEFAULT_CONFIG_DIR / "server.log"
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:25:# Records the address the
+daemon was actually started on. Without it `status`
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:26:# and `restart` fall back to
+the config defaults and misreport (or silently
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:27:# move) the port whenever
+`start` was given an explicit --host/--port.
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:28:_STATE_FILE =
+DEFAULT_CONFIG_DIR / "server.json"
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:29:_LAUNCH_TOKEN_ENV =
+"OPENJARVIS_DAEMON_LAUNCH_TOKEN"
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:30:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:31:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:32:def _pid_alive(pid: int) ->
+bool:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:33:    """Return whether *pid*
+identifies a running process without signaling it."""
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:34:    return process_alive(pid)
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:35:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:55:        return None
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:56:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:57:
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:58:def _read_pid_identity() ->
+dict:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:59:    """Read the optional
+Linux identity sidecar, preserving legacy PID files."""
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:60:    try:
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:61:        identity =
+json.loads(_PID_FILE.with_suffix(".identity.json").read_text())
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:62:    except (OSError,
+ValueError):
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:63:        return {}
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:64:    if (
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:65:        not
+isinstance(identity, dict)
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:66:        or
+type(identity.get("pid")) is not int
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:67:        or identity["pid"] <=
+0
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:68:        or
+type(identity.get("start_ticks")) is not int
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:176:            return False
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:177:        if confirmed is not
+None:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:178:            try:
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:179:
+secure_write_json(_PID_FILE.with_suffix(".identity.json"), confirmed)
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:180:            except OSError:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:181:                # Migration
+is optional. A read-only/full filesystem must not
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:182:                # make a
+verified live daemon inaccessible to status or stop.
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:183:                pass
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:184:    return True
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:185:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:186:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:187:@contextmanager
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:188:def _state_lock(state_file:
+Path | None = None) -> Iterator[None]:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:189:    """Serialize daemon
+bookkeeping across launching and supervised processes."""
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:190:    path = _PID_FILE if
+state_file is None else state_file
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:191:
+path.parent.mkdir(parents=True, exist_ok=True)
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:192:    with
+path.with_suffix(".lock").open("a+b") as lock:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:193:        if os.name == "nt":
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:194:            import msvcrt
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:195:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:196:            if lock.tell()
+== 0:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:197:
+lock.write(b"\0")
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:212:
+fcntl.flock(lock.fileno(), fcntl.LOCK_UN)
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:213:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:214:
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:215:def _read_pid_file() -> int
+| None:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:216:    try:
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:217:        pid =
+int(_PID_FILE.read_text().strip())
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:218:    except (OSError,
+ValueError):
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:219:        return None
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:220:    return pid if pid > 0
+else None
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:221:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:222:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:223:def
+_clear_state_unlocked(pid: int) -> None:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:224:    # The files can disagree
+after an interrupted older writer. Check each
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:225:    # owner separately; one
+matching file never authorizes deleting the other.
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:226:    if _read_pid_file() ==
+pid:
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:227:
+_PID_FILE.unlink(missing_ok=True)
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:228:    if
+_read_state().get("pid") == pid:
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:229:
+_STATE_FILE.unlink(missing_ok=True)
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:230:    if
+_read_pid_identity().get("pid") == pid:
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:231:
+_PID_FILE.with_suffix(".identity.json").unlink(missing_ok=True)
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:232:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:233:
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:234:def _read_pid_unlocked() ->
+int | None:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:235:    """Read and clean up
+daemon state while the state lock is held."""
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:236:    pid = _read_pid_file()
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:237:    if pid is None:
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:238:
+_PID_FILE.unlink(missing_ok=True)
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:239:        return None
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:240:    if not
+_registered_pid_alive(pid):
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:241:
+_clear_state_unlocked(pid)
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:242:        return None
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:243:    return pid
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:244:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:245:
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:246:def _read_pid() -> int |
+None:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:247:    """Read PID from pid
+file, return None if not found or stale."""
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:248:    with _state_lock():
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:249:        return
+_read_pid_unlocked()
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:250:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:251:
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:252:def _write_pid(
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:253:    pid: int,
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:254:    host: str = "",
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:255:    port: int | None = None,
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:256:    *,
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:257:    ready: bool = True,
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:258:    launch_token: str | None
+= None,
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:259:) -> None:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:262:
+_write_pid_unlocked(pid, host, port, ready=ready, launch_token=launch_token)
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:263:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:264:
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:265:def _write_pid_unlocked(
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:266:    pid: int,
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:267:    host: str = "",
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:268:    port: int | None = None,
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:269:    *,
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:270:    ready: bool = True,
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:271:    launch_token: str | None
+= None,
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:272:) -> None:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:273:    """Update the state
+while holding the lock, allowing one launch to promote."""
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:274:    existing =
+_read_pid_file()
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:275:    current = _read_state()
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:276:    same_launch = (
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:277:        launch_token is not
+None
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:278:        and
+current.get("launch_token") == launch_token
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:279:        and
+current.get("pid") == existing
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:280:    )
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:281:    if (
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:288:        return
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:289:    if existing is not None
+and existing != pid and _registered_pid_alive(existing):
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:290:        if not (ready and
+same_launch and current.get("ready") is False):
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:291:            raise
+RuntimeError(f"Another server is already registered (PID {existing})")
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:292:    identity =
+_linux_process_identity(pid)
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:293:    if identity is not None:
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:294:
+secure_write_json(_PID_FILE.with_suffix(".identity.json"), identity)
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:295:    else:
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:296:
+_PID_FILE.with_suffix(".identity.json").unlink(missing_ok=True)
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:297:
+secure_write_text(_PID_FILE, str(pid))
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:298:    if host or port is not
+None:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:299:        state = {"pid": pid,
+"host": host, "port": port}
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:300:        if not ready:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:301:            state["ready"] =
+False
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:302:        if launch_token is
+not None:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:303:
+state["launch_token"] = launch_token
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:304:
+secure_write_json(_STATE_FILE, state)
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:305:    else:
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:306:
+_STATE_FILE.unlink(missing_ok=True)
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:307:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:308:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:309:def _read_state() -> dict:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:310:    """Return the recorded
+daemon address, or {} when it is unavailable."""
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:311:    try:
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:312:        state =
+json.loads(_STATE_FILE.read_text())
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:313:    except (OSError,
+ValueError):
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:314:        return {}
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:315:    if not isinstance(state,
+dict):
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:316:        return {}
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:317:    if (
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:318:
+type(state.get("pid")) is not int
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:319:        or state["pid"] <= 0
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:337:    """Resolve the daemon's
+address, preferring what `start` recorded."""
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:338:    state = _read_state()
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:339:    if (
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:340:        state.get("pid") ==
+(pid if pid is not None else _read_pid_file())
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:341:        and
+state.get("ready", True)
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:342:        and state
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:343:    ):
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:344:        return
+state["host"], state["port"]
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:345:    config = load_config()
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:346:    return
+config.server.host, int(config.server.port)
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\cli\daemon_cmd.py:347:
+
+
+PS C:\Users\mavmu\AppData\Local\OpenJarvis\src\frontend>
