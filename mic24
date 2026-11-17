@@ -1,0 +1,136 @@
+PS C:\Users\mavmu\AppData\Local\OpenJarvis\src\frontend> Select-String -Path ".\src\components\Chat\InputArea.tsx" -Pattern "const sendMessage|const content =|isStreaming|setTimeout\(\(\) =>|sendMessage\(text\)" -Context 2,4
+
+  src\components\Chat\InputArea.tsx:107:  const setDeepResearch = useAppStore((s) => s.setDeepResearch);
+  src\components\Chat\InputArea.tsx:108:  const corpusSync = useResearchCorpusSync(deepResearch);
+> src\components\Chat\InputArea.tsx:109:  const isCurrentChatStreaming = streamState.isStreaming &&
+streamState.conversationId === activeId;
+  src\components\Chat\InputArea.tsx:110:
+  src\components\Chat\InputArea.tsx:111:  const {
+  src\components\Chat\InputArea.tsx:112:    state: speechState,
+  src\components\Chat\InputArea.tsx:113:    error: speechError,
+  src\components\Chat\InputArea.tsx:124:  const waitingForTtsRef = useRef(false);
+  src\components\Chat\InputArea.tsx:125:  const ttsStartedRef = useRef(false);
+> src\components\Chat\InputArea.tsx:126:  const previousStreamingRef = useRef(streamState.isStreaming);
+  src\components\Chat\InputArea.tsx:127:
+  src\components\Chat\InputArea.tsx:128:  useEffect(() => {
+  src\components\Chat\InputArea.tsx:129:    setSpeechState(speechState);
+  src\components\Chat\InputArea.tsx:130:  }, [speechState, setSpeechState]);
+  src\components\Chat\InputArea.tsx:134:  const prevModelRef = useRef(selectedModel);
+  src\components\Chat\InputArea.tsx:135:  useEffect(() => {
+> src\components\Chat\InputArea.tsx:136:    if (prevModelRef.current !== selectedModel &&
+streamState.isStreaming) {
+  src\components\Chat\InputArea.tsx:137:      abortRef.current?.abort();
+  src\components\Chat\InputArea.tsx:138:      if (timerRef.current) {
+  src\components\Chat\InputArea.tsx:139:        clearInterval(timerRef.current);
+  src\components\Chat\InputArea.tsx:140:        timerRef.current = null;
+  src\components\Chat\InputArea.tsx:144:    }
+  src\components\Chat\InputArea.tsx:145:    prevModelRef.current = selectedModel;
+> src\components\Chat\InputArea.tsx:146:  }, [selectedModel, streamState.isStreaming, resetStream]);
+  src\components\Chat\InputArea.tsx:147:
+  src\components\Chat\InputArea.tsx:148:  const micDisabled = !speechEnabled || !speechAvailable || speechState
+=== 'transcribing';
+  src\components\Chat\InputArea.tsx:149:  const micReason: 'not-enabled' | 'no-backend' | undefined =
+  src\components\Chat\InputArea.tsx:150:    !speechEnabled ? 'not-enabled'
+  src\components\Chat\InputArea.tsx:173:    resetStream();
+  src\components\Chat\InputArea.tsx:174:  }, [resetStream]);
+> src\components\Chat\InputArea.tsx:175:  const sendMessage = useCallback(async (spokenText?: string) => {
+> src\components\Chat\InputArea.tsx:176:    const content = (spokenText ?? input).trim();
+> src\components\Chat\InputArea.tsx:177:    if (!content || useAppStore.getState().streamState.isStreaming)
+return;
+  src\components\Chat\InputArea.tsx:178:    if (!selectedModel) {
+  src\components\Chat\InputArea.tsx:179:      toast.error('Pick a model first (⌘K)');
+  src\components\Chat\InputArea.tsx:180:      return;
+  src\components\Chat\InputArea.tsx:181:    }
+  src\components\Chat\InputArea.tsx:236:    setStreamState({
+  src\components\Chat\InputArea.tsx:237:      conversationId: convId,
+> src\components\Chat\InputArea.tsx:238:      isStreaming: true,
+  src\components\Chat\InputArea.tsx:239:      phase: deepResearch ? 'Researching...' : 'Generating...',
+  src\components\Chat\InputArea.tsx:240:      elapsedMs: 0,
+  src\components\Chat\InputArea.tsx:241:      activeToolCalls: [],
+  src\components\Chat\InputArea.tsx:242:      content: '',
+  src\components\Chat\InputArea.tsx:370:            // doesn't flash to 0 between the SSE close and the next
+  src\components\Chat\InputArea.tsx:371:            // /v1/telemetry/energy poll picking up the persisted
+record.
+> src\components\Chat\InputArea.tsx:372:            window.setTimeout(() => {
+  src\components\Chat\InputArea.tsx:373:              useAppStore.getState().setLiveEnergy(null);
+  src\components\Chat\InputArea.tsx:374:            }, 1500);
+  src\components\Chat\InputArea.tsx:375:            break;
+  src\components\Chat\InputArea.tsx:376:          }
+  src\components\Chat\InputArea.tsx:545:    activeId,
+  src\components\Chat\InputArea.tsx:546:    selectedModel,
+> src\components\Chat\InputArea.tsx:547:    streamState.isStreaming,
+  src\components\Chat\InputArea.tsx:548:    createConversation,
+  src\components\Chat\InputArea.tsx:549:    addMessage,
+  src\components\Chat\InputArea.tsx:550:    updateLastAssistant,
+  src\components\Chat\InputArea.tsx:551:    setStreamState,
+  src\components\Chat\InputArea.tsx:567:        }
+  src\components\Chat\InputArea.tsx:568:        waitingForReplyRef.current = true;
+> src\components\Chat\InputArea.tsx:569:        window.setTimeout(() => { if (continuousActiveRef.current) void
+sendMessage(text); }, 1000);
+  src\components\Chat\InputArea.tsx:570:        return false;
+  src\components\Chat\InputArea.tsx:571:      },
+  src\components\Chat\InputArea.tsx:572:    });
+  src\components\Chat\InputArea.tsx:573:  }, [listeningMode, selectedModel, startRecording, sendMessage]);
+  src\components\Chat\InputArea.tsx:593:    ttsStartedRef.current = false;
+  src\components\Chat\InputArea.tsx:594:    useTtsStore.getState().stop();
+> src\components\Chat\InputArea.tsx:595:    if (streamState.isStreaming) stopStreaming();
+  src\components\Chat\InputArea.tsx:596:
+  src\components\Chat\InputArea.tsx:597:    if (listeningMode === 'continuous') {
+  src\components\Chat\InputArea.tsx:598:      await startContinuousListening();
+  src\components\Chat\InputArea.tsx:599:    } else {
+  src\components\Chat\InputArea.tsx:608:    speechState,
+  src\components\Chat\InputArea.tsx:609:    stopRecording,
+> src\components\Chat\InputArea.tsx:610:    streamState.isStreaming,
+  src\components\Chat\InputArea.tsx:611:    stopStreaming,
+  src\components\Chat\InputArea.tsx:612:    startRecording,
+  src\components\Chat\InputArea.tsx:613:    startContinuousListening,
+  src\components\Chat\InputArea.tsx:614:    listeningMode,
+  src\components\Chat\InputArea.tsx:617:  useEffect(() => {
+  src\components\Chat\InputArea.tsx:618:    const wasStreaming = previousStreamingRef.current;
+> src\components\Chat\InputArea.tsx:619:    previousStreamingRef.current = streamState.isStreaming;
+  src\components\Chat\InputArea.tsx:620:
+  src\components\Chat\InputArea.tsx:621:    if (
+  src\components\Chat\InputArea.tsx:622:      !wasStreaming ||
+> src\components\Chat\InputArea.tsx:623:      streamState.isStreaming ||
+  src\components\Chat\InputArea.tsx:624:      !waitingForReplyRef.current ||
+  src\components\Chat\InputArea.tsx:625:      !continuousActiveRef.current
+  src\components\Chat\InputArea.tsx:626:    ) return;
+  src\components\Chat\InputArea.tsx:627:
+  src\components\Chat\InputArea.tsx:635:    }
+  src\components\Chat\InputArea.tsx:636:  }, [
+> src\components\Chat\InputArea.tsx:637:    streamState.isStreaming,
+  src\components\Chat\InputArea.tsx:638:    voiceOutputEnabled,
+  src\components\Chat\InputArea.tsx:639:    voiceAutoplay,
+  src\components\Chat\InputArea.tsx:640:    startContinuousListening,
+  src\components\Chat\InputArea.tsx:641:  ]);
+  src\components\Chat\InputArea.tsx:675:            type="button"
+  src\components\Chat\InputArea.tsx:676:            onClick={() => setDeepResearch(!deepResearch)}
+> src\components\Chat\InputArea.tsx:677:            disabled={streamState.isStreaming}
+  src\components\Chat\InputArea.tsx:678:            aria-pressed={deepResearch}
+  src\components\Chat\InputArea.tsx:679:            className="inline-flex items-center gap-1.5 px-2.5 py-1
+rounded-full text-xs transition-colors cursor-pointer disabled:cursor-default disabled:opacity-50"
+  src\components\Chat\InputArea.tsx:680:            style={{
+  src\components\Chat\InputArea.tsx:681:              background: deepResearch ? 'var(--color-accent-subtle)' :
+'transparent',
+  src\components\Chat\InputArea.tsx:719:          className="flex-1 bg-transparent outline-none resize-none
+text-sm leading-relaxed"
+  src\components\Chat\InputArea.tsx:720:          style={{ color: 'var(--color-text)', maxHeight: '200px' }}
+> src\components\Chat\InputArea.tsx:721:          disabled={streamState.isStreaming || modelLoading}
+  src\components\Chat\InputArea.tsx:722:        />
+  src\components\Chat\InputArea.tsx:723:        <MicButton
+  src\components\Chat\InputArea.tsx:724:          state={speechState}
+  src\components\Chat\InputArea.tsx:725:          onClick={handleMicClick}
+  src\components\Chat\InputArea.tsx:740:            <button
+  src\components\Chat\InputArea.tsx:741:              onClick={() => sendMessage()}
+> src\components\Chat\InputArea.tsx:742:              disabled={streamState.isStreaming || !input.trim() ||
+modelLoading || !selectedModel}
+  src\components\Chat\InputArea.tsx:743:              title={selectedModel ? 'Send message' : 'Pick a model
+first (⌘K)'}
+  src\components\Chat\InputArea.tsx:744:              className="p-2 rounded-xl transition-colors shrink-0
+cursor-pointer disabled:opacity-30 disabled:cursor-default"
+  src\components\Chat\InputArea.tsx:745:              style={{
+  src\components\Chat\InputArea.tsx:746:                background: input.trim() ? 'var(--color-accent)' :
+'var(--color-bg-tertiary)',
+
+
+PS C:\Users\mavmu\AppData\Local\OpenJarvis\src\frontend>
