@@ -1,0 +1,137 @@
+PS C:\Users\mavmu\AppData\Local\OpenJarvis\src\frontend> Select-String -Path "..\src\openjarvis\server\routes.py" -Pattern "def _handle_agent_stream" -Context 0,90
+
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:686:async def
+_handle_agent_stream(
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:687:    agent,
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:688:    model: str,
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:689:    req:
+ChatCompletionRequest,
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:690:    complexity_info=None,
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:691:    *,
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:692:    trace_store=None,
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:693:    bus=None,
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:694:    memory_service=None,
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:695:):
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:696:    """Run the configured
+agent and return its result as an SSE response.
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:697:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:698:    Agents own the
+tool-execution loop, which is synchronous today.  Run that
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:699:    loop in a worker thread
+and stream its final answer once complete.  This
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:700:    keeps ``stream:true``
+clients (including the desktop UI) on the same agent
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:701:    and configured toolkit as
+non-streaming requests instead of bypassing the
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:702:    agent and silently
+dropping server-side tools.
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:703:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:704:    Requests that explicitly
+supply OpenAI ``tools`` continue to use
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:705:    ``_handle_stream_tools``
+so their raw tool-call deltas are preserved.
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:706:    """
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:707:    chunk_id =
+f"chatcmpl-{uuid.uuid4().hex[:12]}"
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:708:    query_text = ""
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:709:    for message in
+reversed(req.messages):
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:710:        if message.role ==
+"user" and message.content:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:711:            query_text =
+message.content
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:712:            break
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:713:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:714:    async def generate():
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:715:        first_chunk =
+ChatCompletionChunk(
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:716:            id=chunk_id,
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:717:            model=model,
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:718:
+choices=[StreamChoice(delta=DeltaMessage(role="assistant"))],
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:719:        )
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:720:        yield f"data:
+{first_chunk.model_dump_json()}\n\n"
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:721:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:722:        try:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:723:            response = await
+asyncio.to_thread(
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:724:                _handle_agent,
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:725:                agent,
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:726:                model,
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:727:                req,
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:728:
+complexity_info,
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:729:
+trace_store=trace_store,
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:730:                bus=bus,
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:731:            )
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:732:        except Exception as
+exc:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:733:
+logging.getLogger("openjarvis.server").error(
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:734:                "Agent stream
+error: %s",
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:735:                exc,
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:736:                exc_info=True,
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:737:            )
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:738:            error_chunk =
+ChatCompletionChunk(
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:739:                id=chunk_id,
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:740:                model=model,
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:741:                choices=[
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:742:
+StreamChoice(
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:743:
+delta=DeltaMessage(
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:744:
+content=f"Sorry, an error occurred: {exc}",
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:745:                        ),
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:746:
+finish_reason="stop",
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:747:                    )
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:748:                ],
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:749:            )
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:750:            yield f"data:
+{error_chunk.model_dump_json()}\n\n"
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:751:            yield "data:
+[DONE]\n\n"
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:752:            return
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:753:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:754:        content =
+_response_content(response)
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:755:        if content:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:756:            content_chunk =
+ChatCompletionChunk(
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:757:                id=chunk_id,
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:758:                model=model,
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:759:
+choices=[StreamChoice(delta=DeltaMessage(content=content))],
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:760:            )
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:761:            yield f"data:
+{content_chunk.model_dump_json()}\n\n"
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:762:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:763:        import json as _json
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:764:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:765:        finish_chunk =
+ChatCompletionChunk(
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:766:            id=chunk_id,
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:767:            model=model,
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:768:            choices=[
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:769:
+StreamChoice(delta=DeltaMessage(), finish_reason="stop"),
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:770:            ],
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:771:        )
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:772:        finish_data =
+_json.loads(finish_chunk.model_dump_json())
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:773:        finish_data["usage"]
+= response.usage.model_dump()
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:774:        if complexity_info is
+not None:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:775:
+finish_data["complexity"] = complexity_info.model_dump()
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:776:        yield f"data:
+{_json.dumps(finish_data)}\n\n"
+
+
+PS C:\Users\mavmu\AppData\Local\OpenJarvis\src\frontend>
