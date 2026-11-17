@@ -1,0 +1,422 @@
+PS C:\Users\mavmu\AppData\Local\OpenJarvis\src\frontend> Select-String -Path "C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py" -Pattern '^def .*config|^class .*Config|^def resolve_mcp_servers' -Context 1,3
+
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:65:
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:66:def _ensure_config_dir() -> Path:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:67:    """Ensure the config directory exists with restrictive permissions."""
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:68:    from openjarvis.security.file_utils import secure_mkdir
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:69:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:367:@dataclass(slots=True)
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:368:class OllamaEngineConfig:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:369:    """Per-engine config for Ollama."""
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:370:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:371:    host: str = ""
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:374:@dataclass(slots=True)
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:375:class VLLMEngineConfig:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:376:    """Per-engine config for vLLM."""
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:377:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:378:    host: str = "http://localhost:8000"
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:381:@dataclass(slots=True)
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:382:class SGLangEngineConfig:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:383:    """Per-engine config for SGLang."""
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:384:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:385:    host: str = "http://localhost:30000"
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:388:@dataclass(slots=True)
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:389:class LlamaCppEngineConfig:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:390:    """Per-engine config for llama.cpp."""
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:391:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:392:    host: str = "http://localhost:8080"
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:396:@dataclass(slots=True)
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:397:class MLXEngineConfig:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:398:    """Per-engine config for MLX."""
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:399:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:400:    host: str = "http://localhost:8080"
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:403:@dataclass(slots=True)
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:404:class LMStudioEngineConfig:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:405:    """Per-engine config for LM Studio."""
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:406:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:407:    host: str = "http://localhost:1234"
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:410:@dataclass(slots=True)
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:411:class ExoEngineConfig:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:412:    """Per-engine config for Exo."""
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:413:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:414:    host: str = "http://localhost:52415"
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:417:@dataclass(slots=True)
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:418:class NexaEngineConfig:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:419:    """Per-engine config for Nexa."""
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:420:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:421:    host: str = "http://localhost:18181"
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:425:@dataclass(slots=True)
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:426:class UzuEngineConfig:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:427:    """Per-engine config for Uzu."""
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:428:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:429:    host: str = "http://localhost:8000"
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:432:@dataclass(slots=True)
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:433:class AppleFmEngineConfig:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:434:    """Per-engine config for Apple Foundation Models."""
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:435:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:436:    host: str = "http://localhost:8079"
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:439:@dataclass(slots=True)
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:440:class GemmaCppEngineConfig:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:441:    """Per-engine config for gemma.cpp."""
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:442:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:443:    model_path: str = ""
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:449:@dataclass(slots=True)
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:450:class AfmEngineConfig:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:451:    """Per-engine config for in-process Apple Foundation Models.
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:452:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:453:    No ``host``: this engine runs the SDK in-process rather than talking to a
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:469:@dataclass(slots=True)
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:470:class LemonadeEngineConfig:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:471:    """Per-engine config for Lemonade."""
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:472:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:473:    host: str = "http://localhost:13305"
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:476:@dataclass
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:477:class EngineConfig:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:478:    """Inference engine settings with nested per-engine configs."""
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:479:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:480:    default: str = "ollama"
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:605:@dataclass(slots=True)
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:606:class IntelligenceConfig:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:607:    """The model — identity, paths, quantization, and generation defaults."""
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:608:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:609:    default_model: str = ""
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:630:@dataclass(slots=True)
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:631:class DeepResearchConfig:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:632:    """Planner settings for the web Deep Research endpoint."""
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:633:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:634:    engine: str = ""  # Empty means use the active chat engine.
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:638:@dataclass(slots=True)
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:639:class RoutingLearningConfig:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:640:    """Routing sub-policy config within Learning."""
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:641:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:642:    policy: str = "heuristic"  # heuristic | learned
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:646:@dataclass(slots=True)
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:647:class SFTConfig:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:648:    """General-purpose SFT training config. Maps to [learning.intelligence.sft]."""
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:649:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:650:    model_name: str = "Qwen/Qwen3-1.7B"
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:670:@dataclass(slots=True)
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:671:class GRPOConfig:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:672:    """General-purpose GRPO training config. Maps to
+[learning.intelligence.grpo]."""
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:673:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:674:    model_name: str = "Qwen/Qwen3-1.7B"
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:694:@dataclass(slots=True)
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:695:class DSPyOptimizerConfig:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:696:    """DSPy agent optimizer config. Maps to [learning.agent.dspy]."""
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:697:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:698:    optimizer: str = "BootstrapFewShotWithRandomSearch"
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:714:@dataclass(slots=True)
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:715:class GEPAOptimizerConfig:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:716:    """GEPA agent optimizer config. Maps to [learning.agent.gepa]."""
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:717:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:718:    reflection_lm: str = ""
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:731:@dataclass(slots=True)
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:732:class ACEOptimizerConfig:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:733:    """ACE agent optimizer config. Maps to ``[learning.agent.ace]``.
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:734:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:735:    ACE (Agentic Context Engineering) evolves a *playbook* — annotated
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:777:@dataclass(slots=True)
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:778:class IntelligenceLearningConfig:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:779:    """Intelligence sub-policy config within Learning."""
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:780:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:781:    policy: str = "none"  # none | sft | grpo
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:786:@dataclass(slots=True)
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:787:class AgentLearningConfig:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:788:    """Agent sub-policy config within Learning."""
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:789:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:790:    policy: str = "none"  # none | dspy | gepa | ace
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:796:@dataclass(slots=True)
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:797:class SkillsLearningConfig:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:798:    """Configuration for the skills learning loop (Plan 2A)."""
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:799:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:800:    auto_optimize: bool = False  # opt in via config
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:809:@dataclass(slots=True)
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:810:class MetricsConfig:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:811:    """Reward / optimization metric weights."""
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:812:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:813:    accuracy_weight: float = 0.6
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:819:@dataclass(slots=True)
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:820:class SpecSearchCompositeRewardConfig:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:821:    """Composite reward weights for Intelligence-edit training (paper Eq. 1).
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:822:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:823:    R(q, y) = alpha * R_acc - beta * E_hat - gamma * L_hat - delta * C_hat
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:832:@dataclass(slots=True)
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:833:class SpecSearchLearningConfig:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:834:    """LLM-guided spec search config (paper §3.3, Algorithm 1).
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:835:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:836:    Maps to ``[learning.spec_search]`` and is consumed by
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:867:@dataclass
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:868:class LearningConfig:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:869:    """Learning system settings with per-primitive sub-policies."""
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:870:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:871:    enabled: bool = False
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:953:@dataclass(slots=True)
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:954:class StorageConfig:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:955:    """Storage (memory) backend settings.
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:956:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:957:    Covers both the retrieval/document store (``default_backend``, ``db_path``,
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:986:@dataclass(slots=True)
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:987:class MCPConfig:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:988:    """MCP (Model Context Protocol) settings."""
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:989:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:990:    enabled: bool = True
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:996:
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:997:def resolve_json_or_file(raw: str, config_dir: Path) -> Any:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:998:    """Resolve a config value that is either inline JSON or a path to a JSON file.
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:999:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1000:    Parameters
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1064:
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1065:def resolve_mcp_servers(raw: str, config_dir: Path) -> list[dict[str, Any]]:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1066:    """Resolve MCP server configuration from inline JSON or an external file.
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1067:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1068:    Wraps :func:`resolve_json_or_file` with MCP-specific validation:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1100:@dataclass(slots=True)
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1101:class BrowserConfig:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1102:    """Browser automation settings (Playwright)."""
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1103:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1104:    headless: bool = True
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1110:@dataclass(slots=True)
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1111:class WeatherToolConfig:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1112:    """Native weather tool settings (credentials stay outside config.toml)."""
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1113:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1114:    provider: str = "openweathermap"
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1120:@dataclass(slots=True)
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1121:class ToolsConfig:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1122:    """Tools primitive settings — wraps storage and MCP configuration."""
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1123:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1124:    storage: StorageConfig = field(default_factory=StorageConfig)
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1131:@dataclass
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1132:class AgentConfig:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1133:    """Agent harness settings — orchestration, tools, system prompt."""
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1134:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1135:    default_agent: str = "simple"
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1161:@dataclass(slots=True)
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1162:class ServerConfig:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1163:    """API server settings."""
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1164:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1165:    host: str = "127.0.0.1"
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1190:@dataclass(slots=True)
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1191:class TelemetryConfig:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1192:    """Telemetry persistence settings."""
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1193:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1194:    enabled: bool = True
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1210:@dataclass(slots=True)
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1211:class AnalyticsConfig:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1212:    """External anonymous usage analytics (PostHog).
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1213:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1214:    Separate concern from :class:`TelemetryConfig`, which stores local
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1233:@dataclass(slots=True)
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1234:class TracesConfig:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1235:    """Trace system settings."""
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1236:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1237:    enabled: bool = True
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1241:@dataclass(slots=True)
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1242:class ProactiveConfig:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1243:    """Proactive agent — autonomous action scheduling and approval routing."""
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1244:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1245:    enabled: bool = False
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1254:@dataclass(slots=True)
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1255:class TelegramChannelConfig:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1256:    """Per-channel config for Telegram."""
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1257:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1258:    bot_token: str = ""
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1263:@dataclass(slots=True)
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1264:class DiscordChannelConfig:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1265:    """Per-channel config for Discord."""
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1266:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1267:    bot_token: str = ""
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1270:@dataclass(slots=True)
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1271:class SlackChannelConfig:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1272:    """Per-channel config for Slack."""
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1273:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1274:    bot_token: str = ""
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1278:@dataclass(slots=True)
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1279:class WebhookChannelConfig:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1280:    """Per-channel config for generic webhooks."""
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1281:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1282:    url: str = ""
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1287:@dataclass(slots=True)
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1288:class EmailChannelConfig:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1289:    """Per-channel config for email (SMTP/IMAP)."""
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1290:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1291:    smtp_host: str = ""
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1300:@dataclass(slots=True)
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1301:class WhatsAppChannelConfig:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1302:    """Per-channel config for WhatsApp Cloud API."""
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1303:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1304:    access_token: str = ""
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1308:@dataclass(slots=True)
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1309:class SignalChannelConfig:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1310:    """Per-channel config for Signal (via signal-cli REST API)."""
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1311:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1312:    api_url: str = ""
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1316:@dataclass(slots=True)
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1317:class GoogleChatChannelConfig:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1318:    """Per-channel config for Google Chat webhooks."""
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1319:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1320:    webhook_url: str = ""
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1323:@dataclass(slots=True)
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1324:class IRCChannelConfig:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1325:    """Per-channel config for IRC."""
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1326:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1327:    server: str = ""
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1334:@dataclass(slots=True)
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1335:class WebChatChannelConfig:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1336:    """Per-channel config for in-memory webchat."""
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1337:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1338:    pass
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1341:@dataclass(slots=True)
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1342:class TeamsChannelConfig:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1343:    """Per-channel config for Microsoft Teams (Bot Framework)."""
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1344:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1345:    app_id: str = ""
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1350:@dataclass(slots=True)
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1351:class MatrixChannelConfig:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1352:    """Per-channel config for Matrix."""
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1353:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1354:    homeserver: str = ""
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1358:@dataclass(slots=True)
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1359:class MattermostChannelConfig:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1360:    """Per-channel config for Mattermost."""
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1361:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1362:    url: str = ""
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1366:@dataclass(slots=True)
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1367:class FeishuChannelConfig:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1368:    """Per-channel config for Feishu (Lark)."""
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1369:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1370:    app_id: str = ""
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1374:@dataclass(slots=True)
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1375:class BlueBubblesChannelConfig:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1376:    """Per-channel config for BlueBubbles (iMessage bridge)."""
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1377:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1378:    url: str = ""
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1382:@dataclass(slots=True)
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1383:class WhatsAppBaileysChannelConfig:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1384:    """Per-channel config for WhatsApp via Baileys protocol."""
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1385:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1386:    auth_dir: str = ""  # Defaults to ~/.openjarvis/whatsapp_auth
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1391:@dataclass
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1392:class ChannelConfig:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1393:    """Channel messaging settings."""
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1394:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1395:    enabled: bool = False
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1422:@dataclass(slots=True)
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1423:class CapabilitiesConfig:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1424:    """RBAC capability system settings."""
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1425:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1426:    enabled: bool = False
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1431:@dataclass(slots=True)
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1432:class SecurityConfig:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1433:    """Security guardrails settings."""
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1434:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1435:    enabled: bool = True
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1553:@dataclass(slots=True)
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1554:class SandboxConfig:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1555:    """Container sandbox settings."""
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1556:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1557:    enabled: bool = False
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1568:@dataclass(slots=True)
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1569:class SchedulerConfig:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1570:    """Task scheduler settings."""
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1571:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1572:    enabled: bool = False
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1577:@dataclass(slots=True)
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1578:class WorkflowConfig:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1579:    """Workflow engine settings."""
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1580:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1581:    enabled: bool = False
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1586:@dataclass(slots=True)
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1587:class SessionConfig:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1588:    """Cross-channel session settings."""
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1589:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1590:    enabled: bool = False
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1596:@dataclass(slots=True)
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1597:class A2AConfig:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1598:    """Settings for A2A integrations and configuration diagnostics.
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1599:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1600:    The built-in ``jarvis serve`` app does not mount A2A endpoints; ``enabled``
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1611:@dataclass(slots=True)
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1612:class OperatorsConfig:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1613:    """Operator lifecycle settings."""
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1614:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1615:    enabled: bool = False
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1622:@dataclass(slots=True)
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1623:class SpeechConfig:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1624:    """Speech-to-text settings."""
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1625:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1626:    backend: str = "auto"  # "auto", "faster-whisper", "openai", "deepgram"
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1642:@dataclass(slots=True)
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1643:class OptimizeConfig:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1644:    """Configuration optimization settings."""
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1645:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1646:    max_trials: int = 20
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1656:@dataclass(slots=True)
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1657:class AgentManagerConfig:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1658:    """Persistent agent manager settings."""
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1659:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1660:    enabled: bool = True
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1664:@dataclass(slots=True)
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1665:class MemoryFilesConfig:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1666:    """Persistent memory-file paths and nudge settings."""
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1667:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1668:    soul_path: str = field(default_factory=lambda: str(get_config_dir() /
+"SOUL.md"))
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1677:@dataclass(slots=True)
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1678:class SystemPromptConfig:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1679:    """Limits and strategy for system-prompt assembly."""
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1680:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1681:    prefix: str = ""
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1689:@dataclass(slots=True)
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1690:class CompressionConfig:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1691:    """Configuration for context compression."""
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1692:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1693:    enabled: bool = True
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1698:@dataclass(slots=True)
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1699:class SkillSourceConfig:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1700:    """Configuration for a single skill source (Hermes, OpenClaw, GitHub)."""
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1701:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1702:    source: str = ""  # "hermes", "openclaw", or "github"
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1708:@dataclass(slots=True)
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1709:class SkillsConfig:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1710:    """Configuration for agent-authored procedural skills."""
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1711:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1712:    enabled: bool = True
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1727:@dataclass
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1728:class DigestSectionConfig:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1729:    """Configuration for a single digest section."""
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1730:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1731:    sources: List[str] = field(default_factory=list)
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1736:@dataclass
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1737:class DigestConfig:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1738:    """Configuration for the morning digest feature."""
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1739:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1740:    enabled: bool = False
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1770:@dataclass
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1771:class JarvisConfig:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1772:    """Top-level configuration for OpenJarvis."""
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1773:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1774:    installed_at: str = ""
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1851:
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1852:def validate_config_key(dotted_key: str) -> type:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1853:    """Validate a dotted config key and return the leaf field's Python type.
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1854:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1855:    Raises :class:`ValueError` when the key does not map to a known field.
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1998:
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:1999:def _migrate_toml_data(data: Dict[str, Any], cfg: "JarvisConfig") -> None:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:2000:    """Migrate old-format TOML keys to new structure in-place.
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:2001:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:2002:    Handles cross-section moves that can't be solved by backward-compat
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:2032:
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:2033:def _parse_mining_section(data: dict) -> Optional["MiningConfig"]:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:2034:    """Parse the ``[mining]`` TOML section into a ``MiningConfig``.
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:2035:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:2036:    Returns None if the section is absent. Resolves the ``submit_target``
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:2074:@functools.lru_cache(maxsize=1)
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:2075:def load_config(path: Optional[Path] = None) -> JarvisConfig:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:2076:    """Detect hardware, build defaults, overlay TOML overrides.
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:2077:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\config.py:2078:    Parameters
+
+
+PS C:\Users\mavmu\AppData\Local\OpenJarvis\src\frontend>
