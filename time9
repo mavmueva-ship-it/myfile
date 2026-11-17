@@ -1,0 +1,165 @@
+PS C:\Users\mavmu\AppData\Local\OpenJarvis\src\frontend> Get-ChildItem "..\src\openjarvis\engine" -Recurse -Filter "*.py" | Select-String -Pattern "class Ollama|def generate|messages.*role|chat\(" -Context 2,5
+
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\apple_fm.py:422:    # ---- inference
+-------------------------------------------------------
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\apple_fm.py:423:
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\apple_fm.py:424:    def generate(
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\apple_fm.py:425:        self,
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\apple_fm.py:426:        messages:
+Sequence[Message],
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\apple_fm.py:427:        *,
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\apple_fm.py:428:        model: str =
+DEFAULT_MODEL_LABEL,
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\apple_fm.py:429:        temperature: float
+= 0.7,
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\apple_fm_shim.py:87:    prompt-token count.
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\apple_fm_shim.py:88:    """
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\apple_fm_shim.py:89:    system_parts =
+[m.content for m in messages if m.role == "system"]
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\apple_fm_shim.py:90:    prompt_parts =
+[m.content for m in messages if m.role in ("user", "assistant")]
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\apple_fm_shim.py:91:    return
+"\n".join(system_parts), "\n".join(prompt_parts)
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\apple_fm_shim.py:92:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\apple_fm_shim.py:93:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\apple_fm_shim.py:94:def
+_generation_options(req: ChatRequest) -> apple_fm_sdk.GenerationOptions:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\apple_fm_shim.py:95:    """Build the
+per-request GenerationOptions from a ChatRequest.
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\apple_fm_shim.py:189:    if req.stream:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\apple_fm_shim.py:190:
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\apple_fm_shim.py:191:        async def
+generate():
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\apple_fm_shim.py:192:            cid =
+f"chatcmpl-{uuid.uuid4().hex[:12]}"
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\apple_fm_shim.py:193:            # Apple FM
+yields cumulative snapshots, OpenAI clients expect
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\apple_fm_shim.py:194:            #
+incremental deltas (see #378). The accumulator also handles
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\apple_fm_shim.py:195:            # guided
+generation revising a snapshot rather than extending it.
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\apple_fm_shim.py:196:
+accumulator = SnapshotAccumulator()
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\cloud.py:888:
+"openjarvis[inference-google]"
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\cloud.py:889:            )
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\cloud.py:890:        # Build contents from
+messages, converting tool roles for Gemini
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\cloud.py:891:        system_text = ""
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\cloud.py:892:        contents:
+List[Dict[str, Any]] = []
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\cloud.py:893:        for m in messages:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\cloud.py:894:            if m.role.value ==
+"system":
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\cloud.py:895:                system_text =
+m.content
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\cloud.py:1271:        return result
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\cloud.py:1272:
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\cloud.py:1273:    def generate(
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\cloud.py:1274:        self,
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\cloud.py:1275:        messages:
+Sequence[Message],
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\cloud.py:1276:        *,
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\cloud.py:1277:        model: str,
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\cloud.py:1278:        temperature: float =
+0.7,
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\gemma_cpp.py:90:        self._gemma = None
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\gemma_cpp.py:91:
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\gemma_cpp.py:92:    def generate(
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\gemma_cpp.py:93:        self,
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\gemma_cpp.py:94:        messages:
+Sequence[Message],
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\gemma_cpp.py:95:        *,
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\gemma_cpp.py:96:        model: str,
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\gemma_cpp.py:97:        temperature: float
+= 0.7,
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\litellm.py:39:        self._default_model =
+default_model
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\litellm.py:40:
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\litellm.py:41:    def generate(
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\litellm.py:42:        self,
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\litellm.py:43:        messages:
+Sequence[Message],
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\litellm.py:44:        *,
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\litellm.py:45:        model: str,
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\litellm.py:46:        temperature: float =
+0.7,
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\multi.py:70:        )
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\multi.py:71:
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\multi.py:72:    def generate(
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\multi.py:73:        self,
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\multi.py:74:        messages:
+Sequence[Message],
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\multi.py:75:        *,
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\multi.py:76:        model: str,
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\multi.py:77:        temperature: float =
+0.7,
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\nexa_shim.py:101:    if req.stream:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\nexa_shim.py:102:
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\nexa_shim.py:103:        async def
+generate():
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\nexa_shim.py:104:            cid =
+f"chatcmpl-{uuid.uuid4().hex[:12]}"
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\nexa_shim.py:105:            for token in
+llm.generate(prompt, max_tokens=req.max_tokens):
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\nexa_shim.py:106:                chunk = {
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\nexa_shim.py:107:                    "id":
+cid,
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\nexa_shim.py:108:
+"object": "chat.completion.chunk",
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\nim.py:61:        return headers
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\nim.py:62:
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\nim.py:63:    def generate(
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\nim.py:64:        self,
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\nim.py:65:        messages:
+Sequence[Message],
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\nim.py:66:        *,
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\nim.py:67:        model: str,
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\nim.py:68:        temperature: float = 0.7,
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:105:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:106:@EngineRegistry.register("olla
+ma")
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:107:class
+OllamaEngine(AsyncHTTPEngineMixin, InferenceEngine):
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:108:    """Ollama backend via its
+native HTTP API."""
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:109:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:110:    engine_id = "ollama"
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:111:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:112:    # Ollama has no
+context-length overflow signal in its 400 bodies, so the
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:139:
+self._last_stream_usage: Dict[str, int] = {}
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:140:
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:141:    def generate(
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:142:        self,
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:143:        messages:
+Sequence[Message],
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:144:        *,
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:145:        model: str,
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:146:        temperature: float =
+0.7,
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\_openai_compat.py:80:        return
+resolve_model_id_for_engine(model, self.engine_id)
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\_openai_compat.py:81:
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\_openai_compat.py:82:    def generate(
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\_openai_compat.py:83:        self,
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\_openai_compat.py:84:        messages:
+Sequence[Message],
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\_openai_compat.py:85:        *,
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\_openai_compat.py:86:        model: str,
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\_openai_compat.py:87:        temperature:
+float = 0.7,
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\_stubs.py:63:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\_stubs.py:64:    @abstractmethod
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\_stubs.py:65:    def generate(
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\_stubs.py:66:        self,
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\_stubs.py:67:        messages:
+Sequence[Message],
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\_stubs.py:68:        *,
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\_stubs.py:69:        model: str,
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\_stubs.py:70:        temperature: float =
+0.7,
+
+
+PS C:\Users\mavmu\AppData\Local\OpenJarvis\src\frontend>
