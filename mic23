@@ -1,0 +1,127 @@
+PS C:\Users\mavmu\AppData\Local\OpenJarvis\src\frontend> Select-String -Path ".\src\hooks\useSpeech.ts" -Pattern "onTranscript|continuous|silence|silenceTimeout|transcribing|setTimeout|stopRecording" -Context 3,5
+
+  src\hooks\useSpeech.ts:1:import { useState, useCallback, useRef, useEffect } from 'react';
+  src\hooks\useSpeech.ts:2:import { transcribeAudio, fetchSpeechHealth } from '../lib/api';
+  src\hooks\useSpeech.ts:3:
+> src\hooks\useSpeech.ts:4:export type SpeechState = 'idle' | 'recording' | 'transcribing';
+  src\hooks\useSpeech.ts:5:
+  src\hooks\useSpeech.ts:6:export interface SpeechOptions {
+> src\hooks\useSpeech.ts:7:  continuous?: boolean;
+> src\hooks\useSpeech.ts:8:  onTranscript?: (text: string) => boolean | void;
+  src\hooks\useSpeech.ts:9:}
+  src\hooks\useSpeech.ts:10:
+  src\hooks\useSpeech.ts:11:export function useSpeech() {
+  src\hooks\useSpeech.ts:12:  const [state, setState] = useState<SpeechState>('idle');
+  src\hooks\useSpeech.ts:13:  const [error, setError] = useState<string | null>(null);
+  src\hooks\useSpeech.ts:19:  const audioContextRef = useRef<AudioContext | null>(null);
+  src\hooks\useSpeech.ts:20:  const animationFrameRef = useRef<number | null>(null);
+  src\hooks\useSpeech.ts:21:  const optionsRef = useRef<SpeechOptions>({});
+> src\hooks\useSpeech.ts:22:  const continuousRef = useRef(false);
+  src\hooks\useSpeech.ts:23:  const stoppingRef = useRef(false);
+  src\hooks\useSpeech.ts:24:  const speechDetectedRef = useRef(false);
+> src\hooks\useSpeech.ts:25:  const silenceStartedRef = useRef<number | null>(null);
+  src\hooks\useSpeech.ts:26:  const startTimeRef = useRef(0);
+  src\hooks\useSpeech.ts:27:
+  src\hooks\useSpeech.ts:28:  useEffect(() => {
+  src\hooks\useSpeech.ts:29:    fetchSpeechHealth()
+  src\hooks\useSpeech.ts:30:      .then((health) => setAvailable(health.available))
+  src\hooks\useSpeech.ts:52:
+  src\hooks\useSpeech.ts:53:    if (options) {
+  src\hooks\useSpeech.ts:54:      optionsRef.current = options;
+> src\hooks\useSpeech.ts:55:      continuousRef.current = options.continuous === true;
+  src\hooks\useSpeech.ts:56:    }
+  src\hooks\useSpeech.ts:57:
+  src\hooks\useSpeech.ts:58:    setError(null);
+  src\hooks\useSpeech.ts:59:    stoppingRef.current = false;
+  src\hooks\useSpeech.ts:60:    speechDetectedRef.current = false;
+> src\hooks\useSpeech.ts:61:    silenceStartedRef.current = null;
+  src\hooks\useSpeech.ts:62:
+  src\hooks\useSpeech.ts:63:    if (!navigator.mediaDevices?.getUserMedia) {
+  src\hooks\useSpeech.ts:64:      setError('Microphone not supported in this browser');
+  src\hooks\useSpeech.ts:65:      return;
+  src\hooks\useSpeech.ts:66:    }
+  src\hooks\useSpeech.ts:81:      startTimeRef.current = Date.now();
+  src\hooks\useSpeech.ts:82:      setState('recording');
+  src\hooks\useSpeech.ts:83:
+> src\hooks\useSpeech.ts:84:      // Monitor microphone volume to detect speech followed by silence.
+  src\hooks\useSpeech.ts:85:      try {
+  src\hooks\useSpeech.ts:86:        const AudioContextClass = window.AudioContext;
+  src\hooks\useSpeech.ts:87:        const context = new AudioContextClass();
+  src\hooks\useSpeech.ts:88:        audioContextRef.current = context;
+  src\hooks\useSpeech.ts:89:
+  src\hooks\useSpeech.ts:109:
+  src\hooks\useSpeech.ts:110:          if (volume > 0.025) {
+  src\hooks\useSpeech.ts:111:            speechDetectedRef.current = true;
+> src\hooks\useSpeech.ts:112:            silenceStartedRef.current = null;
+  src\hooks\useSpeech.ts:113:          } else if (speechDetectedRef.current) {
+> src\hooks\useSpeech.ts:114:            if (silenceStartedRef.current === null) {
+> src\hooks\useSpeech.ts:115:              silenceStartedRef.current = now;
+  src\hooks\useSpeech.ts:116:            } else if (
+> src\hooks\useSpeech.ts:117:              now - silenceStartedRef.current >= 1400 &&
+  src\hooks\useSpeech.ts:118:              now - startTimeRef.current >= 700
+  src\hooks\useSpeech.ts:119:            ) {
+  src\hooks\useSpeech.ts:120:              void finishRecording(true);
+  src\hooks\useSpeech.ts:121:              return;
+  src\hooks\useSpeech.ts:122:            }
+  src\hooks\useSpeech.ts:147:
+  src\hooks\useSpeech.ts:148:      stoppingRef.current = true;
+  src\hooks\useSpeech.ts:149:      recorder.onstop = async () => {
+> src\hooks\useSpeech.ts:150:        setState('transcribing');
+  src\hooks\useSpeech.ts:151:        cleanupAudio();
+  src\hooks\useSpeech.ts:152:        mediaRecorderRef.current = null;
+  src\hooks\useSpeech.ts:153:
+  src\hooks\useSpeech.ts:154:        const blob = new Blob(chunksRef.current, {
+  src\hooks\useSpeech.ts:155:          type: recorder.mimeType || 'audio/webm',
+  src\hooks\useSpeech.ts:161:          const transcript = result.text.trim();
+  src\hooks\useSpeech.ts:162:
+  src\hooks\useSpeech.ts:163:          setState('idle');
+> src\hooks\useSpeech.ts:164:          const shouldRestart = transcript ?
+optionsRef.current.onTranscript?.(transcript) !== false : true;
+  src\hooks\useSpeech.ts:165:          resolve(transcript);
+  src\hooks\useSpeech.ts:166:
+> src\hooks\useSpeech.ts:167:          if (keepListening && continuousRef.current && shouldRestart) {
+> src\hooks\useSpeech.ts:168:            window.setTimeout(() => {
+> src\hooks\useSpeech.ts:169:              if (continuousRef.current) {
+  src\hooks\useSpeech.ts:170:                void startRecording();
+  src\hooks\useSpeech.ts:171:              }
+  src\hooks\useSpeech.ts:172:            }, 350);
+  src\hooks\useSpeech.ts:173:          }
+  src\hooks\useSpeech.ts:174:        } catch (err) {
+  src\hooks\useSpeech.ts:177:          setError(message);
+  src\hooks\useSpeech.ts:178:          reject(err);
+  src\hooks\useSpeech.ts:179:
+> src\hooks\useSpeech.ts:180:          if (keepListening && continuousRef.current) {
+> src\hooks\useSpeech.ts:181:            window.setTimeout(() => {
+> src\hooks\useSpeech.ts:182:              if (continuousRef.current) void startRecording();
+  src\hooks\useSpeech.ts:183:            }, 700);
+  src\hooks\useSpeech.ts:184:          }
+  src\hooks\useSpeech.ts:185:        }
+  src\hooks\useSpeech.ts:186:      };
+  src\hooks\useSpeech.ts:187:
+  src\hooks\useSpeech.ts:189:    });
+  src\hooks\useSpeech.ts:190:  }, [cleanupAudio, startRecording]);
+  src\hooks\useSpeech.ts:191:
+> src\hooks\useSpeech.ts:192:  const stopRecording = useCallback(async (): Promise<string> => {
+> src\hooks\useSpeech.ts:193:    continuousRef.current = false;
+  src\hooks\useSpeech.ts:194:    return finishRecording(false);
+  src\hooks\useSpeech.ts:195:  }, [finishRecording]);
+  src\hooks\useSpeech.ts:196:
+  src\hooks\useSpeech.ts:197:  useEffect(() => {
+  src\hooks\useSpeech.ts:198:    return () => {
+> src\hooks\useSpeech.ts:199:      continuousRef.current = false;
+  src\hooks\useSpeech.ts:200:      cleanupAudio();
+  src\hooks\useSpeech.ts:201:      const recorder = mediaRecorderRef.current;
+  src\hooks\useSpeech.ts:202:      if (recorder && recorder.state === 'recording') {
+  src\hooks\useSpeech.ts:203:        recorder.onstop = null;
+  src\hooks\useSpeech.ts:204:        recorder.stop();
+  src\hooks\useSpeech.ts:212:    error,
+  src\hooks\useSpeech.ts:213:    available,
+  src\hooks\useSpeech.ts:214:    startRecording,
+> src\hooks\useSpeech.ts:215:    stopRecording,
+  src\hooks\useSpeech.ts:216:    isRecording: state === 'recording',
+> src\hooks\useSpeech.ts:217:    isTranscribing: state === 'transcribing',
+  src\hooks\useSpeech.ts:218:  };
+  src\hooks\useSpeech.ts:219:}
+
+
+PS C:\Users\mavmu\AppData\Local\OpenJarvis\src\frontend>
