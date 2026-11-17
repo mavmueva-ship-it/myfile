@@ -1,0 +1,159 @@
+PS C:\Users\mavmu\AppData\Local\OpenJarvis\src\frontend> Select-String -Path "..\src\openjarvis\core\utils.py","..\pyproject.toml" -Pattern "def process_alive|def terminate_process|psutil|pywin32|windows" -Context 2,5
+
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\utils.py:16:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\utils.py:17:
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\utils.py:18:def _windows_process_alive(pid:
+int) -> bool:
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\utils.py:19:    """Query a Windows process
+handle without sending it a signal."""
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\utils.py:20:    import ctypes
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\utils.py:21:    from ctypes import wintypes
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\utils.py:22:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\utils.py:23:    error_invalid_parameter = 87
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\utils.py:24:    synchronize = 0x00100000
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\utils.py:83:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\utils.py:84:    Prefers ``python3``
+(Linux/macOS convention); falls back to ``python``
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\utils.py:85:    (Windows / some minimal Linux
+distros that ship only ``python``). Returns
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\utils.py:86:    the literal string
+``"python3"`` when neither is found, so callers still
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\utils.py:87:    get a usable command that
+will fail with a clear "command not found"
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\utils.py:88:    rather than an empty string.
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\utils.py:89:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\utils.py:90:    The result is a *command name
+or absolute path* that callers can hand to
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\utils.py:91:    :mod:`subprocess` directly
+when ``shell=False``, and must be shell-quoted
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\utils.py:92:    (:func:`shlex.quote`) before
+being interpolated into a ``shell=True``
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\utils.py:93:    command string — paths on
+Windows often contain spaces.
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\utils.py:94:    """
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\utils.py:95:    return
+shutil.which("python3") or shutil.which("python") or "python3"
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\utils.py:96:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\utils.py:97:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\utils.py:98:def open_browser(url: str) ->
+None:
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\utils.py:99:    """Open *url* in the user's
+default browser, with a Windows fast-path.
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\utils.py:100:
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\utils.py:101:    :func:`webbrowser.open` is
+the cross-platform default, but on Windows it
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\utils.py:102:    sometimes blocks or fails
+inside a console host. :func:`os.startfile`
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\utils.py:103:    hands the URL to the OS
+shell and returns immediately. We try that first
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\utils.py:104:    on Windows and fall back to
+:func:`webbrowser.open` if it fails.
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\utils.py:105:    """
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\utils.py:106:    if platform.system() ==
+"Windows":
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\utils.py:107:        try:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\utils.py:108:            # Not ``cmd /c start
+"" URL``: cmd.exe would read each ``&`` in
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\utils.py:109:            # the query string
+as a command separator and truncate the URL.
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\utils.py:110:            os.startfile(url)  #
+type: ignore[attr-defined]
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\utils.py:111:            return
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\utils.py:115:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\utils.py:116:
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\utils.py:117:def process_alive(pid: int |
+None) -> bool:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\utils.py:118:    """Return ``True`` if a
+process with *pid* is currently running.
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\utils.py:119:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\utils.py:120:    Cross-platform and
+*non-destructive*. The common POSIX idiom
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\utils.py:121:    ``os.kill(pid, 0)`` must NOT
+be used on Windows: there ``os.kill`` maps any
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\utils.py:122:    signal to
+``TerminateProcess``, so a "liveness probe" would actually kill
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\utils.py:123:    the process. On Windows we
+inspect a process handle instead.
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\utils.py:124:    """
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\utils.py:125:    if not pid or pid <= 0:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\utils.py:126:        return False
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\utils.py:127:    if platform.system() ==
+"Windows":
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\utils.py:128:        return
+_windows_process_alive(pid)
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\utils.py:129:    try:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\utils.py:130:        os.kill(pid, 0)
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\utils.py:131:    except ProcessLookupError:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\utils.py:132:        return False
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\utils.py:133:    except PermissionError:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\utils.py:142:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\utils.py:143:
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\utils.py:144:def terminate_process(pid: int |
+None, *, grace_seconds: float = 3.0) -> None:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\utils.py:145:    """Terminate *pid*
+gracefully, escalating to a forced kill (cross-platform).
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\utils.py:146:
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\utils.py:147:    POSIX sends ``SIGTERM``
+then, after *grace_seconds*, ``SIGKILL``. Windows
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\utils.py:148:    has neither; it uses
+``taskkill /T`` (graceful, whole tree) then
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\utils.py:149:    ``taskkill /F /T`` (force).
+``signal.SIGKILL`` does not exist on Windows,
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\utils.py:150:    so it is only referenced
+inside the POSIX branch.
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\utils.py:151:    """
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\utils.py:152:    if not process_alive(pid):
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\utils.py:153:        return
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\utils.py:154:    is_windows =
+platform.system() == "Windows"
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\utils.py:155:
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\utils.py:156:    if is_windows:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\utils.py:157:        subprocess.run(
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\utils.py:158:            ["taskkill", "/T",
+"/PID", str(pid)],
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\utils.py:159:            capture_output=True,
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\utils.py:160:            check=False,
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\utils.py:161:        )
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\utils.py:172:        time.sleep(0.05)
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\utils.py:173:
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\utils.py:174:    if is_windows:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\utils.py:175:        subprocess.run(
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\utils.py:176:            ["taskkill", "/F",
+"/T", "/PID", str(pid)],
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\utils.py:177:            capture_output=True,
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\utils.py:178:            check=False,
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\core\utils.py:179:        )
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\pyproject.toml:9:readme = "README.md"
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\pyproject.toml:10:# Upper bound: numpy 2.2.x (pinned transitively
+via datasets/pandas) ships no
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\pyproject.toml:11:# cp314 Windows wheel, so under Python 3.14 uv
+would compile numpy from source
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\pyproject.toml:12:# (Meson) and fail on Windows boxes without a C
+toolchain (#350). Cap to the
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\pyproject.toml:13:# range that has prebuilt wheels; matches the
+classifiers (3.10–3.13).
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\pyproject.toml:14:requires-python = ">=3.10,<3.14"
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\pyproject.toml:15:license = {text = "Apache-2.0"}
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\pyproject.toml:16:authors = [
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\pyproject.toml:17:    {name = "Open Jarvis Contributors"},
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\pyproject.toml:38:    "posthog>=3.0",
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\pyproject.toml:39:    # Process identity and descendant cleanup
+for the source-checkout GUI.
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\pyproject.toml:40:    "psutil>=5.9",
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\pyproject.toml:41:    "python-telegram-bot>=22.8",
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\pyproject.toml:42:    "rich>=13",
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\pyproject.toml:43:    "tomli>=2.0; python_version < '3.11'",
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\pyproject.toml:44:    "tomlkit>=0.12",
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\pyproject.toml:45:    "websockets>=15.0.1",
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\pyproject.toml:267:"src/openjarvis/channels/whatsapp_baileys_bridg
+e" = "_node_modules/whatsapp_baileys_bridge"
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\pyproject.toml:268:"scripts/install" = "_install_scripts"
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\pyproject.toml:269:"deploy/windows" = "_deploy/windows"
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\pyproject.toml:270:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\pyproject.toml:271:[tool.pytest.ini_options]
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\pyproject.toml:272:testpaths = ["tests"]
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\pyproject.toml:273:markers = [
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\pyproject.toml:274:    "amd: requires AMD GPU",
+
+
+PS C:\Users\mavmu\AppData\Local\OpenJarvis\src\frontend>
