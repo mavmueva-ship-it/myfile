@@ -1,0 +1,79 @@
+PS C:\Users\mavmu\AppData\Local\OpenJarvis\src> Get-ChildItem "C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis" -Recurse -Filter "*.py" | Select-String -Pattern "class Memory|memory:|memory\.enabled|build_memory_service"
+
+src\openjarvis\sdk.py:22:class MemoryHandle:
+src\openjarvis\sdk.py:320:        if context and self._config.agent.context_from_memory:
+src\openjarvis\sdk.py:365:        if context and self._config.agent.context_from_memory:
+src\openjarvis\sdk.py:408:        if context and self._config.agent.context_from_memory:
+src\openjarvis\sdk.py:556:        if context and self._config.agent.context_from_memory:
+src\openjarvis\_rust_bridge.py:148:def optimization_store_from_rust(path: str = ":memory:") -> object | None:
+src\openjarvis\agents\executor.py:652:        if memory:
+src\openjarvis\agents\monitor_operative.py:56:3. MEMORY: Store important findings via memory_store; recall via memory_retrieve.
+src\openjarvis\agents\monitor_operative.py:626:                                "Failed to store causality relation in memory: %s",
+src\openjarvis\cli\agent_cmd.py:132:            console.print(f"  Memory: {a['summary_memory'][:100]}...")
+src\openjarvis\cli\ask.py:536:    if config.agent.context_from_memory:
+src\openjarvis\cli\ask.py:1169:    if not no_context and config.agent.context_from_memory:
+src\openjarvis\cli\chat_cmd.py:425:        from openjarvis.memory import build_memory_service
+src\openjarvis\cli\chat_cmd.py:427:        memory_service = build_memory_service(config, engine, model, event_bus=bus)
+src\openjarvis\cli\chat_cmd.py:430:            console.print("[dim]  Memory: active[/dim]")
+src\openjarvis\cli\chat_cmd.py:439:    if config.agent.context_from_memory:
+src\openjarvis\cli\chat_cmd.py:533:        if config.agent.context_from_memory:
+src\openjarvis\cli\config_cmd.py:147:            console.print(f"  Context from Memory: [cyan]{ctx_mem}[/cyan]")
+src\openjarvis\cli\dashboard.py:85:                    "Memory: checking...",
+src\openjarvis\cli\dashboard.py:144:                    lines.append(f"Memory: {backend}")
+src\openjarvis\cli\serve.py:552:            console.print("  Memory:    [cyan]active[/cyan]")
+src\openjarvis\cli\serve.py:559:        from openjarvis.memory import build_memory_service
+src\openjarvis\cli\serve.py:561:        memory_service = build_memory_service(
+src\openjarvis\connectors\pipeline.py:9:    store = KnowledgeStore(db_path=":memory:")
+src\openjarvis\connectors\scheduler.py:9:    store = KnowledgeStore(db_path=":memory:")
+src\openjarvis\connectors\store.py:166:        # Ensure the parent directory exists (skip for :memory:)
+src\openjarvis\connectors\store.py:167:        if self._db_path != ":memory:":
+src\openjarvis\connectors\sync_engine.py:8:    store = KnowledgeStore(db_path=":memory:")
+src\openjarvis\connectors\sync_engine.py:66:        # Ensure parent directory exists (skip for :memory:)
+src\openjarvis\connectors\sync_engine.py:67:        if str(db_path) != ":memory:":
+src\openjarvis\core\config.py:1141:    context_from_memory: bool = True  # inject relevant memory context into prompts
+src\openjarvis\core\config.py:1665:class MemoryFilesConfig:
+src\openjarvis\core\config.py:2142:        # Memory: accept [memory] (old) → maps to tools.storage
+src\openjarvis\core\config.py:2300:# Automatic long-term memory: extracts durable facts from conversations in the
+src\openjarvis\core\registry.py:109:class MemoryRegistry(RegistryBase[Type["MemoryBackend"]]):
+src\openjarvis\evals\environments\lifelong_agent_env.py:1056:    conn = sqlite3.connect(":memory:")
+src\openjarvis\evals\scorers\lifelong_agent_scorer.py:427:    conn = sqlite3.connect(":memory:")
+src\openjarvis\memory\service.py:42:class MemoryService:
+src\openjarvis\memory\service.py:239:                "Memory: quarantined %d extracted fact(s) as untrusted",
+src\openjarvis\memory\service.py:257:def build_memory_service(
+src\openjarvis\memory\service.py:271:        svc = build_memory_service(config, engine, model)
+src\openjarvis\memory\service.py:332:__all__ = ["MemoryService", "build_memory_service", "publish_completed_exchange"]
+src\openjarvis\memory\__init__.py:14:    build_memory_service,
+src\openjarvis\memory\__init__.py:31:    "build_memory_service",
+src\openjarvis\mining\_pearl_subprocess.py:10:Lifecycle is in-memory: while this object lives, both subprocesses live. The
+src\openjarvis\prompt\builder.py:105:        if memory:
+src\openjarvis\security\capabilities.py:23:    MEMORY_READ = "memory:read"
+src\openjarvis\security\capabilities.py:24:    MEMORY_WRITE = "memory:write"
+src\openjarvis\security\data_boundary_audit.py:876:    elif context_from_memory:
+src\openjarvis\security\__init__.py:86:                    "memory:read",
+src\openjarvis\security\__init__.py:87:                    "memory:write",
+src\openjarvis\server\api_routes.py:43:class MemoryStoreRequest(BaseModel):
+src\openjarvis\server\api_routes.py:48:class MemorySearchRequest(BaseModel):
+src\openjarvis\server\api_routes.py:53:class MemoryIndexRequest(BaseModel):
+src\openjarvis\server\session_store.py:41:        # Ensure the parent directory exists (skip for :memory:)
+src\openjarvis\server\session_store.py:42:        if db_path != ":memory:":
+src\openjarvis\system\orchestrator.py:43:        if context and s.config.agent.context_from_memory:
+src\openjarvis\telemetry\store.py:190:        if self._db_path != ":memory:":
+src\openjarvis\tools\db_query.py:220:            conn_str = ":memory:"
+src\openjarvis\tools\knowledge_tools.py:52:            required_capabilities=["memory:write"],
+src\openjarvis\tools\knowledge_tools.py:119:            required_capabilities=["memory:write"],
+src\openjarvis\tools\knowledge_tools.py:181:            required_capabilities=["memory:read"],
+src\openjarvis\tools\knowledge_tools.py:260:            required_capabilities=["memory:read"],
+src\openjarvis\tools\memory_manage.py:15:class MemoryManageTool(BaseTool):
+src\openjarvis\tools\storage_tools.py:19:class MemoryStoreTool(BaseTool):
+src\openjarvis\tools\storage_tools.py:82:class MemoryRetrieveTool(BaseTool):
+src\openjarvis\tools\storage_tools.py:150:class MemorySearchTool(BaseTool):
+src\openjarvis\tools\storage_tools.py:224:class MemoryIndexTool(BaseTool):
+src\openjarvis\tools\storage\knowledge_graph.py:48:class KnowledgeGraphMemory:
+src\openjarvis\tools\storage\_stubs.py:27:class MemoryBackendUnavailable(RuntimeError):
+src\openjarvis\tools\storage\_stubs.py:50:class MemoryBackend(ABC):
+src\openjarvis\traces\store.py:126:            ":memory:"
+src\openjarvis\traces\store.py:127:            if str(db_path) == ":memory:"
+src\openjarvis\traces\store.py:130:        if self._db_path != ":memory:":
+
+
+PS C:\Users\mavmu\AppData\Local\OpenJarvis\src>
