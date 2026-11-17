@@ -1,0 +1,140 @@
+PS C:\Users\mavmu\AppData\Local\OpenJarvis\src\frontend> Select-String -Path "..\src\openjarvis\server\routes.py" -Pattern "def _ensure_identity_prompt|_ensure_identity_prompt\(" -Context 3,12
+
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:73:    return messages
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:74:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:75:
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:76:def
+_ensure_identity_prompt(messages: list[Message], app_config) -> list[Message]:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:77:    """Return one leading
+system message, adding identity when needed.
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:78:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:79:    The desktop UI's chat
+backend posts only user/assistant turns to
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:80:    ``/v1/chat/completions``
+(see ``frontend/.../Chat/InputArea.tsx``), so
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:81:    nothing grounds the
+model's identity. Without a system prompt the model
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:82:    answers from its training
+identity (e.g. "I'm Claude", "I am Qwen"),
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:83:    which is what #540
+reported. The CLI paths inject this via
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:84:    ``SystemPromptBuilder`` /
+``BaseAgent``; the engine-direct server paths
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:85:    did not. This mirrors the
+agent fallback in ``agents/_stubs.py``.
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:86:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:87:    If any caller-supplied
+message already carries a system role, the caller
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:88:    has supplied their own
+grounding and we do not add the server identity.
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:210:                # Agent paths
+build that same identity in BaseAgent; injecting
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:211:                # it at both
+layers duplicates the prompt around memory.
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:212:                if not
+use_server_agent:
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:213:                    messages
+= _ensure_identity_prompt(messages, config)
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:214:                ctx_cfg =
+ContextConfig(
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:215:
+top_k=config.memory.context_top_k,
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:216:
+min_score=config.memory.context_min_score,
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:217:
+max_context_tokens=config.memory.context_max_tokens,
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:218:                )
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:219:                enriched =
+inject_context(
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:220:
+query_text,
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:221:                    messages,
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:222:
+memory_backend,
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:223:
+config=ctx_cfg,
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:224:
+facts=facts,
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:225:                )
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:481:) -> ChatCompletionResponse:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:482:    """Direct engine call
+without agent."""
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:483:    messages =
+_with_clock_context(_to_messages(req.messages))
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:484:    messages =
+_ensure_identity_prompt(messages, app_config)
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:485:    kwargs: dict[str, Any] =
+{}
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:486:    if req.tools:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:487:        kwargs["tools"] =
+req.tools
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:488:    if bus:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:489:        from
+openjarvis.telemetry.instrumented_engine import InstrumentedEngine
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:490:        from
+openjarvis.telemetry.wrapper import instrumented_generate
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:491:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:492:        # `app.state.engine`
+may already be an InstrumentedEngine (the
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:493:        # common case when
+telemetry is wired in). If we then wrap it
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:494:        # with
+`instrumented_generate`, BOTH layers fire a
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:495:        # TELEMETRY_RECORD
+per call:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:496:        #
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:825:    regresses
+non-tool-capable engines.
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:826:    """
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:827:    messages =
+_with_clock_context(_to_messages(req.messages))
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:828:    messages =
+_ensure_identity_prompt(messages, app_config)
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:829:    chunk_id =
+f"chatcmpl-{uuid.uuid4().hex[:12]}"
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:830:    use_cloud =
+_uses_direct_cloud_router(engine, model)
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:831:    telemetry_engine = (
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:832:        "cloud" if use_cloud
+else (_engine_key_for_model(engine, model) or "ollama")
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:833:    )
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:834:    query_text = ""
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:835:    for _m in
+reversed(req.messages):
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:836:        if _m.role == "user"
+and _m.content:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:837:            query_text =
+_m.content
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:838:            break
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:839:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:840:    async def generate():
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:954:    from
+openjarvis.server.cloud_router import stream_cloud, stream_local
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:955:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:956:    messages =
+_with_clock_context(_to_messages(req.messages))
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:957:    messages =
+_ensure_identity_prompt(messages, app_config)
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:958:    chunk_id =
+f"chatcmpl-{uuid.uuid4().hex[:12]}"
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:959:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:960:    # Last user message —
+recorded as the trace query.
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:961:    query_text = ""
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:962:    for _m in
+reversed(req.messages):
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:963:        if _m.role == "user"
+and _m.content:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:964:            query_text =
+_m.content
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:965:            break
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:966:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:967:    # Route directly to the
+right backend — bypasses engine routing entirely
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:968:    # so broken MultiEngine
+state can never misdirect requests.
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\server\routes.py:969:    use_cloud =
+_uses_direct_cloud_router(engine, model)
+
+
+PS C:\Users\mavmu\AppData\Local\OpenJarvis\src\frontend>
