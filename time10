@@ -1,0 +1,289 @@
+PS C:\Users\mavmu\AppData\Local\OpenJarvis\src\frontend> Get-Content "..\src\openjarvis\agents\simple.py" | Select-Object -First 130
+"""SimpleAgent â€” single-turn query-to-response agent (no tool calling)."""
+
+from __future__ import annotations
+
+from typing import Any, Optional
+
+from openjarvis.agents._stubs import AgentContext, AgentResult, BaseAgent
+from openjarvis.core.registry import AgentRegistry
+
+
+@AgentRegistry.register("simple")
+class SimpleAgent(BaseAgent):
+    """Single-turn agent: query -> model -> response.  No tool calling."""
+
+    agent_id = "simple"
+    supports_managed_tool_fallback = True
+
+    def run(
+        self,
+        input: str,
+        context: Optional[AgentContext] = None,
+        **kwargs: Any,
+    ) -> AgentResult:
+        """Single-turn: build messages, call engine, return result."""
+        self._emit_turn_start(input)
+
+        messages = self._build_messages(input, context)
+        result = self._generate(messages)
+        content = result.get("content", "")
+
+        self._emit_turn_end(content_length=len(content))
+
+        return AgentResult(content=content, turns=1)
+
+
+__all__ = ["SimpleAgent"]
+PS C:\Users\mavmu\AppData\Local\OpenJarvis\src\frontend> Select-String -Path "..\src\openjarvis\engine\ollama.py" -Pattern "logging|logger|debug|payload|messages_to_dicts" -Context 2,3
+
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:4:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:5:import json
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:6:import logging
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:7:import os
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:8:from collections.abc import
+AsyncIterator, Sequence
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:9:from typing import Any, Dict,
+List
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:17:    InferenceEngine,
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:18:    estimate_prompt_tokens,
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:19:    messages_to_dicts,
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:20:)
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:21:from
+openjarvis.engine._http_async import (
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:22:    STREAM_TRANSPORT_ERRORS,
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:25:from openjarvis.engine._stubs
+import StreamChunk
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:26:
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:27:logger =
+logging.getLogger(__name__)
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:28:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:29:# Qwen3 treats ``/think`` and
+``/no_think`` as soft-switch control tokens that
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:30:# toggle reasoning mode. Small
+models (e.g. qwen3:14b) fed a multi-line prompt
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:148:        **kwargs: Any,
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:149:    ) -> Dict[str, Any]:
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:150:        msg_dicts =
+messages_to_dicts(messages)
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:151:        # Ollama expects
+tool_call arguments as dicts, not JSON strings
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:152:        for md in msg_dicts:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:153:            for tc in
+md.get("tool_calls", []):
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:159:                    except
+(json.JSONDecodeError, TypeError):
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:160:                        pass
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:161:        payload: Dict[str,
+Any] = {
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:162:            "model": model,
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:163:            "messages":
+msg_dicts,
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:164:            "stream": False,
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:173:        # the visible content
+comes back empty.
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:174:        if "think" not in
+kwargs:
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:175:            payload["think"]
+= False
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:176:        elif kwargs["think"]
+is not None:
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:177:            payload["think"]
+= kwargs["think"]
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:178:        # Pass tools if
+provided
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:179:        tools =
+kwargs.get("tools")
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:180:        if tools:
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:181:            payload["tools"]
+= tools
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:182:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:183:        # Apply structured
+output / JSON mode
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:184:        response_format =
+kwargs.get("response_format")
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:187:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:188:            if
+isinstance(response_format, ResponseFormat):
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:189:
+payload["format"] = "json"
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:190:            elif
+isinstance(response_format, dict):
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:191:
+payload["format"] = "json"
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:192:        try:
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:193:            resp =
+self._client.post("/api/chat", json=payload)
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:194:            if
+resp.status_code == 400 and tools:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:195:                # Model may
+not support function calling -- retry without tools
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:196:
+payload.pop("tools", None)
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:197:                resp =
+self._client.post("/api/chat", json=payload)
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:198:
+resp.raise_for_status()
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:199:        except
+(httpx.ConnectError, httpx.TimeoutException) as exc:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:200:            raise
+EngineConnectionError(
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:251:                raw_args =
+fn.get("arguments", "{}")
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:252:                if
+_is_control_token_only_args(raw_args):
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:253:
+logger.warning(
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:254:
+"Dropping Qwen3 control-token tool call %s(%r)",
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:255:
+fn.get("name", ""),
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:256:
+raw_args,
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:281:        **kwargs: Any,
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:282:    ) -> AsyncIterator[str]:
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:283:        payload: Dict[str,
+Any] = {
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:284:            "model": model,
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:285:            "messages":
+messages_to_dicts(messages),
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:286:            "stream": True,
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:287:            "options":
+_ollama_request_options(
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:288:
+temperature=temperature,
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:296:        # frontends interpret
+as a "Load failed" timeout.
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:297:        if "think" not in
+kwargs:
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:298:            payload["think"]
+= False
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:299:        elif kwargs["think"]
+is not None:
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:300:            payload["think"]
+= kwargs["think"]
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:301:        try:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:302:            # ASYNC
+streaming: ``httpx.AsyncClient`` + ``aiter_lines`` never
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:303:            # blocks the
+event loop between tokens (the previous SYNC
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:307:            # The shared
+client keeps pooled connections across turns.
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:308:            client =
+self._get_async_client()
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:309:            async with
+client.stream("POST", "/api/chat", json=payload) as resp:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:310:                # ``not
+is_success`` covers 3xx as well as 4xx/5xx and maps
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:311:                # to
+``EngineConnectionError`` (matching the OpenAI-compat
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:312:                # path)
+instead of leaking a raw ``httpx.HTTPStatusError``.
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:369:        ``generate()``'s
+behaviour for models that don't support tools).
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:370:        """
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:371:        msg_dicts =
+messages_to_dicts(messages)
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:372:        for md in msg_dicts:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:373:            for tc in
+md.get("tool_calls", []):
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:374:                fn =
+tc.get("function", {})
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:380:                        pass
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:381:
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:382:        payload: Dict[str,
+Any] = {
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:383:            "model": model,
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:384:            "messages":
+msg_dicts,
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:385:            "stream": True,
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:391:        }
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:392:        if "think" not in
+kwargs:
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:393:            payload["think"]
+= False
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:394:        elif kwargs["think"]
+is not None:
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:395:            payload["think"]
+= kwargs["think"]
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:396:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:397:        tools =
+kwargs.get("tools")
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:398:        if tools:
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:399:            payload["tools"]
+= tools
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:400:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:401:        async for chunk in
+self._run_stream(
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:402:            payload,
+messages, retry_without_tools=bool(tools)
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:403:        ):
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:404:            yield chunk
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:405:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:406:    async def _run_stream(
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:407:        self,
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:408:        payload: Dict[str,
+Any],
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:409:        messages:
+Sequence[Message],
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:410:        *,
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:411:        retry_without_tools:
+bool,
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:417:            # honours
+``timeout``.
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:418:            client =
+self._get_async_client()
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:419:            async with
+client.stream("POST", "/api/chat", json=payload) as resp:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:420:                if
+resp.status_code == 400 and retry_without_tools:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:421:                    # Model
+doesn't support tools — retry without them.
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:422:                    #
+PRESERVED: this specific 400 path must still trigger the
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:423:                    #
+tools-less retry; only OTHER non-2xx responses map to
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:424:                    #
+EngineConnectionError below.
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:425:
+payload.pop("tools", None)
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:426:                    async for
+c in self._run_stream(
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:427:
+payload, messages, retry_without_tools=False
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:428:                    ):
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:429:                        yield
+c
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:430:                    return
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:465:
+raw_args = fn.get("arguments", "{}")
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:466:
+if _is_control_token_only_args(raw_args):
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:467:
+  logger.warning(
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:468:
+      "Dropping Qwen3 control-token tool call %s(%r)",
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:469:
+      fn.get("name", ""),
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:470:
+      raw_args,
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:530:
+httpx.HTTPStatusError,
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:531:        ) as exc:
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:532:            logger.warning(
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:533:                "Failed to
+list models from Ollama at %s: %s",
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:534:                self._host,
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:535:                exc,
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:544:            return
+resp.status_code == 200
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:545:        except Exception as
+exc:
+> C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:546:
+logger.debug("Ollama health check failed at %s: %s", self._host, exc)
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:547:            return False
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:548:
+  C:\Users\mavmu\AppData\Local\OpenJarvis\src\src\openjarvis\engine\ollama.py:549:    def close(self) -> None:
+
+
+PS C:\Users\mavmu\AppData\Local\OpenJarvis\src\frontend>
