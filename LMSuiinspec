@@ -1,0 +1,3424 @@
+LEARNSPACE UI AND SERVER INSPECTION
+Generated: 11/20/2026 02:42:01
+
+===== PUBLIC FILE INVENTORY =====
+
+FullName                                                                                            Length LastWriteTime         
+--------                                                                                            ------ -------------         
+C:\Users\mavmu\Desktop\Traffic Sim\LMS\public\admin.html                                              4938 11/19/2026 11:46:09 AM
+C:\Users\mavmu\Desktop\Traffic Sim\LMS\public\change-password.html                                    4142 11/19/2026 1:24:10 PM 
+C:\Users\mavmu\Desktop\Traffic Sim\LMS\public\dashboard.html                                          8594 11/19/2026 7:29:18 PM 
+C:\Users\mavmu\Desktop\Traffic Sim\LMS\public\forgot-password.html                                    3348 11/19/2026 1:32:03 PM 
+C:\Users\mavmu\Desktop\Traffic Sim\LMS\public\index.html                                              4534 11/19/2026 1:40:34 PM 
+C:\Users\mavmu\Desktop\Traffic Sim\LMS\public\owner.html                                              7947 11/19/2026 12:57:26 PM
+C:\Users\mavmu\Desktop\Traffic Sim\LMS\public\reset-password.html                                     4271 11/19/2026 1:32:41 PM 
+C:\Users\mavmu\Desktop\Traffic Sim\LMS\public\css\admin.css                                            534 11/19/2026 11:46:25 AM
+C:\Users\mavmu\Desktop\Traffic Sim\LMS\public\css\dashboard.css                                      16157 11/19/2026 7:30:56 PM 
+C:\Users\mavmu\Desktop\Traffic Sim\LMS\public\css\style.css                                           5899 11/19/2026 11:40:36 AM
+C:\Users\mavmu\Desktop\Traffic Sim\LMS\public\js\admin.js                                             4532 11/19/2026 1:34:17 PM 
+C:\Users\mavmu\Desktop\Traffic Sim\LMS\public\js\app.js                                               5109 11/19/2026 1:43:21 PM 
+C:\Users\mavmu\Desktop\Traffic Sim\LMS\public\js\dashboard-before-mock-notice-20261120-011853.js     24762 11/20/2026 1:01:38 AM 
+C:\Users\mavmu\Desktop\Traffic Sim\LMS\public\js\dashboard-before-resume-support-20261120-021805.js  24935 11/20/2026 1:19:09 AM 
+C:\Users\mavmu\Desktop\Traffic Sim\LMS\public\js\dashboard.js                                        25179 11/20/2026 2:21:01 AM 
+C:\Users\mavmu\Desktop\Traffic Sim\LMS\public\js\owner.js                                             5074 11/19/2026 1:36:39 PM 
+
+
+
+
+===== SERVER.JS =====
+const express = require('express');
+const path = require('node:path');
+
+const db = require('./database');
+const createAccessControl = require('./access-control');
+const createExamRouter = require('./exam-routes');
+const accessControl = createAccessControl(db);
+const auth = require('./auth');
+const createPasswordResetRouter = require('./password-reset');
+const passwordResetConfig = require('./password-reset-config');
+
+const app = express();
+const PORT = process.env.PORT || 3000;
+const SESSION_DURATION = 7 * 24 * 60 * 60 * 1000;
+const COOKIE_NAME = 'lms_session';
+
+app.disable('x-powered-by');
+app.use(express.json({ limit: '20kb' }));
+
+const insertSession = db.prepare(`
+  INSERT INTO sessions (id, user_id, expires_at)
+  VALUES (?, ?, ?)
+`);
+
+const findSession = db.prepare(`
+  SELECT sessions.id, sessions.user_id, sessions.expires_at,
+         users.username, users.role, users.must_change_password,
+         users.registration_expires_at, users.enrollment_expires_at
+  FROM sessions
+  JOIN users ON users.id = sessions.user_id
+  WHERE sessions.id = ?
+`);
+
+const deleteSession = db.prepare(
+  'DELETE FROM sessions WHERE id = ?'
+);
+
+const findUser = db.prepare(
+  'SELECT id, username, password_hash, role, must_change_password FROM users WHERE username = ?'
+);
+
+function parseCookies(header = '') {
+  const cookies = {};
+
+  for (const part of header.split(';')) {
+    const separator = part.indexOf('=');
+    if (separator < 0) continue;
+
+    const key = part.slice(0, separator).trim();
+    const value = part.slice(separator + 1).trim();
+
+    try {
+      cookies[key] = decodeURIComponent(value);
+    } catch {
+      continue;
+    }
+  }
+
+  return cookies;
+}
+
+function setSessionCookie(res, token) {
+  const secure = process.env.NODE_ENV === 'production' ? '; Secure' : '';
+
+  res.setHeader(
+    'Set-Cookie',
+    `${COOKIE_NAME}=${encodeURIComponent(token)}; HttpOnly; SameSite=Lax; Path=/; Max-Age=${Math.floor(SESSION_DURATION / 1000)}${secure}`
+  );
+}
+
+function clearSessionCookie(res) {
+  res.setHeader(
+    'Set-Cookie',
+    `${COOKIE_NAME}=; HttpOnly; SameSite=Lax; Path=/; Max-Age=0`
+  );
+}
+
+function getSessionUser(req) {
+  const token = parseCookies(req.headers.cookie)[COOKIE_NAME];
+
+  if (!token || !/^[a-f0-9]{64}$/i.test(token)) {
+    return null;
+  }
+
+  const sessionId = auth.hashSessionToken(token);
+  const session = findSession.get(sessionId);
+
+  if (!session || session.expires_at <= Date.now()) {
+    if (session) deleteSession.run(sessionId);
+    return null;
+  }
+
+  return {
+    id: session.user_id,
+    username: session.username,
+    role: session.role,
+    mustChangePassword: Boolean(session.must_change_password),
+    registrationExpiresAt: session.registration_expires_at,
+    enrollmentExpiresAt: session.enrollment_expires_at
+  };
+}
+
+function requireAuth(req, res, next) {
+  const user = getSessionUser(req);
+
+  if (!user) {
+    clearSessionCookie(res);
+    return res.status(401).json({ error: 'Authentication required.' });
+  }
+
+  req.user = user;
+
+  if (
+    user.mustChangePassword &&
+    req.path !== '/api/password/change' &&
+    req.path !== '/api/me'
+  ) {
+    return res.status(403).json({
+      error: 'You must change your temporary password first.',
+      mustChangePassword: true
+    });
+  }
+
+  next();
+}
+
+function requireAdmin(req, res, next) {
+  if (!['admin', 'owner'].includes(req.user.role)) {
+    return res.status(403).json({
+      error: 'Administrator privileges required.'
+    });
+  }
+
+  next();
+}
+
+function requirePageAuth(req, res, next) {
+  const user = getSessionUser(req);
+
+  if (!user) {
+    clearSessionCookie(res);
+    return res.redirect('/');
+  }
+
+  req.user = user;
+
+  if (user.mustChangePassword) {
+    return res.redirect('/change-password.html');
+  }
+
+  next();
+}
+
+// Protect the Owner page before static files are served.
+app.get('/owner.html', requirePageAuth, (req, res) => {
+  if (req.user.role !== 'owner') {
+    return res.redirect(
+      req.user.role === 'admin' ? '/admin.html' : '/dashboard.html'
+    );
+  }
+
+  res.sendFile(path.join(__dirname, 'public', 'owner.html'));
+});
+
+// Protect the administrator page before static files are served.
+app.get('/admin.html', requirePageAuth, (req, res) => {
+  if (!['admin', 'owner'].includes(req.user.role)) {
+    return res.redirect('/dashboard.html');
+  }
+
+  if (req.user.role === 'owner') {
+    return res.redirect('/owner.html');
+  }
+
+  res.sendFile(path.join(__dirname, 'public', 'admin.html'));
+});
+
+// Protect the learner dashboard before static files are served.
+app.get('/dashboard.html', requirePageAuth, (req, res) => {
+  if (!['student', 'admin', 'owner'].includes(req.user.role)) {
+    return res.redirect('/');
+  }
+
+  res.sendFile(path.join(__dirname, 'public', 'dashboard.html'));
+});
+
+app.use(express.static(path.join(__dirname, 'public')));
+
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'ok', message: 'LMS backend is running.' });
+});
+
+app.post('/api/register', async (req, res) => {
+  const firstName = typeof req.body.firstName === 'string'
+    ? req.body.firstName.trim()
+    : '';
+  const lastName = typeof req.body.lastName === 'string'
+    ? req.body.lastName.trim()
+    : '';
+  const email = typeof req.body.email === 'string'
+    ? req.body.email.trim().toLowerCase()
+    : '';
+  const phone = typeof req.body.phone === 'string'
+    ? req.body.phone.trim()
+    : '';
+  const username = typeof req.body.username === 'string'
+    ? req.body.username.trim()
+    : '';
+  const password = req.body.password;
+
+  if (!firstName || firstName.length > 60 || !lastName || lastName.length > 60) {
+    return res.status(400).json({
+      error: 'First and last names are required and must not exceed 60 characters.'
+    });
+  }
+
+  if (
+    email.length > 254 ||
+    !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+  ) {
+    return res.status(400).json({ error: 'Enter a valid email address.' });
+  }
+
+  if (!/^[+0-9()\-\s]{7,20}$/.test(phone)) {
+    return res.status(400).json({ error: 'Enter a valid phone number.' });
+  }
+
+  if (!/^[a-zA-Z0-9_-]{3,30}$/.test(username)) {
+    return res.status(400).json({
+      error: 'Username must be 3â€“30 characters using letters, numbers, underscores, or hyphens.'
+    });
+  }
+
+  if (typeof password !== 'string' || password.length < 10 || password.length > 128) {
+    return res.status(400).json({
+      error: 'Password must be between 10 and 128 characters.'
+    });
+  }
+
+  try {
+    const passwordHash = await auth.hashPassword(password);
+
+    const registrationStartedAt = new Date();
+    const registrationExpiresAt = new Date(
+      registrationStartedAt.getTime() + 24 * 60 * 60 * 1000
+    );
+
+    const result = db.prepare(`
+      INSERT INTO users
+        (
+          first_name, last_name, email, phone, username,
+          password_hash, role, registration_started_at,
+          registration_expires_at
+        )
+      VALUES (?, ?, ?, ?, ?, ?, 'student', ?, ?)
+    `).run(
+      firstName,
+      lastName,
+      email,
+      phone,
+      username,
+      passwordHash,
+      registrationStartedAt.toISOString(),
+      registrationExpiresAt.toISOString()
+    );
+
+    res.status(201).json({
+      message: 'Registration successful. Your 24-hour trial has started.',
+      user: {
+        id: Number(result.lastInsertRowid),
+        username,
+        role: 'student',
+        registrationExpiresAt: registrationExpiresAt.toISOString()
+      }
+    });
+  } catch (error) {
+    if (error.code === 'SQLITE_CONSTRAINT_UNIQUE') {
+      const message = error.message || '';
+
+      if (message.includes('email')) {
+        return res.status(409).json({ error: 'That email address is already registered.' });
+      }
+
+      if (message.includes('phone')) {
+        return res.status(409).json({ error: 'That phone number is already registered.' });
+      }
+
+      return res.status(409).json({ error: 'That username is already taken.' });
+    }
+
+    console.error('Registration error:', error);
+    res.status(500).json({ error: 'Unable to register account.' });
+  }
+});
+
+app.post('/api/login', async (req, res) => {
+  const username = typeof req.body.username === 'string'
+    ? req.body.username.trim()
+    : '';
+  const password = req.body.password;
+
+  if (!username || typeof password !== 'string') {
+    return res.status(400).json({ error: 'Username and password are required.' });
+  }
+
+  try {
+    const user = findUser.get(username);
+
+    if (!user || !(await auth.verifyPassword(password, user.password_hash))) {
+      return res.status(401).json({ error: 'Invalid username or password.' });
+    }
+
+    const token = auth.createSessionToken();
+    const sessionId = auth.hashSessionToken(token);
+
+    insertSession.run(sessionId, user.id, Date.now() + SESSION_DURATION);
+    setSessionCookie(res, token);
+
+    res.json({
+      message: 'Login successful.',
+      user: {
+        id: user.id,
+        username: user.username,
+        role: user.role,
+        mustChangePassword: Boolean(user.must_change_password)
+      }
+    });
+  } catch (error) {
+    console.error('Login error:', error);
+    res.status(500).json({ error: 'Unable to log in.' });
+  }
+});
+
+app.post('/api/password/change', requireAuth, async (req, res) => {
+  const currentPassword = req.body.currentPassword;
+  const newPassword = req.body.newPassword;
+
+  if (
+    typeof currentPassword !== 'string' ||
+    typeof newPassword !== 'string'
+  ) {
+    return res.status(400).json({
+      error: 'Current and new passwords are required.'
+    });
+  }
+
+  if (newPassword.length < 10 || newPassword.length > 128) {
+    return res.status(400).json({
+      error: 'New password must be between 10 and 128 characters.'
+    });
+  }
+
+  try {
+    const user = db.prepare(
+      'SELECT password_hash FROM users WHERE id = ?'
+    ).get(req.user.id);
+
+    if (!user || !(await auth.verifyPassword(currentPassword, user.password_hash))) {
+      return res.status(400).json({
+        error: 'Current password is incorrect.'
+      });
+    }
+
+    const passwordHash = await auth.hashPassword(newPassword);
+    const cookieToken = parseCookies(req.headers.cookie)[COOKIE_NAME];
+
+    if (!cookieToken || !/^[a-f0-9]{64}$/i.test(cookieToken)) {
+      return res.status(401).json({
+        error: 'Please sign in again.'
+      });
+    }
+
+    const currentSessionId = auth.hashSessionToken(cookieToken);
+
+    db.exec('BEGIN IMMEDIATE');
+
+    try {
+      db.prepare(`
+        UPDATE users
+        SET password_hash = ?, must_change_password = 0
+        WHERE id = ?
+      `).run(passwordHash, req.user.id);
+
+      db.prepare(`
+        DELETE FROM sessions
+        WHERE user_id = ? AND id != ?
+      `).run(req.user.id, currentSessionId);
+
+      db.prepare(`
+        INSERT INTO audit_logs
+          (actor_id, action, target_type, target_id, details)
+        VALUES (?, 'password_changed', 'user', ?, 'Password changed by account holder.')
+      `).run(req.user.id, req.user.id);
+
+      db.exec('COMMIT');
+    } catch (error) {
+      db.exec('ROLLBACK');
+      throw error;
+    }
+
+    return res.json({
+      message: 'Password changed successfully.'
+    });
+  } catch (error) {
+    console.error('Password change error:', error.message);
+    return res.status(500).json({
+      error: 'Unable to change password.'
+    });
+  }
+});
+
+app.post('/api/logout', (req, res) => {
+  const token = parseCookies(req.headers.cookie)[COOKIE_NAME];
+
+  if (token && /^[a-f0-9]{64}$/i.test(token)) {
+    deleteSession.run(auth.hashSessionToken(token));
+  }
+
+  clearSessionCookie(res);
+  res.json({ message: 'Logged out successfully.' });
+});
+
+app.get('/api/me', requireAuth, (req, res) => {
+  res.json({
+    user: req.user,
+    accessStatus: accessControl.getAccessStatus(req.user)
+  });
+});
+
+app.get('/api/exams', requireAuth, (req, res) => {
+  try {
+    if (!['owner', 'admin', 'student'].includes(req.user.role)) {
+      return res.status(403).json({ error: 'Access denied.' });
+    }
+
+    const accessStatus = accessControl.getAccessStatus(req.user);
+
+    const exams = db.prepare(`
+      SELECT
+        id,
+        title,
+        description,
+        duration_minutes,
+        passing_score,
+        exam_type,
+        category
+      FROM exams
+      WHERE active = 1
+      ORDER BY
+        CASE exam_type WHEN 'category' THEN 0 ELSE 1 END,
+        category,
+        id
+    `).all();
+
+    res.json({
+      exams,
+      accessStatus,
+      mockPreviewOnly:
+        req.user.role === 'student' &&
+        accessStatus.accessMode === 'preview'
+    });
+  } catch (error) {
+    console.error('Exam list error:', error.message);
+    res.status(500).json({ error: 'Unable to load exams.' });
+  }
+});
+
+app.use('/api/exams', createExamRouter({
+  db,
+  accessControl,
+  requireAuth
+}));
+
+// Administrator-only dashboard statistics.
+app.get('/api/admin/stats', requireAuth, requireAdmin, (req, res) => {
+  const totalExams = db.prepare(
+    'SELECT COUNT(*) AS count FROM exams'
+  ).get().count;
+
+  const totalQuestions = db.prepare(
+    'SELECT COUNT(*) AS count FROM questions'
+  ).get().count;
+
+  const totalStudents = db.prepare(
+    "SELECT COUNT(*) AS count FROM users WHERE role = 'student'"
+  ).get().count;
+
+  res.json({
+    totalExams,
+    totalQuestions,
+    totalStudents
+  });
+});
+
+// Administrator-only student account list.
+app.get('/api/admin/students', requireAuth, requireAdmin, (req, res) => {
+  const students = db.prepare(`
+    SELECT id, username, created_at
+    FROM users
+    WHERE role = 'student'
+    ORDER BY created_at DESC
+  `).all();
+
+  res.json({ students });
+});
+
+function requireOwner(req, res, next) {
+  if (req.user.role !== 'owner') {
+    return res.status(403).json({ error: 'Owner privileges required.' });
+  }
+  next();
+}
+
+// Owner-only account list for account management.
+app.get('/api/owner/accounts', requireAuth, requireOwner, (req, res) => {
+  const accounts = db.prepare(`
+    SELECT id, username, role, created_at
+    FROM users
+    WHERE role IN ('student', 'admin')
+    ORDER BY role, created_at DESC
+  `).all();
+
+  res.json({ accounts });
+});
+
+const passwordResetRouter = createPasswordResetRouter({
+  db,
+  auth,
+  requireAuth,
+  requireAdmin,
+  requireOwner,
+  config: passwordResetConfig
+});
+
+app.use('/api/password-reset', passwordResetRouter);
+
+function csvEscape(value) {
+  if (value === null || value === undefined) return '';
+
+  let text = String(value);
+
+  // Prevent spreadsheet formula injection.
+  if (/^[\s]*[=+\-@]/.test(text)) {
+    text = "'" + text;
+  }
+
+  return '"' + text.replace(/"/g, '""') + '"';
+}
+
+function sendCsv(res, filename, columns, rows) {
+  const lines = [
+    columns.map(column => csvEscape(column.label)).join(','),
+    ...rows.map(row =>
+      columns.map(column => csvEscape(row[column.key])).join(',')
+    )
+  ];
+
+  res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+  res.setHeader(
+    'Content-Disposition',
+    `attachment; filename="${filename}.csv"`
+  );
+  res.send('\uFEFF' + lines.join('\r\n'));
+}
+
+// Owner-only CSV exports. Authentication secrets and payment settings are excluded.
+app.get('/api/owner/export/:dataset', requireAuth, requireOwner, (req, res) => {
+  const exports = {
+    students: {
+      filename: 'learnspace-students',
+      sql: "SELECT id, username, first_name, last_name, email, phone, registration_started_at, registration_expires_at, enrollment_expires_at, created_at FROM users WHERE role = 'student' ORDER BY id",
+      columns: [
+        { key: 'id', label: 'Student ID' },
+        { key: 'username', label: 'Username' },
+        { key: 'first_name', label: 'First name' },
+        { key: 'last_name', label: 'Last name' },
+        { key: 'email', label: 'Email' },
+        { key: 'phone', label: 'Phone' },
+        { key: 'registration_started_at', label: 'Registration started' },
+        { key: 'registration_expires_at', label: 'Registration expires' },
+        { key: 'enrollment_expires_at', label: 'Enrollment expires' },
+        { key: 'created_at', label: 'Account created' }
+      ]
+    },
+    admins: {
+      filename: 'learnspace-administrators',
+      sql: "SELECT id, username, created_at FROM users WHERE role = 'admin' ORDER BY id",
+      columns: [
+        { key: 'id', label: 'Administrator ID' },
+        { key: 'username', label: 'Username' },
+        { key: 'created_at', label: 'Account created' }
+      ]
+    },
+    courses: {
+      filename: 'learnspace-courses',
+      sql: 'SELECT id, title, description, price_cents, currency, active, created_at, updated_at FROM courses ORDER BY id',
+      columns: [
+        { key: 'id', label: 'Course ID' },
+        { key: 'title', label: 'Title' },
+        { key: 'description', label: 'Description' },
+        { key: 'price_cents', label: 'Price in minor units' },
+        { key: 'currency', label: 'Currency' },
+        { key: 'active', label: 'Active' },
+        { key: 'created_at', label: 'Created' },
+        { key: 'updated_at', label: 'Updated' }
+      ]
+    },
+    enrollments: {
+      filename: 'learnspace-enrollments',
+      sql: `SELECT ce.id, ce.user_id, u.username, ce.course_id, c.title AS course_title, ce.enrolled_at, ce.expires_at, ce.status, ce.payment_id FROM course_enrollments ce JOIN users u ON u.id = ce.user_id JOIN courses c ON c.id = ce.course_id ORDER BY ce.id`,
+      columns: [
+        { key: 'id', label: 'Enrollment ID' },
+        { key: 'user_id', label: 'Student ID' },
+        { key: 'username', label: 'Username' },
+        { key: 'course_id', label: 'Course ID' },
+        { key: 'course_title', label: 'Course' },
+        { key: 'enrolled_at', label: 'Enrolled' },
+        { key: 'expires_at', label: 'Expires' },
+        { key: 'status', label: 'Status' },
+        { key: 'payment_id', label: 'Payment ID' }
+      ]
+    },
+    exams: {
+      filename: 'learnspace-examinations',
+      sql: 'SELECT id, title, description, duration_minutes, passing_score, active, price_cents, currency, created_by, created_at, updated_at FROM exams ORDER BY id',
+      columns: [
+        { key: 'id', label: 'Exam ID' },
+        { key: 'title', label: 'Title' },
+        { key: 'description', label: 'Description' },
+        { key: 'duration_minutes', label: 'Duration minutes' },
+        { key: 'passing_score', label: 'Passing score' },
+        { key: 'active', label: 'Active' },
+        { key: 'price_cents', label: 'Price in minor units' },
+        { key: 'currency', label: 'Currency' },
+        { key: 'created_by', label: 'Created by user ID' },
+        { key: 'created_at', label: 'Created' },
+        { key: 'updated_at', label: 'Updated' }
+      ]
+    },
+    questions: {
+      filename: 'learnspace-questions',
+      sql: 'SELECT id, text, options, correct_answer, explanation, category, difficulty, active, created_at FROM questions ORDER BY id',
+      columns: [
+        { key: 'id', label: 'Question ID' },
+        { key: 'text', label: 'Question' },
+        { key: 'options', label: 'Options JSON' },
+        { key: 'correct_answer', label: 'Correct answer' },
+        { key: 'explanation', label: 'Explanation' },
+        { key: 'category', label: 'Category' },
+        { key: 'difficulty', label: 'Difficulty' },
+        { key: 'active', label: 'Active' },
+        { key: 'created_at', label: 'Created' }
+      ]
+    },
+    payments: {
+      filename: 'learnspace-payments',
+      sql: 'SELECT id, user_id, course_id, exam_id, provider, payment_method, provider_reference, receipt_number, purpose, amount_cents, currency, status, paid_at, refunded_at, created_at FROM payments ORDER BY id',
+      columns: [
+        { key: 'id', label: 'Payment ID' },
+        { key: 'user_id', label: 'User ID' },
+        { key: 'course_id', label: 'Course ID' },
+        { key: 'exam_id', label: 'Exam ID' },
+        { key: 'provider', label: 'Provider' },
+        { key: 'payment_method', label: 'Payment method' },
+        { key: 'provider_reference', label: 'Provider reference' },
+        { key: 'receipt_number', label: 'Receipt number' },
+        { key: 'purpose', label: 'Purpose' },
+        { key: 'amount_cents', label: 'Amount in minor units' },
+        { key: 'currency', label: 'Currency' },
+        { key: 'status', label: 'Status' },
+        { key: 'paid_at', label: 'Paid at' },
+        { key: 'refunded_at', label: 'Refunded at' },
+        { key: 'created_at', label: 'Created' }
+      ]
+    },
+    audit: {
+      filename: 'learnspace-audit-logs',
+      sql: 'SELECT id, actor_id, action, target_type, target_id, details, created_at FROM audit_logs ORDER BY id',
+      columns: [
+        { key: 'id', label: 'Log ID' },
+        { key: 'actor_id', label: 'Actor ID' },
+        { key: 'action', label: 'Action' },
+        { key: 'target_type', label: 'Target type' },
+        { key: 'target_id', label: 'Target ID' },
+        { key: 'details', label: 'Details' },
+        { key: 'created_at', label: 'Created' }
+      ]
+    }
+  };
+
+  const dataset = exports[req.params.dataset];
+
+  if (!dataset) {
+    return res.status(404).json({ error: 'Unknown export dataset.' });
+  }
+
+  try {
+    const rows = db.prepare(dataset.sql).all();
+    sendCsv(res, dataset.filename, dataset.columns, rows);
+  } catch (error) {
+    console.error('CSV export error:', error);
+    res.status(500).json({ error: 'Unable to export this dataset.' });
+  }
+});
+app.use('/api', (req, res) => {
+  res.status(404).json({ error: 'API endpoint not found.' });
+});
+
+db.prepare('DELETE FROM sessions WHERE expires_at <= ?').run(Date.now());
+
+const server = app.listen(PORT, () => {
+  console.log(`LMS server running at http://localhost:${PORT}`);
+});
+
+function shutdown() {
+  server.close(() => {
+    db.close();
+    process.exit(0);
+  });
+}
+
+process.on('SIGINT', shutdown);
+process.on('SIGTERM', shutdown);
+
+
+
+
+
+===== HTML FILES =====
+
+--- C:\Users\mavmu\Desktop\Traffic Sim\LMS\public\admin.html ---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#101827">
+  <title>Admin Dashboard | LearnSpace</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/admin.css">
+  <script src="/js/admin.js" defer></script>
+</head>
+<body class="dashboard-body">
+  <aside class="sidebar" id="sidebar">
+    <a class="sidebar-brand" href="/admin.html">
+      <span class="brand-icon">L</span>
+      <span>LearnSpace</span>
+    </a>
+
+    <div class="nav-label">ADMINISTRATION</div>
+
+    <nav class="side-nav">
+      <a href="/admin.html" class="nav-item active"><span>?</span> Dashboard</a>
+      <a href="#examinations" class="nav-item"><span>?</span> Examinations</a>
+      <a href="#questions" class="nav-item"><span>?</span> Question bank</a>
+      <a href="#students" class="nav-item"><span>?</span> Students</a>
+    </nav>
+
+    <div class="sidebar-bottom">
+      <div class="sidebar-help">
+        <div class="help-icon">?</div>
+        <strong>Administration</strong>
+        <p>Manage learning content, examinations, and student progress.</p>
+      </div>
+      <button id="logoutButton" class="logout-button">
+        <span>?</span> Sign out
+      </button>
+    </div>
+  </aside>
+
+  <main class="dashboard-main">
+    <header class="topbar">
+      <button id="menuButton" class="menu-button" aria-label="Toggle menu">?</button>
+      <div class="breadcrumb">Administration <span>/</span> Dashboard</div>
+      <div class="profile">
+        <div class="profile-avatar" id="avatar">A</div>
+        <div class="profile-info">
+          <strong id="profileName">Administrator</strong>
+          <span>Administrator account</span>
+        </div>
+      </div>
+    </header>
+
+    <section class="dashboard-content">
+      <div class="welcome-section">
+        <div>
+          <span class="eyebrow">LEARNSPACE MANAGEMENT</span>
+          <h1>Administrator Dashboard</h1>
+          <p>Manage examinations, questions, and student activity.</p>
+        </div>
+        <div class="welcome-decoration">?</div>
+      </div>
+
+      <div class="section-heading">
+        <div>
+          <h2>Platform overview</h2>
+          <p>A summary of your learning platform.</p>
+        </div>
+      </div>
+
+      <div class="stats-grid">
+        <article class="stat-card">
+          <div class="stat-icon purple">?</div>
+          <span>Total examinations</span>
+          <strong id="totalExams">0</strong>
+          <small>Examinations created</small>
+        </article>
+        <article class="stat-card">
+          <div class="stat-icon blue">?</div>
+          <span>Question bank</span>
+          <strong id="totalQuestions">0</strong>
+          <small>Questions available</small>
+        </article>
+        <article class="stat-card">
+          <div class="stat-icon green">?</div>
+          <span>Registered students</span>
+          <strong id="totalStudents">0</strong>
+          <small>Student accounts</small>
+        </article>
+      </div>
+
+      <div class="content-grid">
+        <section class="panel" id="examinations">
+          <div class="panel-heading">
+            <div>
+              <h2>Examination management</h2>
+              <p>Create and manage examinations.</p>
+            </div>
+            <span class="panel-icon">?</span>
+          </div>
+          <div class="admin-placeholder">
+            <div class="empty-icon">?</div>
+            <h3>Examinations</h3>
+            <p>Your examination management tools will appear here.</p>
+            <button class="primary-button" disabled>Coming soon</button>
+          </div>
+        </section>
+
+        <section class="panel" id="questions">
+          <div class="panel-heading">
+            <div>
+              <h2>Question bank</h2>
+              <p>Build and organize your question library.</p>
+            </div>
+            <span class="panel-icon">?</span>
+          </div>
+          <div class="admin-placeholder">
+            <div class="empty-icon">?</div>
+            <h3>Question management</h3>
+            <p>Your question management tools will appear here.</p>
+            <button class="primary-button" disabled>Coming soon</button>
+          </div>
+        </section>
+      </div>
+
+      <section class="panel student-panel" id="students">
+        <div class="panel-heading">
+          <div>
+            <h2>Student accounts</h2>
+            <p>Overview of registered student accounts.</p>
+          </div>
+          <span class="panel-icon">?</span>
+        </div>
+        <div id="studentList" class="admin-placeholder">
+          <p>Student account information will appear here.</p>
+        </div>
+      </section>
+
+      <footer class="dashboard-footer">
+        © 2026 LearnSpace <span>•</span> Administration Portal
+      </footer>
+    </section>
+  </main>
+</body>
+</html>
+
+--- C:\Users\mavmu\Desktop\Traffic Sim\LMS\public\change-password.html ---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Change Password | LearnSpace</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    .password-page {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+    }
+
+    .password-card {
+      width: 100%;
+      max-width: 440px;
+      padding: 32px;
+      background: #fff;
+      border-radius: 14px;
+      box-shadow: 0 12px 40px rgba(0,0,0,.10);
+    }
+
+    .password-card h1 { margin-top: 0; }
+    .password-card p { color: #64748b; line-height: 1.6; }
+    .password-card label {
+      display: block;
+      margin: 18px 0 7px;
+      font-weight: 600;
+    }
+
+    .password-card input {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      box-sizing: border-box;
+    }
+
+    .password-card button {
+      width: 100%;
+      margin-top: 22px;
+      padding: 13px;
+      border: 0;
+      border-radius: 8px;
+      background: #2563eb;
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    #message { margin-top: 16px; }
+    .error { color: #dc2626 !important; }
+    .success { color: #15803d !important; }
+  </style>
+</head>
+<body>
+  <main class="password-page">
+    <section class="password-card">
+      <h1>Change your password</h1>
+      <p>
+        Your account requires a new password before you can continue.
+        Choose a password with at least 10 characters.
+      </p>
+
+      <form id="passwordForm">
+        <label for="currentPassword">Temporary or current password</label>
+        <input
+          id="currentPassword"
+          type="password"
+          autocomplete="current-password"
+          required
+        >
+
+        <label for="newPassword">New password</label>
+        <input
+          id="newPassword"
+          type="password"
+          minlength="10"
+          maxlength="128"
+          autocomplete="new-password"
+          required
+        >
+
+        <label for="confirmPassword">Confirm new password</label>
+        <input
+          id="confirmPassword"
+          type="password"
+          minlength="10"
+          maxlength="128"
+          autocomplete="new-password"
+          required
+        >
+
+        <button type="submit">Update password</button>
+      </form>
+
+      <p id="message" role="status" aria-live="polite"></p>
+    </section>
+  </main>
+
+  <script>
+    const form = document.getElementById('passwordForm');
+    const message = document.getElementById('message');
+
+    form.addEventListener('submit', async event => {
+      event.preventDefault();
+      message.textContent = '';
+      message.className = '';
+
+      const currentPassword =
+        document.getElementById('currentPassword').value;
+      const newPassword =
+        document.getElementById('newPassword').value;
+      const confirmPassword =
+        document.getElementById('confirmPassword').value;
+
+      if (newPassword !== confirmPassword) {
+        message.textContent = 'The new passwords do not match.';
+        message.className = 'error';
+        return;
+      }
+
+      if (newPassword.length < 10 || newPassword.length > 128) {
+        message.textContent = 'Password must be between 10 and 128 characters.';
+        message.className = 'error';
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/password/change', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ currentPassword, newPassword })
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+          throw new Error(result.error || 'Unable to change password.');
+        }
+
+        message.textContent = result.message + ' Redirecting to sign in...';
+        message.className = 'success';
+        form.reset();
+
+        setTimeout(() => {
+          window.location.href = '/';
+        }, 1800);
+      } catch (error) {
+        message.textContent = error.message;
+        message.className = 'error';
+      }
+    });
+  </script>
+</body>
+</html>
+
+--- C:\Users\mavmu\Desktop\Traffic Sim\LMS\public\dashboard.html ---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#101827">
+  <title>Dashboard | LearnSpace</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/dashboard.css">
+  <script src="/js/dashboard.js" defer></script>
+</head>
+<body class="dashboard-body">
+  <aside class="sidebar" id="sidebar">
+    <a class="sidebar-brand" href="/dashboard.html">
+      <span class="brand-icon">L</span>
+      <span>LearnSpace</span>
+    </a>
+
+    <div class="nav-label">MAIN MENU</div>
+
+    <nav class="side-nav">
+      <a href="/dashboard.html" class="nav-item active" data-view="dashboard">
+        <span>?</span> Dashboard
+      </a>
+      <a href="#exams" class="nav-item" data-view="exams">
+        <span>?</span> My examinations
+      </a>
+      <a href="#activity" class="nav-item" data-view="activity">
+        <span>?</span> Activity
+      </a>
+    </nav>
+
+    <div class="sidebar-bottom">
+      <div class="sidebar-help">
+        <div class="help-icon">?</div>
+        <strong>Need assistance?</strong>
+        <p>Your learning journey matters. Keep practicing and improving.</p>
+      </div>
+      <button id="logoutButton" class="logout-button">
+        <span>?</span> Sign out
+      </button>
+    </div>
+  </aside>
+
+  <main class="dashboard-main">
+    <header class="topbar">
+      <button id="menuButton" class="menu-button" aria-label="Toggle menu">?</button>
+      <div class="breadcrumb">Pages <span>/</span> <span id="breadcrumbCurrent">Dashboard</span></div>
+      <div class="profile">
+        <div class="profile-avatar" id="avatar">S</div>
+        <div class="profile-info">
+          <strong id="profileName">Student</strong>
+          <span id="profileRole">Student account</span>
+        </div>
+      </div>
+    </header>
+
+    <section class="dashboard-content">
+
+      <!-- DASHBOARD VIEW -->
+      <div id="dashboardView">
+        <div class="welcome-section">
+          <div>
+            <span class="eyebrow">STUDENT OVERVIEW</span>
+            <h1>Welcome back, <span id="welcomeName">Student</span>!</h1>
+            <p>Ready to continue learning? Let's make today count.</p>
+          </div>
+          <div class="welcome-decoration">?</div>
+        </div>
+
+        <div id="accessNotice" class="access-notice" hidden></div>
+
+        <div class="section-heading">
+          <div>
+            <h2>Your learning overview</h2>
+            <p>Track your progress and achievements.</p>
+          </div>
+        </div>
+
+        <div class="stats-grid">
+          <article class="stat-card">
+            <div class="stat-icon purple">?</div>
+            <span>Total examinations</span>
+            <strong id="totalExams">0</strong>
+            <small>Completed examinations</small>
+          </article>
+
+          <article class="stat-card">
+            <div class="stat-icon blue">?</div>
+            <span>Average score</span>
+            <strong id="averageScore">0%</strong>
+            <small>Across completed exams</small>
+          </article>
+
+          <article class="stat-card">
+            <div class="stat-icon green">?</div>
+            <span>Best score</span>
+            <strong id="bestScore">0%</strong>
+            <small>Your personal best</small>
+          </article>
+        </div>
+
+        <section class="panel progress-panel">
+          <div class="panel-heading">
+            <div>
+              <h2>Civil Service Exam readiness</h2>
+              <p>Your four most recent completed mock examinations.</p>
+            </div>
+            <span class="panel-icon">?</span>
+          </div>
+          <div id="readinessContent">
+            <p class="muted-text">Your readiness progress will appear here.</p>
+          </div>
+        </section>
+
+        <section class="panel exam-panel" id="exams">
+          <div class="panel-heading">
+            <div>
+              <h2>Examinations</h2>
+              <p>Complete your category assessments before taking mock examinations.</p>
+            </div>
+            <span class="panel-icon">?</span>
+          </div>
+
+          <div id="categoryExamList" class="category-exam-list">
+            <div class="exam-placeholder">
+              <div class="empty-icon">?</div>
+              <h3>Preparing your examinations</h3>
+              <p>Your available category examinations will appear here.</p>
+            </div>
+          </div>
+
+          <div class="mock-exam-section">
+            <div class="mock-exam-heading">
+              <div>
+                <h3>Mock examinations</h3>
+                <p>150 questions · 3 hours 30 minutes · 80% passing score</p>
+              </div>
+              <span class="mock-lock-status" id="mockLockStatus">Locked</span>
+            </div>
+            <div id="mockExamContent">
+              <p class="muted-text">Pass all four category examinations to unlock full mock exams.</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel activity-panel" id="activity">
+          <div class="panel-heading">
+            <div>
+              <h2>Recent activity</h2>
+              <p>Your latest learning activities.</p>
+            </div>
+            <span class="panel-icon">?</span>
+          </div>
+          <div id="activityList" class="activity-list">
+            <div class="empty-activity">
+              No activity yet. Your examination history will appear here.
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- EXAM WORKSPACE -->
+      <section id="examView" class="panel exam-workspace" hidden>
+        <div class="exam-workspace-header">
+          <div>
+            <span class="eyebrow" id="examTypeLabel">EXAMINATION</span>
+            <h1 id="examTitle">Examination</h1>
+            <p id="examProgress">Question 1 of 30</p>
+          </div>
+          <div id="examTimer" class="exam-timer" hidden>03:30:00</div>
+        </div>
+
+        <div class="exam-progress-track">
+          <div id="examProgressBar" class="exam-progress-fill"></div>
+        </div>
+
+        <div class="exam-question-area">
+          <div class="question-number" id="questionNumber">QUESTION 1</div>
+          <h2 id="questionText">Question text will appear here.</h2>
+          <div id="answerOptions" class="answer-options"></div>
+        </div>
+
+        <div id="questionNavigation" class="question-navigation"></div>
+
+        <div class="exam-controls">
+          <button id="previousQuestionButton" class="secondary-button" disabled>Previous</button>
+          <span id="answeredCount">0 answered</span>
+          <button id="nextQuestionButton" class="primary-button">Next</button>
+          <button id="submitExamButton" class="primary-button submit-exam-button">Submit examination</button>
+        </div>
+      </section>
+
+      <!-- RESULTS VIEW -->
+      <section id="resultsView" class="panel results-view" hidden>
+        <div class="results-icon" id="resultsIcon">?</div>
+        <span class="eyebrow">EXAMINATION COMPLETED</span>
+        <h1 id="resultsTitle">Your results</h1>
+        <p id="resultsMessage">Your examination has been submitted.</p>
+
+        <div class="results-score">
+          <strong id="resultsScore">0/30</strong>
+          <span id="resultsPercentage">0%</span>
+        </div>
+
+        <div id="resultsStatus" class="results-status"></div>
+        <p id="reviewRestMessage" class="review-rest-message" hidden>
+          We recommend resting for at least five minutes before reviewing your answers.
+        </p>
+
+        <div class="results-actions">
+          <button id="reviewAnswersButton" class="secondary-button">Review answers</button>
+          <button id="returnDashboardButton" class="primary-button">Return to dashboard</button>
+        </div>
+      </section>
+
+      <!-- REVIEW VIEW -->
+      <section id="reviewView" class="panel review-view" hidden>
+        <div class="panel-heading">
+          <div>
+            <span class="eyebrow">ANSWER REVIEW</span>
+            <h1 id="reviewTitle">Examination review</h1>
+            <p id="reviewSummary">Review your incorrect and unanswered questions.</p>
+          </div>
+        </div>
+
+        <div id="reviewQuestions" class="review-questions"></div>
+
+        <button id="reviewDashboardButton" class="primary-button">Return to dashboard</button>
+      </section>
+
+      <footer class="dashboard-footer">
+        © 2026 LearnSpace <span>•</span> Keep learning, keep growing.
+      </footer>
+    </section>
+  </main>
+</body>
+</html>
+
+--- C:\Users\mavmu\Desktop\Traffic Sim\LMS\public\forgot-password.html ---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Forgot Password | LearnSpace</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    .recovery-page {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+    }
+
+    .recovery-card {
+      width: 100%;
+      max-width: 440px;
+      padding: 32px;
+      background: #fff;
+      border-radius: 14px;
+      box-shadow: 0 12px 40px rgba(0,0,0,.10);
+    }
+
+    .recovery-card h1 { margin-top: 0; }
+    .recovery-card p { color: #64748b; line-height: 1.6; }
+    .recovery-card label {
+      display: block;
+      margin: 20px 0 7px;
+      font-weight: 600;
+    }
+
+    .recovery-card input {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      box-sizing: border-box;
+    }
+
+    .recovery-card button {
+      width: 100%;
+      margin-top: 20px;
+      padding: 13px;
+      border: 0;
+      border-radius: 8px;
+      background: #2563eb;
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .recovery-card a { color: #2563eb; }
+    #message { margin-top: 16px; }
+    .error { color: #dc2626 !important; }
+    .success { color: #15803d !important; }
+  </style>
+</head>
+<body>
+  <main class="recovery-page">
+    <section class="recovery-card">
+      <h1>Forgot your password?</h1>
+      <p>
+        Enter the email address associated with your LearnSpace account.
+        If an account matches, recovery instructions will be provided.
+      </p>
+
+      <form id="recoveryForm">
+        <label for="email">Email address</label>
+        <input
+          id="email"
+          type="email"
+          maxlength="254"
+          autocomplete="email"
+          placeholder="Enter your registered email"
+          required
+        >
+        <button id="submitButton" type="submit">Request password reset</button>
+      </form>
+
+      <p id="message" role="status" aria-live="polite"></p>
+      <p><a href="/">? Back to sign in</a></p>
+    </section>
+  </main>
+
+  <script>
+    const form = document.getElementById('recoveryForm');
+    const message = document.getElementById('message');
+    const button = document.getElementById('submitButton');
+
+    form.addEventListener('submit', async event => {
+      event.preventDefault();
+
+      message.textContent = '';
+      message.className = '';
+      button.disabled = true;
+      button.textContent = 'Submitting...';
+
+      try {
+        const response = await fetch('/api/password-reset/request', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: document.getElementById('email').value.trim()
+          })
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+          throw new Error(result.error || 'Unable to process request.');
+        }
+
+        message.textContent = result.message;
+        message.className = 'success';
+        form.reset();
+      } catch (error) {
+        message.textContent = error.message;
+        message.className = 'error';
+      } finally {
+        button.disabled = false;
+        button.textContent = 'Request password reset';
+      }
+    });
+  </script>
+</body>
+</html>
+
+--- C:\Users\mavmu\Desktop\Traffic Sim\LMS\public\index.html ---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#101827">
+  <title>LearnSpace | Learning Management System</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+  <main class="auth-layout">
+    <section class="brand-panel">
+      <div class="brand">
+        <div class="brand-icon">L</div>
+        <span>LearnSpace</span>
+      </div>
+
+      <div class="brand-content">
+        <span class="eyebrow">YOUR LEARNING JOURNEY</span>
+        <h1>Learn today.<br><span>Lead tomorrow.</span></h1>
+        <p>A smarter way to learn, practice, track your progress, and reach your goals.</p>
+
+        <div class="feature-list">
+          <div class="feature">
+            <span class="feature-icon">?</span>
+            <span>Learn at your own pace</span>
+          </div>
+          <div class="feature">
+            <span class="feature-icon">?</span>
+            <span>Practice with interactive exams</span>
+          </div>
+          <div class="feature">
+            <span class="feature-icon">?</span>
+            <span>Track your learning progress</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="brand-footer">© 2026 LearnSpace. Learn without limits.</div>
+    </section>
+
+    <section class="form-panel">
+      <div class="mobile-brand">
+        <div class="brand-icon">L</div>
+        <span>LearnSpace</span>
+      </div>
+
+      <div class="auth-card">
+        <div class="form-heading">
+          <span class="eyebrow">WELCOME TO LEARNSPACE</span>
+          <h2 id="formTitle">Welcome back</h2>
+          <p id="formDescription">Sign in to continue your learning journey.</p>
+        </div>
+
+        <div id="message" class="message" role="alert" aria-live="polite"></div>
+
+        <form id="authForm">
+          <div class="field registration-field" hidden>
+            <label for="firstName">First name</label>
+            <input id="firstName" name="firstName" type="text"
+              placeholder="Enter your first name" maxlength="60"
+              autocomplete="given-name">
+          </div>
+
+          <div class="field registration-field" hidden>
+            <label for="lastName">Last name</label>
+            <input id="lastName" name="lastName" type="text"
+              placeholder="Enter your last name" maxlength="60"
+              autocomplete="family-name">
+          </div>
+
+          <div class="field registration-field" hidden>
+            <label for="email">Email address</label>
+            <input id="email" name="email" type="email"
+              placeholder="Enter your email address" maxlength="254"
+              autocomplete="email">
+          </div>
+
+          <div class="field registration-field" hidden>
+            <label for="phone">Phone number</label>
+            <input id="phone" name="phone" type="tel"
+              placeholder="Enter your phone number" maxlength="20"
+              autocomplete="tel">
+          </div>
+
+          <div class="field">
+            <label for="username">Username</label>
+            <input id="username" name="username" type="text"
+              placeholder="Enter your username" minlength="3" maxlength="30"
+              autocomplete="username" required>
+          </div>
+
+          <div class="field">
+            <label for="password">Password</label>
+            <div class="password-wrap">
+              <input id="password" name="password" type="password"
+                placeholder="Enter your password" minlength="10" maxlength="128"
+                autocomplete="current-password" required>
+              <button class="password-toggle" id="togglePassword"
+                type="button" aria-label="Show password">Show</button>
+            </div>
+          </div>
+
+          <p id="forgotPasswordLink" style="text-align:right; margin: -8px 0 18px;">
+            <a href="/forgot-password.html">Forgot password?</a>
+          </p>
+
+          <button class="primary-button" id="submitButton" type="submit">
+            Sign in <span>?</span>
+          </button>
+        </form>
+
+        <p class="switch-text">
+          <span id="switchLabel">Don't have an account?</span>
+          <button id="switchMode" type="button">Create account</button>
+        </p>
+      </div>
+
+      <div class="form-footer">
+        Secure learning platform <span>•</span> Built for your success
+      </div>
+    </section>
+  </main>
+</body>
+</html>
+
+--- C:\Users\mavmu\Desktop\Traffic Sim\LMS\public\owner.html ---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#101827">
+  <title>Owner Dashboard | LearnSpace</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/admin.css">
+  <script src="/js/owner.js" defer></script>
+</head>
+<body class="dashboard-body">
+  <aside class="sidebar" id="sidebar">
+    <a class="sidebar-brand" href="/owner.html">
+      <span class="brand-icon">L</span>
+      <span>LearnSpace</span>
+    </a>
+
+    <div class="nav-label">OWNER CONTROL</div>
+
+    <nav class="side-nav">
+      <a href="/owner.html" class="nav-item active"><span>â–¦</span> Overview</a>
+      <a href="#accounts" class="nav-item"><span>â™™</span> Accounts</a>
+      <a href="#learning" class="nav-item"><span>â–¤</span> Learning content</a>
+      <a href="#finance" class="nav-item"><span>â‚±</span> Payments & refunds</a>
+      <a href="#settings" class="nav-item"><span>âš™</span> Payment settings</a>
+      <a href="#exports" class="nav-item"><span>â‡©</span> Data export</a>
+      <a href="#audit" class="nav-item"><span>â˜·</span> Audit logs</a>
+    </nav>
+
+    <div class="sidebar-bottom">
+      <div class="sidebar-help">
+        <div class="help-icon">â˜…</div>
+        <strong>Platform owner</strong>
+        <p>Full control over LearnSpace accounts, learning content, and platform finances.</p>
+      </div>
+      <button id="logoutButton" class="logout-button">
+        <span>â†ª</span> Sign out
+      </button>
+    </div>
+  </aside>
+
+  <main class="dashboard-main">
+    <header class="topbar">
+      <button id="menuButton" class="menu-button" aria-label="Toggle menu">â˜°</button>
+      <div class="breadcrumb">Owner control <span>/</span> Overview</div>
+      <div class="profile">
+        <div class="profile-avatar" id="avatar">O</div>
+        <div class="profile-info">
+          <strong id="profileName">Owner</strong>
+          <span>Platform owner</span>
+        </div>
+      </div>
+    </header>
+
+    <section class="dashboard-content">
+      <div class="welcome-section">
+        <div>
+          <span class="eyebrow">LEARNSPACE PLATFORM CONTROL</span>
+          <h1>Owner Dashboard</h1>
+          <p>Manage your platform, users, learning content, and finances.</p>
+        </div>
+        <div class="welcome-decoration">âœ¦</div>
+      </div>
+
+      <div class="section-heading">
+        <div>
+          <h2>Platform overview</h2>
+          <p>Your LearnSpace platform at a glance.</p>
+        </div>
+      </div>
+
+      <div class="stats-grid">
+        <article class="stat-card">
+          <div class="stat-icon green">â™™</div>
+          <span>Registered students</span>
+          <strong id="totalStudents">0</strong>
+          <small>Student accounts</small>
+        </article>
+        <article class="stat-card">
+          <div class="stat-icon purple">â˜…</div>
+          <span>Administrators</span>
+          <strong id="totalAdmins">0</strong>
+          <small>Admin accounts</small>
+        </article>
+        <article class="stat-card">
+          <div class="stat-icon blue">â–¤</div>
+          <span>Examinations</span>
+          <strong id="totalExams">0</strong>
+          <small>Examinations created</small>
+        </article>
+        <article class="stat-card">
+          <div class="stat-icon green">â‚±</div>
+          <span>Recorded payments</span>
+          <strong id="totalPayments">0</strong>
+          <small>Payment transactions</small>
+        </article>
+      </div>
+
+      <section class="panel student-panel" id="accounts">
+        <div class="panel-heading">
+          <div>
+            <h2>Account management</h2>
+            <p>Manage student and administrator accounts.</p>
+          </div>
+          <span class="panel-icon">â™™</span>
+        </div>
+        <div id="accountList" class="admin-placeholder">
+          <p>Account management tools will appear here.</p>
+        </div>
+      </section>
+
+      <div class="content-grid" id="learning">
+        <section class="panel">
+          <div class="panel-heading">
+            <div>
+              <h2>Learning content</h2>
+              <p>Manage courses, examinations, and questions.</p>
+            </div>
+            <span class="panel-icon">â–¤</span>
+          </div>
+          <div class="admin-placeholder">
+            <div class="empty-icon">â–¤</div>
+            <h3>Learning management</h3>
+            <p>Course, examination, and question management tools will appear here.</p>
+            <span class="eyebrow">Backend integration pending</span>
+          </div>
+        </section>
+
+        <section class="panel" id="finance">
+          <div class="panel-heading">
+            <div>
+              <h2>Payments & refunds</h2>
+              <p>Review transactions and manage refunds.</p>
+            </div>
+            <span class="panel-icon">â‚±</span>
+          </div>
+          <div class="admin-placeholder">
+            <div class="empty-icon">â‚±</div>
+            <h3>Financial management</h3>
+            <p>Payment reports, transaction history, and refund tools will appear here.</p>
+            <span class="eyebrow">Backend integration pending</span>
+          </div>
+        </section>
+      </div>
+
+      <div class="content-grid">
+        <section class="panel" id="settings">
+          <div class="panel-heading">
+            <div>
+              <h2>Payment settings</h2>
+              <p>Configure supported Philippine payment methods.</p>
+            </div>
+            <span class="panel-icon">âš™</span>
+          </div>
+          <div class="admin-placeholder">
+            <h3>Payment provider configuration</h3>
+            <p>GCash, Maya, and QR Ph settings will be available here after gateway integration.</p>
+            <span class="eyebrow">Backend integration pending</span>
+          </div>
+        </section>
+
+        <section class="panel" id="audit">
+          <div class="panel-heading">
+            <div>
+              <h2>Audit logs</h2>
+              <p>Review important platform and account activities.</p>
+            </div>
+            <span class="panel-icon">â˜·</span>
+          </div>
+          <div id="auditList" class="admin-placeholder">
+            <p>Administrative activity records will appear here.</p>
+          </div>
+        </section>
+      </div>
+
+      <section class="panel student-panel" id="exports">
+        <div class="panel-heading">
+          <div>
+            <h2>Data export</h2>
+            <p>Download platform records as CSV files for reporting and backups.</p>
+          </div>
+          <span class="panel-icon">â‡©</span>
+        </div>
+        <div class="admin-placeholder">
+          <h3>Export platform data</h3>
+          <p>Choose a dataset to download. Sensitive authentication information is excluded.</p>
+          <div class="export-grid">
+            <button class="primary-button" data-export="students">Export students CSV</button>
+            <button class="primary-button" data-export="admins">Export administrators CSV</button>
+            <button class="primary-button" data-export="courses">Export courses CSV</button>
+            <button class="primary-button" data-export="enrollments">Export enrollments CSV</button>
+            <button class="primary-button" data-export="exams">Export examinations CSV</button>
+            <button class="primary-button" data-export="questions">Export questions CSV</button>
+            <button class="primary-button" data-export="payments">Export payments CSV</button>
+            <button class="primary-button" data-export="audit">Export audit logs CSV</button>
+          </div>
+          <p id="exportMessage" role="status" aria-live="polite"></p>
+        </div>
+      </section>
+
+      <footer class="dashboard-footer">
+        Â© 2026 LearnSpace <span>â€¢</span> Owner Control Center
+      </footer>
+    </section>
+  </main>
+</body>
+</html>
+
+--- C:\Users\mavmu\Desktop\Traffic Sim\LMS\public\reset-password.html ---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reset Password | LearnSpace</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    .reset-page {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+    }
+
+    .reset-card {
+      width: 100%;
+      max-width: 440px;
+      padding: 32px;
+      background: #fff;
+      border-radius: 14px;
+      box-shadow: 0 12px 40px rgba(0,0,0,.10);
+    }
+
+    .reset-card h1 { margin-top: 0; }
+    .reset-card p { color: #64748b; line-height: 1.6; }
+    .reset-card label {
+      display: block;
+      margin: 18px 0 7px;
+      font-weight: 600;
+    }
+
+    .reset-card input {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      box-sizing: border-box;
+    }
+
+    .reset-card button {
+      width: 100%;
+      margin-top: 22px;
+      padding: 13px;
+      border: 0;
+      border-radius: 8px;
+      background: #2563eb;
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .reset-card a { color: #2563eb; }
+    #message { margin-top: 16px; }
+    .error { color: #dc2626 !important; }
+    .success { color: #15803d !important; }
+  </style>
+</head>
+<body>
+  <main class="reset-page">
+    <section class="reset-card">
+      <h1>Reset your password</h1>
+      <p>Choose a new password with at least 10 characters.</p>
+
+      <form id="resetForm">
+        <label for="newPassword">New password</label>
+        <input
+          id="newPassword"
+          type="password"
+          minlength="10"
+          maxlength="128"
+          autocomplete="new-password"
+          required
+        >
+
+        <label for="confirmPassword">Confirm new password</label>
+        <input
+          id="confirmPassword"
+          type="password"
+          minlength="10"
+          maxlength="128"
+          autocomplete="new-password"
+          required
+        >
+
+        <button id="submitButton" type="submit">Reset password</button>
+      </form>
+
+      <p id="message" role="status" aria-live="polite"></p>
+      <p><a href="/">? Back to sign in</a></p>
+    </section>
+  </main>
+
+  <script>
+    const form = document.getElementById('resetForm');
+    const message = document.getElementById('message');
+    const button = document.getElementById('submitButton');
+
+    const token = new URLSearchParams(window.location.search).get('token') || '';
+
+    if (!/^[a-f0-9]{64}$/i.test(token)) {
+      message.textContent = 'This password-reset link is invalid or incomplete.';
+      message.className = 'error';
+      button.disabled = true;
+    }
+
+    form.addEventListener('submit', async event => {
+      event.preventDefault();
+
+      message.textContent = '';
+      message.className = '';
+
+      const password = document.getElementById('newPassword').value;
+      const confirmation = document.getElementById('confirmPassword').value;
+
+      if (password !== confirmation) {
+        message.textContent = 'The passwords do not match.';
+        message.className = 'error';
+        return;
+      }
+
+      if (password.length < 10 || password.length > 128) {
+        message.textContent = 'Password must be between 10 and 128 characters.';
+        message.className = 'error';
+        return;
+      }
+
+      button.disabled = true;
+      button.textContent = 'Resetting...';
+
+      try {
+        const response = await fetch('/api/password-reset/confirm', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token, password })
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+          throw new Error(result.error || 'Unable to reset password.');
+        }
+
+        message.textContent = result.message + ' Redirecting to sign in...';
+        message.className = 'success';
+        form.reset();
+
+        setTimeout(() => {
+          window.location.href = '/';
+        }, 1800);
+      } catch (error) {
+        message.textContent = error.message;
+        message.className = 'error';
+        button.disabled = false;
+        button.textContent = 'Reset password';
+      }
+    });
+  </script>
+</body>
+</html>
+
+===== CSS FILES =====
+
+--- C:\Users\mavmu\Desktop\Traffic Sim\LMS\public\css\admin.css ---
+.admin-placeholder {
+  min-height: 215px;
+  padding: 25px 15px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.admin-placeholder h3 {
+  font-size: 14px;
+  margin: 0 0 8px;
+}
+
+.admin-placeholder p {
+  color: #939bad;
+  font-size: 11px;
+  line-height: 1.7;
+  margin: 0 0 17px;
+}
+
+.student-panel {
+  margin-top: 22px;
+}
+
+.student-panel .admin-placeholder {
+  min-height: 100px;
+}
+
+@media (max-width: 650px) {
+  .admin-placeholder {
+    min-height: 190px;
+  }
+}
+
+--- C:\Users\mavmu\Desktop\Traffic Sim\LMS\public\css\dashboard.css ---
+.dashboard-body {
+  min-height: 100vh;
+  background: #f5f6fa;
+  color: #20283a;
+  display: flex;
+}
+
+.sidebar {
+  width: 250px;
+  min-height: 100vh;
+  background: #111a2b;
+  color: #fff;
+  padding: 28px 18px;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+}
+
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  color: white;
+  text-decoration: none;
+  font-size: 19px;
+  font-weight: 800;
+  margin: 0 0 55px 5px;
+}
+
+.brand-icon {
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border-radius: 11px;
+  background: #6c63ff;
+  font-size: 20px;
+  color: white;
+}
+
+.nav-label {
+  color: #8993a8;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1.4px;
+  margin: 0 0 14px 10px;
+}
+
+.side-nav {
+  display: grid;
+  gap: 8px;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding: 13px 14px;
+  color: #aab3c5;
+  text-decoration: none;
+  border-radius: 9px;
+  font-size: 13px;
+  font-weight: 600;
+  transition: .2s;
+}
+
+.nav-item span {
+  font-size: 18px;
+}
+
+.nav-item:hover,
+.nav-item.active {
+  background: #252f49;
+  color: #fff;
+}
+
+.nav-item.active {
+  box-shadow: inset 3px 0 #827aff;
+}
+
+.sidebar-bottom {
+  margin-top: auto;
+}
+
+.sidebar-help {
+  padding: 17px;
+  background: #202b43;
+  border-radius: 12px;
+  margin-bottom: 20px;
+}
+
+.help-icon {
+  width: 25px;
+  height: 25px;
+  display: grid;
+  place-items: center;
+  background: #393e69;
+  border-radius: 50%;
+  color: #b9b4ff;
+  margin-bottom: 12px;
+}
+
+.sidebar-help strong {
+  font-size: 12px;
+}
+
+.sidebar-help p {
+  color: #aab3c5;
+  font-size: 11px;
+  line-height: 1.6;
+  margin: 7px 0 0;
+}
+
+.logout-button {
+  width: 100%;
+  padding: 12px;
+  background: transparent;
+  border: 1px solid #39445a;
+  border-radius: 9px;
+  color: #c6cede;
+  cursor: pointer;
+  font: inherit;
+  font-size: 13px;
+  text-align: left;
+}
+
+.logout-button:hover {
+  background: #252f49;
+  color: white;
+}
+
+.logout-button span {
+  margin-right: 9px;
+}
+
+.dashboard-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.topbar {
+  height: 76px;
+  background: #fff;
+  border-bottom: 1px solid #e9ebf1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 4%;
+}
+
+.breadcrumb {
+  color: #8991a3;
+  font-size: 12px;
+}
+
+.breadcrumb span {
+  padding: 0 9px;
+  color: #c0c5d0;
+}
+
+.profile {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+}
+
+.profile-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: #eceaff;
+  color: #6259dc;
+  font-weight: 800;
+}
+
+.profile-info {
+  display: grid;
+  gap: 3px;
+}
+
+.profile-info strong {
+  font-size: 12px;
+}
+
+.profile-info span {
+  color: #939bad;
+  font-size: 10px;
+}
+
+.dashboard-content {
+  max-width: 1450px;
+  padding: 36px 4%;
+  margin: auto;
+}
+
+.welcome-section {
+  min-height: 185px;
+  padding: 34px 38px;
+  border-radius: 15px;
+  background: linear-gradient(110deg, #292e62, #6259ce 70%, #7770e9);
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  overflow: hidden;
+  position: relative;
+}
+
+.eyebrow {
+  font-size: 10px;
+  letter-spacing: 1.8px;
+  font-weight: 800;
+  color: #c8c5ff;
+}
+
+.welcome-section h1 {
+  font-size: clamp(23px, 3vw, 31px);
+  margin: 13px 0 8px;
+  letter-spacing: -.8px;
+}
+
+.welcome-section p {
+  color: #e0defd;
+  font-size: 13px;
+  margin: 0;
+}
+
+.welcome-decoration {
+  font-size: 120px;
+  line-height: 1;
+  color: #ffffff20;
+  margin-right: 30px;
+}
+
+.section-heading {
+  margin: 35px 0 18px;
+}
+
+.section-heading h2,
+.panel-heading h2 {
+  font-size: 17px;
+  margin: 0 0 6px;
+  letter-spacing: -.3px;
+}
+
+.section-heading p,
+.panel-heading p {
+  font-size: 12px;
+  color: #939bad;
+  margin: 0;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.stat-card {
+  background: white;
+  border: 1px solid #eceef3;
+  border-radius: 13px;
+  padding: 22px;
+  display: grid;
+  justify-items: start;
+}
+
+.stat-icon {
+  width: 39px;
+  height: 39px;
+  display: grid;
+  place-items: center;
+  border-radius: 11px;
+  font-size: 19px;
+  margin-bottom: 17px;
+}
+
+.stat-icon.purple {
+  background: #efedff;
+  color: #7065e8;
+}
+
+.stat-icon.blue {
+  background: #e8f3ff;
+  color: #438bdc;
+}
+
+.stat-icon.green {
+  background: #e5f8ee;
+  color: #34a76b;
+}
+
+.stat-card > span {
+  color: #7d879a;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.stat-card > strong {
+  font-size: 29px;
+  margin: 7px 0 4px;
+  letter-spacing: -.8px;
+}
+
+.stat-card > small {
+  color: #a0a7b5;
+  font-size: 10px;
+}
+
+.content-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 18px;
+  margin-top: 22px;
+}
+
+.panel {
+  background: white;
+  border: 1px solid #eceef3;
+  border-radius: 13px;
+  padding: 23px;
+  min-width: 0;
+}
+
+.panel-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.panel-icon {
+  color: #7970e8;
+  font-size: 22px;
+}
+
+.exam-placeholder {
+  min-height: 235px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 20px;
+}
+
+.empty-icon {
+  width: 54px;
+  height: 54px;
+  display: grid;
+  place-items: center;
+  border-radius: 16px;
+  background: #f0efff;
+  color: #7269e9;
+  font-size: 25px;
+  margin-bottom: 15px;
+}
+
+.exam-placeholder h3 {
+  font-size: 14px;
+  margin: 0 0 7px;
+}
+
+.exam-placeholder p {
+  color: #9aa2b1;
+  font-size: 11px;
+  margin: 0 0 18px;
+}
+
+.primary-button {
+  padding: 11px 18px;
+  border: 0;
+  border-radius: 8px;
+  background: #7067e8;
+  color: white;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.primary-button:disabled {
+  opacity: .65;
+  cursor: not-allowed;
+}
+
+.empty-activity {
+  padding: 50px 15px;
+  color: #9aa2b1;
+  font-size: 11px;
+  text-align: center;
+  line-height: 1.7;
+}
+
+.activity-list {
+  margin-top: 18px;
+}
+
+.dashboard-footer {
+  color: #a0a7b5;
+  font-size: 10px;
+  text-align: center;
+  padding: 35px 0 10px;
+}
+
+.dashboard-footer span {
+  padding: 0 6px;
+}
+
+.menu-button {
+  display: none;
+  border: 0;
+  background: transparent;
+  font-size: 21px;
+  cursor: pointer;
+}
+
+@media (max-width: 950px) {
+  .sidebar {
+    width: 215px;
+  }
+
+  .content-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 650px) {
+  .sidebar {
+    position: fixed;
+    z-index: 10;
+    left: -260px;
+    top: 0;
+    bottom: 0;
+    transition: left .25s;
+  }
+
+  .sidebar.open {
+    left: 0;
+  }
+
+  .menu-button {
+    display: block;
+  }
+
+  .topbar {
+    padding: 0 18px;
+  }
+
+  .breadcrumb {
+    display: none;
+  }
+
+  .dashboard-content {
+    padding: 22px 16px;
+  }
+
+  .welcome-section {
+    min-height: 165px;
+    padding: 25px 22px;
+  }
+
+  .welcome-decoration {
+    font-size: 75px;
+    margin-right: 0;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .stat-card {
+    padding: 17px;
+  }
+
+  .stat-icon {
+    margin-bottom: 10px;
+  }
+
+  .profile-info {
+    display: none;
+  }
+}
+
+/* =========================================
+   LEARNSPACE EXAMINATION INTERFACE
+========================================= */
+
+[hidden] {
+  display: none !important;
+}
+
+.access-notice {
+  margin-top: 20px;
+  padding: 15px 18px;
+  border-radius: 10px;
+  background: #efedff;
+  color: #5149b5;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.muted-text {
+  color: #929bad;
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+.progress-panel {
+  margin-top: 22px;
+}
+
+.readiness-banner {
+  margin-top: 17px;
+  padding: 18px;
+  border-radius: 11px;
+  background: linear-gradient(110deg, #292e62, #6259ce);
+  color: white;
+}
+
+.readiness-banner h3 {
+  margin: 0 0 7px;
+  font-size: 16px;
+}
+
+.readiness-banner p {
+  margin: 0;
+  color: #e0defd;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.readiness-progress {
+  display: grid;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.readiness-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 11px 13px;
+  border: 1px solid #eceef3;
+  border-radius: 9px;
+  font-size: 11px;
+}
+
+.readiness-item strong {
+  color: #6259ce;
+}
+
+.exam-panel {
+  margin-top: 22px;
+}
+
+.category-exam-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 13px;
+  margin-top: 20px;
+}
+
+.category-exam-card {
+  padding: 18px;
+  border: 1px solid #eceef3;
+  border-radius: 11px;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.category-exam-card h3 {
+  font-size: 13px;
+  margin: 0;
+}
+
+.category-exam-card p {
+  color: #929bad;
+  font-size: 11px;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.category-exam-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  color: #8993a5;
+  font-size: 10px;
+}
+
+.exam-status {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 9px;
+  border-radius: 20px;
+  background: #f0efff;
+  color: #6259ce;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.exam-status.passed {
+  background: #e5f8ee;
+  color: #238451;
+}
+
+.exam-status.locked {
+  background: #f0f1f5;
+  color: #788195;
+}
+
+.category-exam-card .primary-button {
+  width: 100%;
+  margin-top: auto;
+  cursor: pointer;
+}
+
+.primary-button:not(:disabled),
+.secondary-button {
+  cursor: pointer;
+  transition: background .2s, transform .2s;
+}
+
+.primary-button:not(:disabled):hover {
+  background: #5c53d0;
+  transform: translateY(-1px);
+}
+
+.secondary-button {
+  padding: 10px 17px;
+  border: 1px solid #dfe2eb;
+  border-radius: 8px;
+  background: #fff;
+  color: #555e72;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.secondary-button:hover {
+  background: #f5f4ff;
+}
+
+.mock-exam-section {
+  margin-top: 25px;
+  padding: 20px;
+  border-radius: 11px;
+  background: #f7f7fc;
+  border: 1px solid #eceef3;
+}
+
+.mock-exam-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.mock-exam-heading h3 {
+  font-size: 14px;
+  margin: 0 0 6px;
+}
+
+.mock-exam-heading p {
+  color: #929bad;
+  font-size: 11px;
+  margin: 0;
+  line-height: 1.6;
+}
+
+.mock-lock-status {
+  padding: 6px 10px;
+  border-radius: 20px;
+  background: #efedff;
+  color: #6259ce;
+  font-size: 10px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.mock-lock-status.unlocked {
+  background: #e5f8ee;
+  color: #238451;
+}
+
+.mock-exam-card {
+  margin-top: 16px;
+  padding: 17px;
+  background: white;
+  border: 1px solid #eceef3;
+  border-radius: 9px;
+}
+
+.mock-exam-card p {
+  color: #8993a5;
+  font-size: 11px;
+  line-height: 1.7;
+}
+
+.mock-exam-card .primary-button {
+  cursor: pointer;
+}
+
+.activity-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 0;
+  border-bottom: 1px solid #f0f1f5;
+}
+
+.activity-item:last-child {
+  border-bottom: 0;
+}
+
+.activity-item strong {
+  display: block;
+  font-size: 11px;
+  margin-bottom: 5px;
+}
+
+.activity-item small {
+  color: #929bad;
+  font-size: 10px;
+}
+
+.activity-score {
+  color: #6259ce;
+  font-size: 12px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+/* Examination workspace */
+
+.exam-workspace,
+.results-view,
+.review-view {
+  margin-top: 5px;
+  padding: clamp(18px, 4vw, 34px);
+}
+
+.exam-workspace-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+}
+
+.exam-workspace-header h1,
+.results-view h1,
+.review-view h1 {
+  margin: 9px 0;
+  font-size: clamp(20px, 3vw, 27px);
+  letter-spacing: -.5px;
+}
+
+.exam-workspace-header p,
+.review-view .panel-heading p {
+  margin: 0;
+  color: #929bad;
+  font-size: 12px;
+}
+
+.exam-timer {
+  padding: 11px 15px;
+  background: #efedff;
+  color: #5149b5;
+  border-radius: 9px;
+  font-size: 17px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.exam-timer.warning {
+  background: #fff0e9;
+  color: #c45a31;
+}
+
+.exam-progress-track {
+  width: 100%;
+  height: 7px;
+  border-radius: 20px;
+  background: #eceef3;
+  margin: 23px 0 30px;
+  overflow: hidden;
+}
+
+.exam-progress-fill {
+  height: 100%;
+  width: 0;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #6259ce, #8b82ff);
+  transition: width .2s;
+}
+
+.exam-question-area {
+  min-height: 270px;
+}
+
+.question-number {
+  color: #7067e8;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1.2px;
+}
+
+.exam-question-area h2 {
+  margin: 14px 0 22px;
+  font-size: clamp(16px, 2vw, 19px);
+  line-height: 1.7;
+  white-space: pre-wrap;
+}
+
+.answer-options {
+  display: grid;
+  gap: 11px;
+}
+
+.answer-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  border: 1px solid #e7e9f0;
+  border-radius: 9px;
+  cursor: pointer;
+  transition: border .2s, background .2s;
+}
+
+.answer-option:hover {
+  border-color: #8b82ff;
+  background: #faf9ff;
+}
+
+.answer-option.selected {
+  border-color: #7067e8;
+  background: #f2f0ff;
+}
+
+.answer-option input {
+  margin-top: 3px;
+  accent-color: #7067e8;
+}
+
+.answer-option span {
+  color: #414b60;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.question-navigation {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin: 25px 0;
+  padding: 17px 0;
+  border-top: 1px solid #eceef3;
+  border-bottom: 1px solid #eceef3;
+}
+
+.question-nav-button {
+  width: 34px;
+  height: 34px;
+  border: 1px solid #e2e5ed;
+  border-radius: 7px;
+  background: white;
+  color: #788195;
+  font: inherit;
+  font-size: 10px;
+  cursor: pointer;
+}
+
+.question-nav-button.current {
+  border-color: #7067e8;
+  background: #7067e8;
+  color: white;
+}
+
+.question-nav-button.answered {
+  border-color: #b8e6cb;
+  background: #e5f8ee;
+  color: #238451;
+}
+
+.exam-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.exam-controls > span {
+  color: #929bad;
+  font-size: 11px;
+}
+
+.submit-exam-button {
+  background: #292e62;
+  cursor: pointer;
+}
+
+/* Results */
+
+.results-view {
+  text-align: center;
+  padding-top: 45px;
+  padding-bottom: 45px;
+}
+
+.results-icon {
+  width: 65px;
+  height: 65px;
+  display: grid;
+  place-items: center;
+  margin: 0 auto 20px;
+  border-radius: 50%;
+  background: #e5f8ee;
+  color: #238451;
+  font-size: 30px;
+}
+
+.results-view .eyebrow {
+  color: #7067e8;
+}
+
+.results-view > p {
+  color: #929bad;
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+.results-score {
+  display: flex;
+  justify-content: center;
+  align-items: baseline;
+  gap: 14px;
+  margin: 25px 0;
+}
+
+.results-score strong {
+  font-size: clamp(32px, 6vw, 48px);
+  letter-spacing: -1.5px;
+}
+
+.results-score span {
+  color: #7067e8;
+  font-size: 19px;
+  font-weight: 800;
+}
+
+.results-status {
+  display: inline-block;
+  padding: 9px 17px;
+  border-radius: 30px;
+  background: #fff0e9;
+  color: #bd5830;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.results-status.passed {
+  background: #e5f8ee;
+  color: #238451;
+}
+
+.review-rest-message {
+  max-width: 440px;
+  margin: 20px auto !important;
+}
+
+.results-actions {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 25px;
+}
+
+/* Answer review */
+
+.review-questions {
+  display: grid;
+  gap: 17px;
+  margin: 25px 0;
+}
+
+.review-question-card {
+  padding: 19px;
+  border: 1px solid #eceef3;
+  border-radius: 10px;
+}
+
+.review-question-card h3 {
+  margin: 0 0 13px;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.review-answer-line {
+  margin-top: 9px;
+  font-size: 11px;
+  line-height: 1.7;
+}
+
+.review-answer-line.correct {
+  color: #238451;
+}
+
+.review-answer-line.incorrect {
+  color: #bd5830;
+}
+
+.review-explanation {
+  margin-top: 13px;
+  padding: 12px;
+  border-radius: 8px;
+  background: #f6f6fb;
+  color: #737d91;
+  font-size: 11px;
+  line-height: 1.7;
+}
+
+.review-view > .primary-button {
+  cursor: pointer;
+}
+
+/* Responsive examination layout */
+
+@media (max-width: 650px) {
+  .category-exam-list {
+    grid-template-columns: 1fr;
+  }
+
+  .mock-exam-section {
+    padding: 15px;
+  }
+
+  .exam-workspace-header {
+    align-items: flex-start;
+  }
+
+  .exam-timer {
+    font-size: 14px;
+    padding: 9px 11px;
+  }
+
+  .exam-question-area {
+    min-height: 220px;
+  }
+
+  .exam-controls {
+    justify-content: flex-start;
+  }
+
+  .exam-controls > span {
+    order: -1;
+    width: 100%;
+  }
+
+  .question-navigation {
+    gap: 5px;
+  }
+
+  .question-nav-button {
+    width: 30px;
+    height: 30px;
+  }
+
+  .results-actions {
+    flex-direction: column;
+  }
+
+  .results-actions button {
+    width: 100%;
+  }
+}
+
+--- C:\Users\mavmu\Desktop\Traffic Sim\LMS\public\css\style.css ---
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&display=swap');
+
+:root {
+  font-family: 'DM Sans', sans-serif;
+  color: #202b3c;
+  background: #f5f7fc;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  --primary: #6658e8;
+  --primary-dark: #5143d1;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+button, input {
+  font: inherit;
+}
+
+.auth-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: 100vh;
+}
+
+.brand-panel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden;
+  padding: 48px 9%;
+  color: white;
+  background:
+    radial-gradient(ellipse at 85% 20%, rgba(118, 99, 255, .36), transparent 42%),
+    radial-gradient(ellipse at 15% 90%, rgba(31, 139, 199, .20), transparent 40%),
+    #101827;
+}
+
+.brand-panel::after {
+  position: absolute;
+  right: -130px;
+  bottom: -220px;
+  width: 520px;
+  height: 520px;
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 50%;
+  box-shadow: 0 0 0 55px rgba(255,255,255,.025), 0 0 0 110px rgba(255,255,255,.02);
+  content: '';
+  pointer-events: none;
+}
+
+.brand, .mobile-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: 'Manrope', sans-serif;
+  font-size: 21px;
+  font-weight: 800;
+  letter-spacing: -.7px;
+}
+
+.brand-icon {
+  display: grid;
+  width: 40px;
+  height: 40px;
+  place-items: center;
+  border-radius: 12px;
+  color: white;
+  background: linear-gradient(135deg, #887aff, #5848d7);
+  font-size: 22px;
+  font-weight: 800;
+  box-shadow: 0 5px 18px rgba(102,88,232,.3);
+}
+
+.brand-content {
+  position: relative;
+  z-index: 1;
+  max-width: 530px;
+  margin: auto 0;
+  padding: 70px 0;
+}
+
+.eyebrow {
+  color: #8072f4;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 2px;
+}
+
+.brand-content h1 {
+  margin: 22px 0;
+  font-family: 'Manrope', sans-serif;
+  font-size: clamp(40px, 5vw, 66px);
+  font-weight: 800;
+  line-height: 1.13;
+  letter-spacing: -2.7px;
+}
+
+.brand-content h1 span {
+  color: #a79dff;
+}
+
+.brand-content p {
+  max-width: 410px;
+  color: #aab4c5;
+  font-size: 16px;
+  line-height: 1.8;
+}
+
+.feature-list {
+  display: grid;
+  gap: 19px;
+  margin-top: 43px;
+}
+
+.feature {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  color: #e1e6f0;
+  font-size: 14px;
+}
+
+.feature-icon {
+  display: grid;
+  width: 23px;
+  height: 23px;
+  place-items: center;
+  border: 1px solid rgba(143,132,255,.45);
+  border-radius: 50%;
+  color: #a79dff;
+  font-size: 12px;
+}
+
+.brand-footer {
+  color: #748096;
+  font-size: 12px;
+}
+
+.form-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 55px 30px 25px;
+  background: #fff;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 420px;
+}
+
+.mobile-brand {
+  display: none;
+}
+
+.form-heading {
+  margin-bottom: 35px;
+}
+
+.form-heading h2 {
+  margin: 13px 0 9px;
+  color: #172236;
+  font-family: 'Manrope', sans-serif;
+  font-size: 34px;
+  font-weight: 800;
+  letter-spacing: -1.3px;
+}
+
+.form-heading p {
+  margin: 0;
+  color: #8791a2;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.field {
+  margin-bottom: 23px;
+}
+
+.field label {
+  display: block;
+  margin-bottom: 9px;
+  color: #344056;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.field input {
+  width: 100%;
+  height: 53px;
+  padding: 0 15px;
+  border: 1px solid #e1e6ef;
+  border-radius: 10px;
+  outline: none;
+  color: #202b3c;
+  background: #fbfcfe;
+  font-size: 14px;
+  transition: border .2s, box-shadow .2s;
+}
+
+.field input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(102,88,232,.11);
+}
+
+.field input::placeholder {
+  color: #aeb6c4;
+}
+
+.password-wrap {
+  position: relative;
+}
+
+.password-wrap input {
+  padding-right: 75px;
+}
+
+.password-toggle {
+  position: absolute;
+  top: 50%;
+  right: 14px;
+  transform: translateY(-50%);
+  padding: 5px;
+  border: 0;
+  color: var(--primary);
+  background: transparent;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.primary-button {
+  display: flex;
+  width: 100%;
+  height: 54px;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 30px;
+  border: 0;
+  border-radius: 10px;
+  color: white;
+  background: linear-gradient(110deg, #7161ed, #5848d7);
+  box-shadow: 0 8px 18px rgba(102,88,232,.22);
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 700;
+  transition: transform .2s, box-shadow .2s;
+}
+
+.primary-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 11px 23px rgba(102,88,232,.29);
+}
+
+.primary-button:disabled {
+  opacity: .65;
+  cursor: wait;
+  transform: none;
+}
+
+.primary-button span {
+  font-size: 19px;
+}
+
+.switch-text {
+  margin-top: 27px;
+  color: #8b95a5;
+  text-align: center;
+  font-size: 13px;
+}
+
+.switch-text button {
+  padding: 0 0 0 4px;
+  border: 0;
+  color: var(--primary);
+  background: transparent;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.message {
+  display: none;
+  margin-bottom: 20px;
+  padding: 12px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.message.visible {
+  display: block;
+}
+
+.message.error {
+  color: #a33242;
+  background: #fff0f1;
+}
+
+.message.success {
+  color: #20734b;
+  background: #eaf8f0;
+}
+
+.form-footer {
+  margin-top: 65px;
+  color: #a3abba;
+  text-align: center;
+  font-size: 11px;
+}
+
+.form-footer span {
+  padding: 0 7px;
+  color: #c1c7d1;
+}
+
+@media (max-width: 850px) {
+  .auth-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .brand-panel {
+    display: none;
+  }
+
+  .form-panel {
+    min-height: 100vh;
+    justify-content: center;
+    padding: 35px 25px;
+  }
+
+  .mobile-brand {
+    display: flex;
+    margin-bottom: 55px;
+  }
+
+  .form-footer {
+    margin-top: 55px;
+  }
+}
+
+@media (max-width: 420px) {
+  .form-heading h2 {
+    font-size: 29px;
+  }
+
+  .auth-card {
+    max-width: 100%;
+  }
+}
+
+===== INSPECTION COMPLETE =====
