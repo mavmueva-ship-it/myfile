@@ -1,0 +1,78 @@
+Sheets: [
+  'START HERE',
+  'Questions',
+  'Passages',
+  'Media',
+  '2020 Import Summary'
+]
+Question rows: 186
+Headers: QuestionID | QuestionType | Category | Topic | PassageID | PromptText | PromptMediaID | OptionA_Text | OptionA_MediaID | OptionB_Text | OptionB_MediaID | OptionC_Text | OptionC_MediaID | OptionD_Text | OptionD_MediaID | OptionE_Text | OptionE_MediaID | CorrectOption | Explanation | Difficulty | ExamLevel | SourceTitle | SourcePage | SourceURL | RightsStatus | ReviewStatus | AdminNotes
+PS C:\Users\mavmu\Desktop\Traffic Sim\LMS> Get-Content .\import-question-bank-test.js -TotalCount 45
+const ExcelJS = require("exceljs");
+const { DatabaseSync } = require("node:sqlite");
+const path = require("node:path");
+
+const dbPath = path.resolve("database/lms-question-bank-immutability-test.db");
+const filename = path.basename(workbookPath);
+const now = new Date().toISOString();
+
+function value(v) {
+  if (v === null || v === undefined) return "";
+  if (typeof v === "object") {
+    if (Array.isArray(v.richText)) return v.richText.map(x => x.text || "").join("");
+    if (v.text !== undefined) return String(v.text);
+    if (v.result !== undefined) return String(v.result);
+    return JSON.stringify(v);
+  }
+  return String(v).trim();
+}
+
+function cell(row, name, headers) {
+  const index = headers.indexOf(name);
+  return index < 0 ? "" : value(row.getCell(index + 1).value);
+}
+
+function addError(db, batchId, rowNumber, field, code, message) {
+  db.prepare("INSERT INTO question_import_errors (batch_id,row_number,field_name,error_code,message) VALUES (?,?,?,?,?)")
+    .run(batchId, rowNumber, field, code, message);
+}
+
+async function main() {
+  const workbook = new ExcelJS.Workbook();
+  await workbook.xlsx.readFile(workbookPath);
+
+  const sheet = workbook.getWorksheet("Questions");
+  const passageSheet = workbook.getWorksheet("Passages");
+  const mediaSheet = workbook.getWorksheet("Media");
+  if (!sheet || !passageSheet || !mediaSheet) throw new Error("Required worksheet missing.");
+
+  const qHeaders = sheet.getRow(1).values.slice(1).map(value);
+  const pHeaders = passageSheet.getRow(1).values.slice(1).map(value);
+  const mHeaders = mediaSheet.getRow(1).values.slice(1).map(value);
+
+  const questions = [];
+  for (let r = 2; r <= sheet.rowCount; r++) {
+PS C:\Users\mavmu\Desktop\Traffic Sim\LMS> Get-Content .\import-question-bank-test.js | Select-Object -Skip 45
+    const row = sheet.getRow(r);
+    const record = {};
+    for (const h of qHeaders) record[h] = cell(row, h, qHeaders);
+    if (Object.values(record).some(x => x !== "")) questions.push({ rowNumber: r, data: record });
+  }
+
+  const passages = [];
+  for (let r = 2; r <= passageSheet.rowCount; r++) {
+    const row = passageSheet.getRow(r);
+    const record = {};
+    for (const h of pHeaders) record[h] = cell(row, h, pHeaders);
+    if (Object.values(record).some(x => x !== "")) passages.push(record);
+  }
+
+  const media = [];
+  for (let r = 2; r <= mediaSheet.rowCount; r++) {
+    const row = mediaSheet.getRow(r);
+    const record = {};
+    for (const h of mHeaders) record[h] = cell(row, h, mHeaders);
+    if (Object.values(record).some(x => x !== "")) media.push(record);
+  }
+
+  const db = new DatabaseSync(dbPath);
