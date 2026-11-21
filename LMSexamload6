@@ -1,0 +1,405 @@
+
+  exam-routes.js:27:}
+  exam-routes.js:28:
+> exam-routes.js:29:function safeQuestion(snapshot, selectedAnswer, questionId, position) {
+  exam-routes.js:30:  const question = JSON.parse(snapshot);
+  exam-routes.js:31:  return {
+  exam-routes.js:32:    questionId,
+  exam-routes.js:33:    position,
+  exam-routes.js:34:    text: question.text,
+> exam-routes.js:35:    options: question.options,
+  exam-routes.js:36:    category: question.category,
+> exam-routes.js:37:    selectedAnswer: selectedAnswer ?? null
+  exam-routes.js:38:  };
+  exam-routes.js:39:}
+  exam-routes.js:40:
+  exam-routes.js:88:        if (resumable) {
+  exam-routes.js:89:          if (resumable.deadline_at && resumable.deadline_at <= nowIso) {
+> exam-routes.js:90:            const answers = db.prepare(`
+> exam-routes.js:91:              SELECT aq.question_id, aq.answer_key_snapshot,
+> exam-routes.js:92:                     aa.selected_answer
+  exam-routes.js:93:              FROM attempt_questions aq
+> exam-routes.js:94:              LEFT JOIN attempt_answers aa
+  exam-routes.js:95:                ON aa.attempt_id = aq.attempt_id
+  exam-routes.js:96:               AND aa.question_id = aq.question_id
+  exam-routes.js:97:              WHERE aq.attempt_id = ?
+  exam-routes.js:98:            `).all(resumable.id);
+  exam-routes.js:99:
+> exam-routes.js:100:            const correct = answers.filter(row =>
+> exam-routes.js:101:              row.selected_answer !== null &&
+> exam-routes.js:102:              String(row.selected_answer).trim().toUpperCase() ===
+> exam-routes.js:103:              String(row.answer_key_snapshot).trim().toUpperCase()
+  exam-routes.js:104:            ).length;
+  exam-routes.js:105:
+  exam-routes.js:106:            db.prepare(`
+  exam-routes.js:109:                  status = 'completed', completed_at = ?
+  exam-routes.js:110:              WHERE id = ? AND status = 'in_progress'
+> exam-routes.js:111:            `).run(correct, answers.length, nowIso, resumable.id);
+  exam-routes.js:112:
+  exam-routes.js:113:            db.exec('COMMIT');
+  exam-routes.js:114:
+> exam-routes.js:115:            const totalQuestions = answers.length;
+  exam-routes.js:116:            const percentage = totalQuestions
+  exam-routes.js:117:              ? Number((correct / totalQuestions * 100).toFixed(2))
+  exam-routes.js:118:              : 0;
+  exam-routes.js:136:          const questions = db.prepare(`
+  exam-routes.js:137:            SELECT aq.question_id, aq.position, aq.question_snapshot,
+> exam-routes.js:138:                   aa.selected_answer
+  exam-routes.js:139:            FROM attempt_questions aq
+> exam-routes.js:140:            LEFT JOIN attempt_answers aa
+  exam-routes.js:141:              ON aa.attempt_id = aq.attempt_id
+  exam-routes.js:142:             AND aa.question_id = aq.question_id
+  exam-routes.js:143:            WHERE aq.attempt_id = ?
+  exam-routes.js:154:            deadlineAt: resumable.deadline_at || null,
+  exam-routes.js:155:            questions: questions.map(q =>
+> exam-routes.js:156:              safeQuestion(
+  exam-routes.js:157:                q.question_snapshot,
+> exam-routes.js:158:                q.selected_answer,
+  exam-routes.js:159:                q.question_id,
+  exam-routes.js:160:                q.position
+  exam-routes.js:161:              )
+  exam-routes.js:252:
+  exam-routes.js:253:        const assignedQuestions = db.prepare(`
+> exam-routes.js:254:          SELECT q.id, q.text, q.options, q.correct_answer,
+  exam-routes.js:255:                 q.explanation, q.category
+  exam-routes.js:256:          FROM exam_questions eq
+  exam-routes.js:257:          JOIN questions q ON q.id = eq.question_id
+  exam-routes.js:275:
+  exam-routes.js:276:          try {
+> exam-routes.js:277:            options = JSON.parse(question.options);
+  exam-routes.js:278:          } catch {
+  exam-routes.js:279:            db.exec('ROLLBACK');
+  exam-routes.js:280:            return res.status(409).json({
+  exam-routes.js:284:          }
+  exam-routes.js:285:
+> exam-routes.js:286:          const validOptions =
+  exam-routes.js:287:            options &&
+  exam-routes.js:288:            typeof options === 'object' &&
+  exam-routes.js:289:            !Array.isArray(options) &&
+  exam-routes.js:298:            question.text.trim().length > 0;
+  exam-routes.js:299:
+> exam-routes.js:300:          const validAnswer =
+> exam-routes.js:301:            ['A', 'B', 'C', 'D'].includes(question.correct_answer);
+  exam-routes.js:302:
+> exam-routes.js:303:          if (!validOptions || !validQuestion || !validAnswer) {
+  exam-routes.js:304:            db.exec('ROLLBACK');
+  exam-routes.js:305:            return res.status(409).json({
+  exam-routes.js:306:              error: 'An assigned question does not meet the LearnSpace question format.',
+  exam-routes.js:309:                'Non-empty question text',
+  exam-routes.js:310:                'Exactly four non-empty A/B/C/D options',
+> exam-routes.js:311:                'Correct answer stored as A, B, C, or D'
+  exam-routes.js:312:              ]
+  exam-routes.js:313:            });
+  exam-routes.js:314:          }
+  exam-routes.js:343:          INSERT INTO attempt_questions
+  exam-routes.js:344:            (attempt_id, question_id, position, question_snapshot,
+> exam-routes.js:345:             answer_key_snapshot, explanation_snapshot)
+  exam-routes.js:346:          VALUES (?, ?, ?, ?, ?, ?)
+  exam-routes.js:347:        `);
+  exam-routes.js:348:
+  exam-routes.js:350:
+  exam-routes.js:351:        assignedQuestions.forEach((question, index) => {
+> exam-routes.js:352:          const options = JSON.parse(question.options);
+  exam-routes.js:353:
+  exam-routes.js:354:          const snapshot = JSON.stringify({
+  exam-routes.js:355:            text: question.text,
+  exam-routes.js:363:            index + 1,
+  exam-routes.js:364:            snapshot,
+> exam-routes.js:365:            question.correct_answer,
+  exam-routes.js:366:            question.explanation
+  exam-routes.js:367:          );
+  exam-routes.js:368:
+  exam-routes.js:373:            options,
+  exam-routes.js:374:            category: question.category,
+> exam-routes.js:375:            selectedAnswer: null
+  exam-routes.js:376:          });
+  exam-routes.js:377:        });
+  exam-routes.js:378:
+  exam-routes.js:402:
+  exam-routes.js:403:
+> exam-routes.js:404:  router.put('/attempts/:attemptId/answers', requireAuth, (req, res) => {
+  exam-routes.js:405:    const attemptId = Number(req.params.attemptId);
+  exam-routes.js:406:    const questionId = Number(req.body?.questionId);
+> exam-routes.js:407:    const selectedAnswer = req.body?.selectedAnswer;
+  exam-routes.js:408:
+  exam-routes.js:409:    if (!Number.isSafeInteger(attemptId) || attemptId <= 0 ||
+  exam-routes.js:410:        !Number.isSafeInteger(questionId) || questionId <= 0) {
+  exam-routes.js:412:    }
+  exam-routes.js:413:
+> exam-routes.js:414:    if (typeof selectedAnswer !== 'string' ||
+> exam-routes.js:415:        !selectedAnswer.trim() || selectedAnswer.length > 500) {
+> exam-routes.js:416:      return res.status(400).json({ error: 'Invalid answer.' });
+  exam-routes.js:417:    }
+  exam-routes.js:418:
+  exam-routes.js:419:    try {
+  exam-routes.js:462:        const options = snapshot.options;
+  exam-routes.js:463:
+> exam-routes.js:464:        const validOptions =
+  exam-routes.js:465:          options &&
+  exam-routes.js:466:          typeof options === 'object' &&
+  exam-routes.js:467:          !Array.isArray(options) &&
+  exam-routes.js:472:          );
+  exam-routes.js:473:
+> exam-routes.js:474:        if (!validOptions) {
+  exam-routes.js:475:          db.exec('ROLLBACK');
+  exam-routes.js:476:          return res.status(500).json({
+> exam-routes.js:477:            error: 'The saved question has an invalid answer-option format.'
+  exam-routes.js:478:          });
+  exam-routes.js:479:        }
+  exam-routes.js:480:
+> exam-routes.js:481:        if (!['A', 'B', 'C', 'D'].includes(selectedAnswer)) {
+  exam-routes.js:482:          db.exec('ROLLBACK');
+  exam-routes.js:483:          return res.status(400).json({
+> exam-routes.js:484:            error: 'Select one of the answer letters A, B, C, or D.'
+  exam-routes.js:485:          });
+  exam-routes.js:486:        }
+  exam-routes.js:487:
+  exam-routes.js:488:        db.prepare(`
+> exam-routes.js:489:          INSERT INTO attempt_answers
+> exam-routes.js:490:            (attempt_id, question_id, selected_answer, saved_at)
+  exam-routes.js:491:          VALUES (?, ?, ?, ?)
+  exam-routes.js:492:          ON CONFLICT(attempt_id, question_id)
+  exam-routes.js:493:          DO UPDATE SET
+> exam-routes.js:494:            selected_answer = excluded.selected_answer,
+  exam-routes.js:495:            saved_at = excluded.saved_at
+> exam-routes.js:496:        `).run(attemptId, questionId, selectedAnswer, new Date().toISOString());
+  exam-routes.js:497:
+  exam-routes.js:498:        db.exec('COMMIT');
+  exam-routes.js:499:
+  exam-routes.js:500:        return res.json({
+> exam-routes.js:501:          message: 'Answer saved.',
+  exam-routes.js:502:          attemptId,
+  exam-routes.js:503:          questionId
+  exam-routes.js:504:        });
+  exam-routes.js:508:      }
+  exam-routes.js:509:    } catch (error) {
+> exam-routes.js:510:      console.error('Answer save error:', error.message);
+> exam-routes.js:511:      return res.status(500).json({ error: 'Unable to save your answer.' });
+  exam-routes.js:512:    }
+  exam-routes.js:513:  });
+  exam-routes.js:514:
+  exam-routes.js:574:
+  exam-routes.js:575:        const questions = db.prepare(`
+> exam-routes.js:576:          SELECT aq.question_id, aq.answer_key_snapshot,
+> exam-routes.js:577:                 aa.selected_answer
+  exam-routes.js:578:          FROM attempt_questions aq
+> exam-routes.js:579:          LEFT JOIN attempt_answers aa
+  exam-routes.js:580:            ON aa.attempt_id = aq.attempt_id
+  exam-routes.js:581:           AND aa.question_id = aq.question_id
+  exam-routes.js:582:          WHERE aq.attempt_id = ?
+  exam-routes.js:592:
+  exam-routes.js:593:        const correct = questions.filter(row =>
+> exam-routes.js:594:          row.selected_answer !== null &&
+> exam-routes.js:595:          String(row.selected_answer).trim().toUpperCase() ===
+> exam-routes.js:596:          String(row.answer_key_snapshot).trim().toUpperCase()
+  exam-routes.js:597:        ).length;
+  exam-routes.js:598:
+  exam-routes.js:599:        const total = questions.length;
+  exam-routes.js:679:
+  exam-routes.js:680:          const questions = db.prepare(`
+> exam-routes.js:681:            SELECT aq.answer_key_snapshot, aa.selected_answer
+  exam-routes.js:682:            FROM attempt_questions aq
+> exam-routes.js:683:            LEFT JOIN attempt_answers aa
+  exam-routes.js:684:              ON aa.attempt_id = aq.attempt_id
+  exam-routes.js:685:             AND aa.question_id = aq.question_id
+  exam-routes.js:686:            WHERE aq.attempt_id = ?
+  exam-routes.js:688:
+  exam-routes.js:689:          const correct = questions.filter(row =>
+> exam-routes.js:690:            row.selected_answer !== null &&
+> exam-routes.js:691:            String(row.selected_answer).trim().toUpperCase() ===
+> exam-routes.js:692:            String(row.answer_key_snapshot).trim().toUpperCase()
+  exam-routes.js:693:          ).length;
+  exam-routes.js:694:
+  exam-routes.js:695:          const completedAt = new Date().toISOString();
+  exam-routes.js:784:      const rows = db.prepare(`
+  exam-routes.js:785:        SELECT aq.question_id, aq.position,
+> exam-routes.js:786:               aq.question_snapshot, aq.answer_key_snapshot,
+> exam-routes.js:787:               aq.explanation_snapshot, aa.selected_answer
+  exam-routes.js:788:        FROM attempt_questions aq
+> exam-routes.js:789:        LEFT JOIN attempt_answers aa
+  exam-routes.js:790:          ON aa.attempt_id = aq.attempt_id
+  exam-routes.js:791:         AND aa.question_id = aq.question_id
+  exam-routes.js:792:        WHERE aq.attempt_id = ?
+  exam-routes.js:797:        .map(row => {
+  exam-routes.js:798:          const question = JSON.parse(row.question_snapshot);
+> exam-routes.js:799:          const selected = row.selected_answer ?? null;
+> exam-routes.js:800:          const correctAnswer = row.answer_key_snapshot;
+  exam-routes.js:801:
+  exam-routes.js:802:          return {
+  exam-routes.js:803:            questionId: row.question_id,
+  exam-routes.js:804:            position: row.position,
+  exam-routes.js:805:            text: question.text,
+> exam-routes.js:806:            options: question.options,
+  exam-routes.js:807:            category: question.category,
+> exam-routes.js:808:            selectedAnswer: selected,
+> exam-routes.js:809:            correctAnswer,
+  exam-routes.js:810:            explanation: row.explanation_snapshot || '',
+  exam-routes.js:811:            correct: selected !== null &&
+  exam-routes.js:812:              String(selected).trim().toUpperCase() ===
+> exam-routes.js:813:              String(correctAnswer).trim().toUpperCase()
+  exam-routes.js:814:          };
+  exam-routes.js:815:        })
+  exam-routes.js:816:        .filter(question => !question.correct);
+  public\js\dashboard.js:85:    exam: 'Examination',
+  public\js\dashboard.js:86:    results: 'Results',
+> public\js\dashboard.js:87:    review: 'Answer review'
+  public\js\dashboard.js:88:  };
+  public\js\dashboard.js:89:
+  public\js\dashboard.js:90:  $('breadcrumbCurrent').textContent = labels[view] || 'Dashboard';
+  public\js\dashboard.js:350:        <strong>${escapeHtml(item.score)}/${escapeHtml(item.totalQuestions)}</strong>
+  public\js\dashboard.js:351:        <span>${formatPercent(item.percentage)}</span>
+> public\js\dashboard.js:352:        <button class="activity-review-button" type="button" data-review-attempt="${escapeHtml(item.attemptId)}">Review
+answers</button>
+  public\js\dashboard.js:353:      </div>
+  public\js\dashboard.js:354:    </article>
+  public\js\dashboard.js:355:  `).join('');
+  public\js\dashboard.js:406:  const index = state.currentQuestion;
+  public\js\dashboard.js:407:  const total = attempt.questions.length;
+> public\js\dashboard.js:408:  const answered = attempt.questions.filter(item => item.selectedAnswer).length;
+  public\js\dashboard.js:409:
+  public\js\dashboard.js:410:  $('examTypeLabel').textContent =
+  public\js\dashboard.js:411:    attempt.exam.exam_type === 'mock' ? 'MOCK EXAMINATION' : 'CATEGORY EXAMINATION';
+  public\js\dashboard.js:415:  $('questionNumber').textContent = `QUESTION ${index + 1}`;
+  public\js\dashboard.js:416:  $('questionText').textContent = question.text;
+> public\js\dashboard.js:417:  $('answeredCount').textContent = `${answered} of ${total} answered`;
+  public\js\dashboard.js:418:
+  public\js\dashboard.js:419:  $('previousQuestionButton').disabled = index === 0 || state.submitting;
+  public\js\dashboard.js:420:  $('nextQuestionButton').disabled = index === total - 1 || state.submitting;
+  public\js\dashboard.js:421:
+> public\js\dashboard.js:422:  const options = $('answerOptions');
+  public\js\dashboard.js:423:  options.innerHTML = '';
+  public\js\dashboard.js:424:
+  public\js\dashboard.js:425:  for (const letter of ['A', 'B', 'C', 'D']) {
+  public\js\dashboard.js:426:    const label = document.createElement('label');
+> public\js\dashboard.js:427:    label.className = 'answer-option';
+> public\js\dashboard.js:428:    if (question.selectedAnswer === letter) label.classList.add('selected');
+  public\js\dashboard.js:429:
+  public\js\dashboard.js:430:    const radio = document.createElement('input');
+  public\js\dashboard.js:431:    radio.type = 'radio';
+> public\js\dashboard.js:432:    radio.name = 'examAnswer';
+  public\js\dashboard.js:433:    radio.value = letter;
+> public\js\dashboard.js:434:    radio.checked = question.selectedAnswer === letter;
+  public\js\dashboard.js:435:    radio.disabled = state.submitting;
+  public\js\dashboard.js:436:
+  public\js\dashboard.js:437:    const marker = document.createElement('span');
+> public\js\dashboard.js:438:    marker.className = 'answer-letter';
+  public\js\dashboard.js:439:    marker.textContent = letter;
+  public\js\dashboard.js:440:
+  public\js\dashboard.js:441:    const text = document.createElement('span');
+> public\js\dashboard.js:442:    text.className = 'answer-option-text';
+> public\js\dashboard.js:443:    text.textContent = question.options?.[letter] ?? '';
+  public\js\dashboard.js:444:
+> public\js\dashboard.js:445:    radio.addEventListener('change', () => selectAnswer(letter));
+  public\js\dashboard.js:446:
+  public\js\dashboard.js:447:    label.append(radio, marker, text);
+  public\js\dashboard.js:448:    options.appendChild(label);
+  public\js\dashboard.js:458:    button.textContent = String(questionIndex + 1);
+  public\js\dashboard.js:459:
+> public\js\dashboard.js:460:    if (item.selectedAnswer) button.classList.add('answered');
+  public\js\dashboard.js:461:    if (questionIndex === index) button.classList.add('current');
+  public\js\dashboard.js:462:
+  public\js\dashboard.js:463:    button.addEventListener('click', () => {
+  public\js\dashboard.js:470:}
+  public\js\dashboard.js:471:
+> public\js\dashboard.js:472:async function selectAnswer(letter) {
+  public\js\dashboard.js:473:  const attempt = state.attempt;
+  public\js\dashboard.js:474:  if (!attempt || attempt.status !== 'in_progress' || state.submitting) return;
+  public\js\dashboard.js:475:
+  public\js\dashboard.js:477:  if (!question) return;
+  public\js\dashboard.js:478:
+> public\js\dashboard.js:479:  const previousAnswer = question.selectedAnswer;
+> public\js\dashboard.js:480:  question.selectedAnswer = letter;
+  public\js\dashboard.js:481:  question.latestSaveVersion = (question.latestSaveVersion || 0) + 1;
+  public\js\dashboard.js:482:  const saveVersion = question.latestSaveVersion;
+  public\js\dashboard.js:483:
+  public\js\dashboard.js:488:      state.saving = true;
+  public\js\dashboard.js:489:
+> public\js\dashboard.js:490:      await api(`/api/exams/attempts/${attempt.attemptId}/answers`, {
+  public\js\dashboard.js:491:        method: 'PUT',
+  public\js\dashboard.js:492:        body: JSON.stringify({
+  public\js\dashboard.js:493:          questionId: question.questionId,
+> public\js\dashboard.js:494:          selectedAnswer: letter
+  public\js\dashboard.js:495:        })
+  public\js\dashboard.js:496:      });
+  public\js\dashboard.js:497:    } catch (error) {
+> public\js\dashboard.js:498:      console.error('Answer save error:', error);
+  public\js\dashboard.js:499:
+  public\js\dashboard.js:500:      if (error.data?.timeExpired) {
+  public\js\dashboard.js:501:        await checkAttemptStatus();
+  public\js\dashboard.js:504:
+  public\js\dashboard.js:505:      if (question.latestSaveVersion === saveVersion) {
+> public\js\dashboard.js:506:        question.selectedAnswer = previousAnswer;
+  public\js\dashboard.js:507:        renderQuestion();
+> public\js\dashboard.js:508:        alert(`Your answer could not be saved: ${error.message}`);
+  public\js\dashboard.js:509:      }
+  public\js\dashboard.js:510:    } finally {
+  public\js\dashboard.js:511:      state.saving = false;
+  public\js\dashboard.js:617:
+  public\js\dashboard.js:618:  if (!automatic) {
+> public\js\dashboard.js:619:    const unanswered = state.attempt.questions.filter(item => !item.selectedAnswer).length;
+> public\js\dashboard.js:620:    const message = unanswered
+> public\js\dashboard.js:621:      ? `You have ${unanswered} unanswered question(s). They will be marked incorrect. Submit anyway?`
+  public\js\dashboard.js:622:      : 'Are you sure you want to submit your examination?';
+  public\js\dashboard.js:623:
+  public\js\dashboard.js:624:    if (!window.confirm(message)) return;
+  public\js\dashboard.js:661:
+  public\js\dashboard.js:662:  $('resultsMessage').textContent = result.autoSubmitted
+> public\js\dashboard.js:663:    ? 'Your time limit ended. Unanswered questions were marked incorrect.'
+> public\js\dashboard.js:664:    : 'Your answers have been submitted successfully.';
+  public\js\dashboard.js:665:
+  public\js\dashboard.js:666:  $('resultsScore').textContent =
+  public\js\dashboard.js:667:    `${result.score}/${result.totalQuestions}`;
+  public\js\dashboard.js:679:  $('reviewRestMessage').hidden = !isMock;
+  public\js\dashboard.js:680:
+> public\js\dashboard.js:681:  $('reviewAnswersButton').disabled = false;
+  public\js\dashboard.js:682:  $('submitExamButton').disabled = false;
+  public\js\dashboard.js:683:  $('submitExamButton').textContent = 'Submit examination';
+  public\js\dashboard.js:684:
+  public\js\dashboard.js:690:  if (!reviewAttemptId) return;
+  public\js\dashboard.js:691:
+> public\js\dashboard.js:692:  $('reviewAnswersButton').disabled = true;
+  public\js\dashboard.js:693:
+  public\js\dashboard.js:694:  try {
+  public\js\dashboard.js:695:    const result = await api(
+  public\js\dashboard.js:699:    $('reviewTitle').textContent = result.examTitle || 'Examination review';
+  public\js\dashboard.js:700:    $('reviewSummary').textContent =
+> public\js\dashboard.js:701:      `${result.incorrectCount} incorrect or unanswered question(s) · ${result.score}/${result.totalQuestions} correct`;
+  public\js\dashboard.js:702:
+  public\js\dashboard.js:703:    const container = $('reviewQuestions');
+  public\js\dashboard.js:704:
+  public\js\dashboard.js:705:    if (!result.questions?.length) {
+> public\js\dashboard.js:706:      container.innerHTML = '<p class="muted-text">Excellent work! There are no incorrect or unanswered questions to review.</p>';
+  public\js\dashboard.js:707:    } else {
+  public\js\dashboard.js:708:      container.innerHTML = result.questions.map((item, index) => `
+  public\js\dashboard.js:709:        <article class="review-question">
+  public\js\dashboard.js:710:          <span class="question-number">QUESTION ${escapeHtml(item.position || index + 1)}</span>
+  public\js\dashboard.js:711:          <h3>${escapeHtml(item.text)}</h3>
+> public\js\dashboard.js:712:          <div class="review-answer-line">
+> public\js\dashboard.js:713:            <strong>Your answer:</strong>
+> public\js\dashboard.js:714:            ${item.selectedAnswer
+> public\js\dashboard.js:715:              ? `${escapeHtml(item.selectedAnswer)} — ${escapeHtml(item.options?.[item.selectedAnswer] || '')}`
+> public\js\dashboard.js:716:              : 'Unanswered'}
+  public\js\dashboard.js:717:          </div>
+> public\js\dashboard.js:718:          <div class="review-correct-answer">
+> public\js\dashboard.js:719:            <strong>Correct answer:</strong>
+> public\js\dashboard.js:720:            ${escapeHtml(item.correctAnswer)} — ${escapeHtml(item.options?.[item.correctAnswer] || '')}
+  public\js\dashboard.js:721:          </div>
+  public\js\dashboard.js:722:          ${item.explanation
+  public\js\dashboard.js:723:            ? `<p class="review-explanation">${escapeHtml(item.explanation)}</p>`
+  public\js\dashboard.js:729:    showView('review');
+  public\js\dashboard.js:730:  } catch (error) {
+> public\js\dashboard.js:731:    alert(error.message || 'Unable to load answer review.');
+  public\js\dashboard.js:732:  } finally {
+> public\js\dashboard.js:733:    $('reviewAnswersButton').disabled = false;
+  public\js\dashboard.js:734:  }
+  public\js\dashboard.js:735:}
+  public\js\dashboard.js:736:
+  public\js\dashboard.js:768:
+  public\js\dashboard.js:769:$('submitExamButton').addEventListener('click', () => submitExam(false));
+> public\js\dashboard.js:770:$('reviewAnswersButton').addEventListener('click', () => loadReview());
+  public\js\dashboard.js:771:$('returnDashboardButton').addEventListener('click', returnToDashboard);
+  public\js\dashboard.js:772:$('reviewDashboardButton').addEventListener('click', returnToDashboard);
+  public\js\dashboard.js:773:
+
+
+PS C:\Users\mavmu\Desktop\Traffic Sim\LMS>
