@@ -1,0 +1,219 @@
+
+--- DATABASE TABLES AND QUESTION COLUMNS ---
+
+  database.js:25:    PRAGMA foreign_keys = ON;
+  database.js:26:    PRAGMA journal_mode = WAL;
+> database.js:27:    BEGIN IMMEDIATE;
+  database.js:28:
+> database.js:29:    CREATE TABLE IF NOT EXISTS users (
+  database.js:30:      id INTEGER PRIMARY KEY AUTOINCREMENT,
+  database.js:31:      username TEXT NOT NULL COLLATE NOCASE UNIQUE,
+  database.js:32:      password_hash TEXT NOT NULL,
+  database.js:33:      role TEXT NOT NULL DEFAULT 'student'
+  database.js:34:        CHECK(role IN ('student', 'admin', 'owner')),
+  database.js:44:    );
+  database.js:45:
+> database.js:46:    CREATE TABLE IF NOT EXISTS questions (
+  database.js:47:      id INTEGER PRIMARY KEY AUTOINCREMENT,
+  database.js:48:      text TEXT NOT NULL,
+  database.js:49:      options TEXT NOT NULL,
+  database.js:50:      correct_answer TEXT NOT NULL,
+  database.js:51:      explanation TEXT NOT NULL DEFAULT '',
+  database.js:56:    );
+  database.js:57:
+> database.js:58:    CREATE TABLE IF NOT EXISTS exams (
+  database.js:59:      id INTEGER PRIMARY KEY AUTOINCREMENT,
+  database.js:60:      title TEXT NOT NULL,
+  database.js:61:      description TEXT NOT NULL DEFAULT '',
+  database.js:62:      duration_minutes INTEGER NOT NULL DEFAULT 30,
+  database.js:63:      passing_score INTEGER NOT NULL DEFAULT 50,
+  database.js:73:    );
+  database.js:74:
+> database.js:75:    CREATE TABLE IF NOT EXISTS exam_questions (
+  database.js:76:      id INTEGER PRIMARY KEY AUTOINCREMENT,
+  database.js:77:      exam_id INTEGER NOT NULL,
+  database.js:78:      question_id INTEGER NOT NULL,
+  database.js:79:      position INTEGER NOT NULL DEFAULT 0,
+  database.js:80:      FOREIGN KEY (exam_id) REFERENCES exams(id) ON DELETE CASCADE,
+> database.js:81:      FOREIGN KEY (question_id) REFERENCES questions(id),
+  database.js:82:      UNIQUE(exam_id, question_id)
+  database.js:83:    );
+  database.js:84:
+> database.js:85:    CREATE TABLE IF NOT EXISTS attempts (
+  database.js:86:      id INTEGER PRIMARY KEY AUTOINCREMENT,
+  database.js:87:      user_id INTEGER NOT NULL,
+  database.js:88:      score INTEGER NOT NULL DEFAULT 0,
+> database.js:89:      total_questions INTEGER NOT NULL DEFAULT 0,
+  database.js:90:      status TEXT NOT NULL DEFAULT 'in_progress',
+  database.js:91:      started_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  database.js:92:      completed_at TEXT,
+  database.js:93:      exam_id INTEGER,
+  database.js:94:      FOREIGN KEY (user_id) REFERENCES users(id),
+  database.js:96:    );
+  database.js:97:
+> database.js:98:    CREATE TABLE IF NOT EXISTS answers (
+  database.js:99:      id INTEGER PRIMARY KEY AUTOINCREMENT,
+  database.js:100:      attempt_id INTEGER NOT NULL,
+  database.js:101:      question_id INTEGER NOT NULL,
+  database.js:102:      selected_answer TEXT,
+  database.js:103:      is_correct INTEGER NOT NULL DEFAULT 0,
+  database.js:104:      FOREIGN KEY (attempt_id) REFERENCES attempts(id),
+> database.js:105:      FOREIGN KEY (question_id) REFERENCES questions(id),
+  database.js:106:      UNIQUE(attempt_id, question_id)
+  database.js:107:    );
+  database.js:108:
+> database.js:109:    CREATE TABLE IF NOT EXISTS sessions (
+  database.js:110:      id TEXT PRIMARY KEY,
+  database.js:111:      user_id INTEGER NOT NULL,
+  database.js:112:      expires_at INTEGER NOT NULL,
+  database.js:113:      created_at INTEGER NOT NULL DEFAULT (unixepoch() * 1000),
+  database.js:114:      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+  database.js:134:
+  database.js:135:  db.exec(`
+> database.js:136:    CREATE TABLE IF NOT EXISTS courses (
+  database.js:137:      id INTEGER PRIMARY KEY AUTOINCREMENT,
+  database.js:138:      title TEXT NOT NULL,
+  database.js:139:      description TEXT NOT NULL DEFAULT '',
+  database.js:140:      price_cents INTEGER NOT NULL DEFAULT 0 CHECK(price_cents >= 0),
+  database.js:141:      currency TEXT NOT NULL DEFAULT 'PHP',
+  database.js:147:    );
+  database.js:148:
+> database.js:149:    CREATE TABLE IF NOT EXISTS course_enrollments (
+  database.js:150:      id INTEGER PRIMARY KEY AUTOINCREMENT,
+  database.js:151:      user_id INTEGER NOT NULL,
+  database.js:152:      course_id INTEGER NOT NULL,
+  database.js:153:      enrolled_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  database.js:154:      expires_at TEXT,
+  database.js:161:    );
+  database.js:162:
+> database.js:163:    CREATE TABLE IF NOT EXISTS payments (
+  database.js:164:      id INTEGER PRIMARY KEY AUTOINCREMENT,
+  database.js:165:      user_id INTEGER NOT NULL,
+  database.js:166:      course_id INTEGER,
+  database.js:167:      exam_id INTEGER,
+  database.js:168:      provider TEXT NOT NULL DEFAULT 'manual',
+  database.js:184:    );
+  database.js:185:
+> database.js:186:    CREATE TABLE IF NOT EXISTS payment_settings (
+  database.js:187:      setting_key TEXT PRIMARY KEY,
+  database.js:188:      setting_value TEXT NOT NULL,
+  database.js:189:      updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  database.js:190:      updated_by INTEGER,
+  database.js:191:      FOREIGN KEY (updated_by) REFERENCES users(id)
+  database.js:192:    );
+  database.js:193:
+> database.js:194:    CREATE TABLE IF NOT EXISTS registration_extensions (
+  database.js:195:      id INTEGER PRIMARY KEY AUTOINCREMENT,
+  database.js:196:      user_id INTEGER NOT NULL,
+  database.js:197:      extended_by INTEGER NOT NULL,
+  database.js:198:      previous_expiry TEXT,
+  database.js:199:      new_expiry TEXT NOT NULL,
+  database.js:204:    );
+  database.js:205:
+> database.js:206:    CREATE TABLE IF NOT EXISTS audit_logs (
+  database.js:207:      id INTEGER PRIMARY KEY AUTOINCREMENT,
+  database.js:208:      actor_id INTEGER,
+  database.js:209:      action TEXT NOT NULL,
+  database.js:210:      target_type TEXT,
+  database.js:211:      target_id INTEGER,
+  database.js:215:    );
+  database.js:216:
+> database.js:217:    CREATE TABLE IF NOT EXISTS password_reset_tokens (
+  database.js:218:      id INTEGER PRIMARY KEY AUTOINCREMENT,
+  database.js:219:      user_id INTEGER NOT NULL,
+  database.js:220:      token_hash TEXT NOT NULL UNIQUE,
+  database.js:221:      expires_at INTEGER NOT NULL,
+  database.js:222:      used_at INTEGER,
+  database.js:233:      WHERE phone IS NOT NULL AND phone <> '';
+  database.js:234:
+> database.js:235:    CREATE INDEX IF NOT EXISTS idx_exams_type_category
+  database.js:236:      ON exams(exam_type, category, active);
+  database.js:237:
+> database.js:238:    CREATE INDEX IF NOT EXISTS idx_attempts_access_mode
+  database.js:239:      ON attempts(user_id, access_mode, started_at);
+  database.js:240:
+> database.js:241:    CREATE INDEX IF NOT EXISTS idx_attempts_user
+  database.js:242:      ON attempts(user_id);
+  database.js:243:
+> database.js:244:    CREATE INDEX IF NOT EXISTS idx_attempts_exam
+  database.js:245:      ON attempts(exam_id);
+  database.js:246:
+> database.js:247:    CREATE INDEX IF NOT EXISTS idx_answers_attempt
+  database.js:248:      ON answers(attempt_id);
+  database.js:249:
+> database.js:250:    CREATE INDEX IF NOT EXISTS idx_sessions_expiry
+  database.js:251:      ON sessions(expires_at);
+  database.js:252:
+> database.js:253:    CREATE INDEX IF NOT EXISTS idx_sessions_user
+  database.js:254:      ON sessions(user_id);
+  database.js:255:
+> database.js:256:    CREATE INDEX IF NOT EXISTS idx_exam_questions_exam
+> database.js:257:      ON exam_questions(exam_id, position);
+  database.js:258:
+> database.js:259:    CREATE INDEX IF NOT EXISTS idx_password_reset_tokens_user
+  database.js:260:      ON password_reset_tokens(user_id);
+  database.js:261:
+> database.js:262:    CREATE INDEX IF NOT EXISTS idx_password_reset_tokens_expiry
+  database.js:263:      ON password_reset_tokens(expires_at);
+  database.js:264:
+> database.js:265:    CREATE INDEX IF NOT EXISTS idx_payments_user
+  database.js:266:      ON payments(user_id, created_at);
+  database.js:267:
+> database.js:268:    CREATE INDEX IF NOT EXISTS idx_payments_status
+  database.js:269:      ON payments(status, created_at);
+  database.js:270:
+> database.js:271:    CREATE INDEX IF NOT EXISTS idx_course_enrollments_user
+  database.js:272:      ON course_enrollments(user_id, status);
+  database.js:273:
+> database.js:274:    CREATE INDEX IF NOT EXISTS idx_registration_extensions_user
+  database.js:275:      ON registration_extensions(user_id, created_at);
+  database.js:276:  `);
+  database.js:277:
+  database.js:278:  db.exec('COMMIT');
+  database.js:279:
+
+--- EXAM ROUTE REGISTRATION ---
+  server.js:4:const db = require('./database');
+  server.js:5:const createAccessControl = require('./access-control');
+> server.js:6:const createExamRouter = require('./exam-routes');
+  server.js:7:const accessControl = createAccessControl(db);
+  server.js:8:const auth = require('./auth');
+  server.js:9:const createPasswordResetRouter = require('./password-reset');
+  server.js:428:});
+  server.js:429:
+> server.js:430:app.get('/api/exams', requireAuth, (req, res) => {
+  server.js:431:  try {
+  server.js:432:    if (!['owner', 'admin', 'student'].includes(req.user.role)) {
+  server.js:433:      return res.status(403).json({ error: 'Access denied.' });
+  server.js:466:});
+  server.js:467:
+> server.js:468:app.use('/api/exams', createExamRouter({
+  server.js:469:  db,
+  server.js:470:  accessControl,
+  server.js:471:  requireAuth
+
+--- QUESTION REFERENCES IN EXAM ROUTES ---
+  exam-routes.js:252:
+  exam-routes.js:253:        const assignedQuestions = db.prepare(`
+> exam-routes.js:254:          SELECT q.id, q.text, q.options, q.correct_answer,
+  exam-routes.js:255:                 q.explanation, q.category
+> exam-routes.js:256:          FROM exam_questions eq
+> exam-routes.js:257:          JOIN questions q ON q.id = eq.question_id
+  exam-routes.js:258:          WHERE eq.exam_id = ?
+  exam-routes.js:259:            AND q.active = 1
+  exam-routes.js:260:          ORDER BY eq.position, eq.id
+  exam-routes.js:299:
+  exam-routes.js:300:          const validAnswer =
+> exam-routes.js:301:            ['A', 'B', 'C', 'D'].includes(question.correct_answer);
+  exam-routes.js:302:
+  exam-routes.js:303:          if (!validOptions || !validQuestion || !validAnswer) {
+  exam-routes.js:304:            db.exec('ROLLBACK');
+  exam-routes.js:363:            index + 1,
+  exam-routes.js:364:            snapshot,
+> exam-routes.js:365:            question.correct_answer,
+  exam-routes.js:366:            question.explanation
+  exam-routes.js:367:          );
+  exam-routes.js:368:
+
+
+PS C:\Users\mavmu\Desktop\Traffic Sim\LMS>
