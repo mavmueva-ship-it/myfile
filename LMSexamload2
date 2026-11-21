@@ -1,0 +1,360 @@
+
+  public\js\dashboard-before-history-20261120.js:402:  const index = state.currentQuestion;
+  public\js\dashboard-before-history-20261120.js:403:  const total = attempt.questions.length;
+> public\js\dashboard-before-history-20261120.js:404:  const answered = attempt.questions.filter(item =>
+item.selectedAnswer).length;
+  public\js\dashboard-before-history-20261120.js:405:
+  public\js\dashboard-before-history-20261120.js:406:  $('examTypeLabel').textContent =
+  public\js\dashboard-before-history-20261120.js:407:    attempt.exam.exam_type === 'mock' ? 'MOCK EXAMINATION' :
+'CATEGORY EXAMINATION';
+  public\js\dashboard-before-history-20261120.js:410:  $('examProgressBar').style.width = `${((index + 1) / total) *
+100}%`;
+  public\js\dashboard-before-history-20261120.js:411:  $('questionNumber').textContent = `QUESTION ${index + 1}`;
+> public\js\dashboard-before-history-20261120.js:412:  $('questionText').textContent = question.text;
+  public\js\dashboard-before-history-20261120.js:413:  $('answeredCount').textContent = `${answered} of ${total}
+answered`;
+  public\js\dashboard-before-history-20261120.js:414:
+  public\js\dashboard-before-history-20261120.js:415:  $('previousQuestionButton').disabled = index === 0 ||
+state.submitting;
+  public\js\dashboard-before-history-20261120.js:421:  for (const letter of ['A', 'B', 'C', 'D']) {
+  public\js\dashboard-before-history-20261120.js:422:    const label = document.createElement('label');
+> public\js\dashboard-before-history-20261120.js:423:    label.className = 'answer-option';
+> public\js\dashboard-before-history-20261120.js:424:    if (question.selectedAnswer === letter)
+label.classList.add('selected');
+  public\js\dashboard-before-history-20261120.js:425:
+  public\js\dashboard-before-history-20261120.js:426:    const radio = document.createElement('input');
+  public\js\dashboard-before-history-20261120.js:427:    radio.type = 'radio';
+  public\js\dashboard-before-history-20261120.js:428:    radio.name = 'examAnswer';
+  public\js\dashboard-before-history-20261120.js:429:    radio.value = letter;
+> public\js\dashboard-before-history-20261120.js:430:    radio.checked = question.selectedAnswer === letter;
+  public\js\dashboard-before-history-20261120.js:431:    radio.disabled = state.submitting;
+  public\js\dashboard-before-history-20261120.js:432:
+  public\js\dashboard-before-history-20261120.js:433:    const marker = document.createElement('span');
+  public\js\dashboard-before-history-20261120.js:436:
+  public\js\dashboard-before-history-20261120.js:437:    const text = document.createElement('span');
+> public\js\dashboard-before-history-20261120.js:438:    text.className = 'answer-option-text';
+> public\js\dashboard-before-history-20261120.js:439:    text.textContent = question.options?.[letter] ?? '';
+  public\js\dashboard-before-history-20261120.js:440:
+  public\js\dashboard-before-history-20261120.js:441:    radio.addEventListener('change', () => selectAnswer(letter));
+  public\js\dashboard-before-history-20261120.js:442:
+  public\js\dashboard-before-history-20261120.js:454:    button.textContent = String(questionIndex + 1);
+  public\js\dashboard-before-history-20261120.js:455:
+> public\js\dashboard-before-history-20261120.js:456:    if (item.selectedAnswer) button.classList.add('answered');
+  public\js\dashboard-before-history-20261120.js:457:    if (questionIndex === index) button.classList.add('current');
+  public\js\dashboard-before-history-20261120.js:458:
+  public\js\dashboard-before-history-20261120.js:459:    button.addEventListener('click', () => {
+  public\js\dashboard-before-history-20261120.js:473:  if (!question) return;
+  public\js\dashboard-before-history-20261120.js:474:
+> public\js\dashboard-before-history-20261120.js:475:  const previousAnswer = question.selectedAnswer;
+> public\js\dashboard-before-history-20261120.js:476:  question.selectedAnswer = letter;
+  public\js\dashboard-before-history-20261120.js:477:  question.latestSaveVersion = (question.latestSaveVersion || 0)
++ 1;
+  public\js\dashboard-before-history-20261120.js:478:  const saveVersion = question.latestSaveVersion;
+  public\js\dashboard-before-history-20261120.js:479:
+  public\js\dashboard-before-history-20261120.js:488:        body: JSON.stringify({
+  public\js\dashboard-before-history-20261120.js:489:          questionId: question.questionId,
+> public\js\dashboard-before-history-20261120.js:490:          selectedAnswer: letter
+  public\js\dashboard-before-history-20261120.js:491:        })
+  public\js\dashboard-before-history-20261120.js:492:      });
+  public\js\dashboard-before-history-20261120.js:493:    } catch (error) {
+  public\js\dashboard-before-history-20261120.js:500:
+  public\js\dashboard-before-history-20261120.js:501:      if (question.latestSaveVersion === saveVersion) {
+> public\js\dashboard-before-history-20261120.js:502:        question.selectedAnswer = previousAnswer;
+  public\js\dashboard-before-history-20261120.js:503:        renderQuestion();
+  public\js\dashboard-before-history-20261120.js:504:        alert(`Your answer could not be saved: ${error.message}`);
+  public\js\dashboard-before-history-20261120.js:505:      }
+  public\js\dashboard-before-history-20261120.js:613:
+  public\js\dashboard-before-history-20261120.js:614:  if (!automatic) {
+> public\js\dashboard-before-history-20261120.js:615:    const unanswered = state.attempt.questions.filter(item =>
+!item.selectedAnswer).length;
+  public\js\dashboard-before-history-20261120.js:616:    const message = unanswered
+  public\js\dashboard-before-history-20261120.js:617:      ? `You have ${unanswered} unanswered question(s). They will
+be marked incorrect. Submit anyway?`
+  public\js\dashboard-before-history-20261120.js:618:      : 'Are you sure you want to submit your examination?';
+  public\js\dashboard-before-history-20261120.js:707:          <div class="review-answer-line">
+  public\js\dashboard-before-history-20261120.js:708:            <strong>Your answer:</strong>
+> public\js\dashboard-before-history-20261120.js:709:            ${item.selectedAnswer
+> public\js\dashboard-before-history-20261120.js:710:              ? `${escapeHtml(item.selectedAnswer)} —
+${escapeHtml(item.options?.[item.selectedAnswer] || '')}`
+  public\js\dashboard-before-history-20261120.js:711:              : 'Unanswered'}
+  public\js\dashboard-before-history-20261120.js:712:          </div>
+  public\js\dashboard-before-history-20261120.js:713:          <div class="review-correct-answer">
+  public\js\dashboard-before-history-20261120.js:714:            <strong>Correct answer:</strong>
+> public\js\dashboard-before-history-20261120.js:715:            ${escapeHtml(item.correctAnswer)} —
+${escapeHtml(item.options?.[item.correctAnswer] || '')}
+  public\js\dashboard-before-history-20261120.js:716:          </div>
+  public\js\dashboard-before-history-20261120.js:717:          ${item.explanation
+  public\js\dashboard-before-history-20261120.js:718:            ? `<p
+class="review-explanation">${escapeHtml(item.explanation)}</p>`
+  public\js\dashboard-before-mock-notice-20261120-011853.js:398:  const index = state.currentQuestion;
+  public\js\dashboard-before-mock-notice-20261120-011853.js:399:  const total = attempt.questions.length;
+> public\js\dashboard-before-mock-notice-20261120-011853.js:400:  const answered = attempt.questions.filter(item =>
+item.selectedAnswer).length;
+  public\js\dashboard-before-mock-notice-20261120-011853.js:401:
+  public\js\dashboard-before-mock-notice-20261120-011853.js:402:  $('examTypeLabel').textContent =
+  public\js\dashboard-before-mock-notice-20261120-011853.js:403:    attempt.exam.exam_type === 'mock' ? 'MOCK
+EXAMINATION' : 'CATEGORY EXAMINATION';
+  public\js\dashboard-before-mock-notice-20261120-011853.js:406:  $('examProgressBar').style.width = `${((index + 1) /
+total) * 100}%`;
+  public\js\dashboard-before-mock-notice-20261120-011853.js:407:  $('questionNumber').textContent = `QUESTION ${index
++ 1}`;
+> public\js\dashboard-before-mock-notice-20261120-011853.js:408:  $('questionText').textContent = question.text;
+  public\js\dashboard-before-mock-notice-20261120-011853.js:409:  $('answeredCount').textContent = `${answered} of
+${total} answered`;
+  public\js\dashboard-before-mock-notice-20261120-011853.js:410:
+  public\js\dashboard-before-mock-notice-20261120-011853.js:411:  $('previousQuestionButton').disabled = index === 0
+|| state.submitting;
+  public\js\dashboard-before-mock-notice-20261120-011853.js:417:  for (const letter of ['A', 'B', 'C', 'D']) {
+  public\js\dashboard-before-mock-notice-20261120-011853.js:418:    const label = document.createElement('label');
+> public\js\dashboard-before-mock-notice-20261120-011853.js:419:    label.className = 'answer-option';
+> public\js\dashboard-before-mock-notice-20261120-011853.js:420:    if (question.selectedAnswer === letter)
+label.classList.add('selected');
+  public\js\dashboard-before-mock-notice-20261120-011853.js:421:
+  public\js\dashboard-before-mock-notice-20261120-011853.js:422:    const radio = document.createElement('input');
+  public\js\dashboard-before-mock-notice-20261120-011853.js:423:    radio.type = 'radio';
+  public\js\dashboard-before-mock-notice-20261120-011853.js:424:    radio.name = 'examAnswer';
+  public\js\dashboard-before-mock-notice-20261120-011853.js:425:    radio.value = letter;
+> public\js\dashboard-before-mock-notice-20261120-011853.js:426:    radio.checked = question.selectedAnswer === letter;
+  public\js\dashboard-before-mock-notice-20261120-011853.js:427:    radio.disabled = state.submitting;
+  public\js\dashboard-before-mock-notice-20261120-011853.js:428:
+  public\js\dashboard-before-mock-notice-20261120-011853.js:429:    const marker = document.createElement('span');
+  public\js\dashboard-before-mock-notice-20261120-011853.js:432:
+  public\js\dashboard-before-mock-notice-20261120-011853.js:433:    const text = document.createElement('span');
+> public\js\dashboard-before-mock-notice-20261120-011853.js:434:    text.className = 'answer-option-text';
+> public\js\dashboard-before-mock-notice-20261120-011853.js:435:    text.textContent = question.options?.[letter] ??
+'';
+  public\js\dashboard-before-mock-notice-20261120-011853.js:436:
+  public\js\dashboard-before-mock-notice-20261120-011853.js:437:    radio.addEventListener('change', () =>
+selectAnswer(letter));
+  public\js\dashboard-before-mock-notice-20261120-011853.js:438:
+  public\js\dashboard-before-mock-notice-20261120-011853.js:450:    button.textContent = String(questionIndex + 1);
+  public\js\dashboard-before-mock-notice-20261120-011853.js:451:
+> public\js\dashboard-before-mock-notice-20261120-011853.js:452:    if (item.selectedAnswer)
+button.classList.add('answered');
+  public\js\dashboard-before-mock-notice-20261120-011853.js:453:    if (questionIndex === index)
+button.classList.add('current');
+  public\js\dashboard-before-mock-notice-20261120-011853.js:454:
+  public\js\dashboard-before-mock-notice-20261120-011853.js:455:    button.addEventListener('click', () => {
+  public\js\dashboard-before-mock-notice-20261120-011853.js:469:  if (!question) return;
+  public\js\dashboard-before-mock-notice-20261120-011853.js:470:
+> public\js\dashboard-before-mock-notice-20261120-011853.js:471:  const previousAnswer = question.selectedAnswer;
+> public\js\dashboard-before-mock-notice-20261120-011853.js:472:  question.selectedAnswer = letter;
+  public\js\dashboard-before-mock-notice-20261120-011853.js:473:  question.latestSaveVersion =
+(question.latestSaveVersion || 0) + 1;
+  public\js\dashboard-before-mock-notice-20261120-011853.js:474:  const saveVersion = question.latestSaveVersion;
+  public\js\dashboard-before-mock-notice-20261120-011853.js:475:
+  public\js\dashboard-before-mock-notice-20261120-011853.js:484:        body: JSON.stringify({
+  public\js\dashboard-before-mock-notice-20261120-011853.js:485:          questionId: question.questionId,
+> public\js\dashboard-before-mock-notice-20261120-011853.js:486:          selectedAnswer: letter
+  public\js\dashboard-before-mock-notice-20261120-011853.js:487:        })
+  public\js\dashboard-before-mock-notice-20261120-011853.js:488:      });
+  public\js\dashboard-before-mock-notice-20261120-011853.js:489:    } catch (error) {
+  public\js\dashboard-before-mock-notice-20261120-011853.js:496:
+  public\js\dashboard-before-mock-notice-20261120-011853.js:497:      if (question.latestSaveVersion === saveVersion) {
+> public\js\dashboard-before-mock-notice-20261120-011853.js:498:        question.selectedAnswer = previousAnswer;
+  public\js\dashboard-before-mock-notice-20261120-011853.js:499:        renderQuestion();
+  public\js\dashboard-before-mock-notice-20261120-011853.js:500:        alert(`Your answer could not be saved:
+${error.message}`);
+  public\js\dashboard-before-mock-notice-20261120-011853.js:501:      }
+  public\js\dashboard-before-mock-notice-20261120-011853.js:609:
+  public\js\dashboard-before-mock-notice-20261120-011853.js:610:  if (!automatic) {
+> public\js\dashboard-before-mock-notice-20261120-011853.js:611:    const unanswered =
+state.attempt.questions.filter(item => !item.selectedAnswer).length;
+  public\js\dashboard-before-mock-notice-20261120-011853.js:612:    const message = unanswered
+  public\js\dashboard-before-mock-notice-20261120-011853.js:613:      ? `You have ${unanswered} unanswered
+question(s). They will be marked incorrect. Submit anyway?`
+  public\js\dashboard-before-mock-notice-20261120-011853.js:614:      : 'Are you sure you want to submit your
+examination?';
+  public\js\dashboard-before-mock-notice-20261120-011853.js:703:          <div class="review-answer-line">
+  public\js\dashboard-before-mock-notice-20261120-011853.js:704:            <strong>Your answer:</strong>
+> public\js\dashboard-before-mock-notice-20261120-011853.js:705:            ${item.selectedAnswer
+> public\js\dashboard-before-mock-notice-20261120-011853.js:706:              ? `${escapeHtml(item.selectedAnswer)} —
+${escapeHtml(item.options?.[item.selectedAnswer] || '')}`
+  public\js\dashboard-before-mock-notice-20261120-011853.js:707:              : 'Unanswered'}
+  public\js\dashboard-before-mock-notice-20261120-011853.js:708:          </div>
+  public\js\dashboard-before-mock-notice-20261120-011853.js:709:          <div class="review-correct-answer">
+  public\js\dashboard-before-mock-notice-20261120-011853.js:710:            <strong>Correct answer:</strong>
+> public\js\dashboard-before-mock-notice-20261120-011853.js:711:            ${escapeHtml(item.correctAnswer)} —
+${escapeHtml(item.options?.[item.correctAnswer] || '')}
+  public\js\dashboard-before-mock-notice-20261120-011853.js:712:          </div>
+  public\js\dashboard-before-mock-notice-20261120-011853.js:713:          ${item.explanation
+  public\js\dashboard-before-mock-notice-20261120-011853.js:714:            ? `<p
+class="review-explanation">${escapeHtml(item.explanation)}</p>`
+  public\js\dashboard-before-resume-support-20261120-021805.js:401:  const index = state.currentQuestion;
+  public\js\dashboard-before-resume-support-20261120-021805.js:402:  const total = attempt.questions.length;
+> public\js\dashboard-before-resume-support-20261120-021805.js:403:  const answered = attempt.questions.filter(item =>
+item.selectedAnswer).length;
+  public\js\dashboard-before-resume-support-20261120-021805.js:404:
+  public\js\dashboard-before-resume-support-20261120-021805.js:405:  $('examTypeLabel').textContent =
+  public\js\dashboard-before-resume-support-20261120-021805.js:406:    attempt.exam.exam_type === 'mock' ? 'MOCK
+EXAMINATION' : 'CATEGORY EXAMINATION';
+  public\js\dashboard-before-resume-support-20261120-021805.js:409:  $('examProgressBar').style.width = `${((index +
+1) / total) * 100}%`;
+  public\js\dashboard-before-resume-support-20261120-021805.js:410:  $('questionNumber').textContent = `QUESTION
+${index + 1}`;
+> public\js\dashboard-before-resume-support-20261120-021805.js:411:  $('questionText').textContent = question.text;
+  public\js\dashboard-before-resume-support-20261120-021805.js:412:  $('answeredCount').textContent = `${answered} of
+${total} answered`;
+  public\js\dashboard-before-resume-support-20261120-021805.js:413:
+  public\js\dashboard-before-resume-support-20261120-021805.js:414:  $('previousQuestionButton').disabled = index ===
+0 || state.submitting;
+  public\js\dashboard-before-resume-support-20261120-021805.js:420:  for (const letter of ['A', 'B', 'C', 'D']) {
+  public\js\dashboard-before-resume-support-20261120-021805.js:421:    const label = document.createElement('label');
+> public\js\dashboard-before-resume-support-20261120-021805.js:422:    label.className = 'answer-option';
+> public\js\dashboard-before-resume-support-20261120-021805.js:423:    if (question.selectedAnswer === letter)
+label.classList.add('selected');
+  public\js\dashboard-before-resume-support-20261120-021805.js:424:
+  public\js\dashboard-before-resume-support-20261120-021805.js:425:    const radio = document.createElement('input');
+  public\js\dashboard-before-resume-support-20261120-021805.js:426:    radio.type = 'radio';
+  public\js\dashboard-before-resume-support-20261120-021805.js:427:    radio.name = 'examAnswer';
+  public\js\dashboard-before-resume-support-20261120-021805.js:428:    radio.value = letter;
+> public\js\dashboard-before-resume-support-20261120-021805.js:429:    radio.checked = question.selectedAnswer ===
+letter;
+  public\js\dashboard-before-resume-support-20261120-021805.js:430:    radio.disabled = state.submitting;
+  public\js\dashboard-before-resume-support-20261120-021805.js:431:
+  public\js\dashboard-before-resume-support-20261120-021805.js:432:    const marker = document.createElement('span');
+  public\js\dashboard-before-resume-support-20261120-021805.js:435:
+  public\js\dashboard-before-resume-support-20261120-021805.js:436:    const text = document.createElement('span');
+> public\js\dashboard-before-resume-support-20261120-021805.js:437:    text.className = 'answer-option-text';
+> public\js\dashboard-before-resume-support-20261120-021805.js:438:    text.textContent = question.options?.[letter]
+?? '';
+  public\js\dashboard-before-resume-support-20261120-021805.js:439:
+  public\js\dashboard-before-resume-support-20261120-021805.js:440:    radio.addEventListener('change', () =>
+selectAnswer(letter));
+  public\js\dashboard-before-resume-support-20261120-021805.js:441:
+  public\js\dashboard-before-resume-support-20261120-021805.js:453:    button.textContent = String(questionIndex + 1);
+  public\js\dashboard-before-resume-support-20261120-021805.js:454:
+> public\js\dashboard-before-resume-support-20261120-021805.js:455:    if (item.selectedAnswer)
+button.classList.add('answered');
+  public\js\dashboard-before-resume-support-20261120-021805.js:456:    if (questionIndex === index)
+button.classList.add('current');
+  public\js\dashboard-before-resume-support-20261120-021805.js:457:
+  public\js\dashboard-before-resume-support-20261120-021805.js:458:    button.addEventListener('click', () => {
+  public\js\dashboard-before-resume-support-20261120-021805.js:472:  if (!question) return;
+  public\js\dashboard-before-resume-support-20261120-021805.js:473:
+> public\js\dashboard-before-resume-support-20261120-021805.js:474:  const previousAnswer = question.selectedAnswer;
+> public\js\dashboard-before-resume-support-20261120-021805.js:475:  question.selectedAnswer = letter;
+  public\js\dashboard-before-resume-support-20261120-021805.js:476:  question.latestSaveVersion =
+(question.latestSaveVersion || 0) + 1;
+  public\js\dashboard-before-resume-support-20261120-021805.js:477:  const saveVersion = question.latestSaveVersion;
+  public\js\dashboard-before-resume-support-20261120-021805.js:478:
+  public\js\dashboard-before-resume-support-20261120-021805.js:487:        body: JSON.stringify({
+  public\js\dashboard-before-resume-support-20261120-021805.js:488:          questionId: question.questionId,
+> public\js\dashboard-before-resume-support-20261120-021805.js:489:          selectedAnswer: letter
+  public\js\dashboard-before-resume-support-20261120-021805.js:490:        })
+  public\js\dashboard-before-resume-support-20261120-021805.js:491:      });
+  public\js\dashboard-before-resume-support-20261120-021805.js:492:    } catch (error) {
+  public\js\dashboard-before-resume-support-20261120-021805.js:499:
+  public\js\dashboard-before-resume-support-20261120-021805.js:500:      if (question.latestSaveVersion ===
+saveVersion) {
+> public\js\dashboard-before-resume-support-20261120-021805.js:501:        question.selectedAnswer = previousAnswer;
+  public\js\dashboard-before-resume-support-20261120-021805.js:502:        renderQuestion();
+  public\js\dashboard-before-resume-support-20261120-021805.js:503:        alert(`Your answer could not be saved:
+${error.message}`);
+  public\js\dashboard-before-resume-support-20261120-021805.js:504:      }
+  public\js\dashboard-before-resume-support-20261120-021805.js:612:
+  public\js\dashboard-before-resume-support-20261120-021805.js:613:  if (!automatic) {
+> public\js\dashboard-before-resume-support-20261120-021805.js:614:    const unanswered =
+state.attempt.questions.filter(item => !item.selectedAnswer).length;
+  public\js\dashboard-before-resume-support-20261120-021805.js:615:    const message = unanswered
+  public\js\dashboard-before-resume-support-20261120-021805.js:616:      ? `You have ${unanswered} unanswered
+question(s). They will be marked incorrect. Submit anyway?`
+  public\js\dashboard-before-resume-support-20261120-021805.js:617:      : 'Are you sure you want to submit your
+examination?';
+  public\js\dashboard-before-resume-support-20261120-021805.js:706:          <div class="review-answer-line">
+  public\js\dashboard-before-resume-support-20261120-021805.js:707:            <strong>Your answer:</strong>
+> public\js\dashboard-before-resume-support-20261120-021805.js:708:            ${item.selectedAnswer
+> public\js\dashboard-before-resume-support-20261120-021805.js:709:              ? `${escapeHtml(item.selectedAnswer)}
+— ${escapeHtml(item.options?.[item.selectedAnswer] || '')}`
+  public\js\dashboard-before-resume-support-20261120-021805.js:710:              : 'Unanswered'}
+  public\js\dashboard-before-resume-support-20261120-021805.js:711:          </div>
+  public\js\dashboard-before-resume-support-20261120-021805.js:712:          <div class="review-correct-answer">
+  public\js\dashboard-before-resume-support-20261120-021805.js:713:            <strong>Correct answer:</strong>
+> public\js\dashboard-before-resume-support-20261120-021805.js:714:            ${escapeHtml(item.correctAnswer)} —
+${escapeHtml(item.options?.[item.correctAnswer] || '')}
+  public\js\dashboard-before-resume-support-20261120-021805.js:715:          </div>
+  public\js\dashboard-before-resume-support-20261120-021805.js:716:          ${item.explanation
+  public\js\dashboard-before-resume-support-20261120-021805.js:717:            ? `<p
+class="review-explanation">${escapeHtml(item.explanation)}</p>`
+  public\js\dashboard.js:406:  const index = state.currentQuestion;
+  public\js\dashboard.js:407:  const total = attempt.questions.length;
+> public\js\dashboard.js:408:  const answered = attempt.questions.filter(item => item.selectedAnswer).length;
+  public\js\dashboard.js:409:
+  public\js\dashboard.js:410:  $('examTypeLabel').textContent =
+  public\js\dashboard.js:411:    attempt.exam.exam_type === 'mock' ? 'MOCK EXAMINATION' : 'CATEGORY EXAMINATION';
+  public\js\dashboard.js:414:  $('examProgressBar').style.width = `${((index + 1) / total) * 100}%`;
+  public\js\dashboard.js:415:  $('questionNumber').textContent = `QUESTION ${index + 1}`;
+> public\js\dashboard.js:416:  $('questionText').textContent = question.text;
+  public\js\dashboard.js:417:  $('answeredCount').textContent = `${answered} of ${total} answered`;
+  public\js\dashboard.js:418:
+  public\js\dashboard.js:419:  $('previousQuestionButton').disabled = index === 0 || state.submitting;
+  public\js\dashboard.js:425:  for (const letter of ['A', 'B', 'C', 'D']) {
+  public\js\dashboard.js:426:    const label = document.createElement('label');
+> public\js\dashboard.js:427:    label.className = 'answer-option';
+> public\js\dashboard.js:428:    if (question.selectedAnswer === letter) label.classList.add('selected');
+  public\js\dashboard.js:429:
+  public\js\dashboard.js:430:    const radio = document.createElement('input');
+  public\js\dashboard.js:431:    radio.type = 'radio';
+  public\js\dashboard.js:432:    radio.name = 'examAnswer';
+  public\js\dashboard.js:433:    radio.value = letter;
+> public\js\dashboard.js:434:    radio.checked = question.selectedAnswer === letter;
+  public\js\dashboard.js:435:    radio.disabled = state.submitting;
+  public\js\dashboard.js:436:
+  public\js\dashboard.js:437:    const marker = document.createElement('span');
+  public\js\dashboard.js:440:
+  public\js\dashboard.js:441:    const text = document.createElement('span');
+> public\js\dashboard.js:442:    text.className = 'answer-option-text';
+> public\js\dashboard.js:443:    text.textContent = question.options?.[letter] ?? '';
+  public\js\dashboard.js:444:
+  public\js\dashboard.js:445:    radio.addEventListener('change', () => selectAnswer(letter));
+  public\js\dashboard.js:446:
+  public\js\dashboard.js:458:    button.textContent = String(questionIndex + 1);
+  public\js\dashboard.js:459:
+> public\js\dashboard.js:460:    if (item.selectedAnswer) button.classList.add('answered');
+  public\js\dashboard.js:461:    if (questionIndex === index) button.classList.add('current');
+  public\js\dashboard.js:462:
+  public\js\dashboard.js:463:    button.addEventListener('click', () => {
+  public\js\dashboard.js:477:  if (!question) return;
+  public\js\dashboard.js:478:
+> public\js\dashboard.js:479:  const previousAnswer = question.selectedAnswer;
+> public\js\dashboard.js:480:  question.selectedAnswer = letter;
+  public\js\dashboard.js:481:  question.latestSaveVersion = (question.latestSaveVersion || 0) + 1;
+  public\js\dashboard.js:482:  const saveVersion = question.latestSaveVersion;
+  public\js\dashboard.js:483:
+  public\js\dashboard.js:492:        body: JSON.stringify({
+  public\js\dashboard.js:493:          questionId: question.questionId,
+> public\js\dashboard.js:494:          selectedAnswer: letter
+  public\js\dashboard.js:495:        })
+  public\js\dashboard.js:496:      });
+  public\js\dashboard.js:497:    } catch (error) {
+  public\js\dashboard.js:504:
+  public\js\dashboard.js:505:      if (question.latestSaveVersion === saveVersion) {
+> public\js\dashboard.js:506:        question.selectedAnswer = previousAnswer;
+  public\js\dashboard.js:507:        renderQuestion();
+  public\js\dashboard.js:508:        alert(`Your answer could not be saved: ${error.message}`);
+  public\js\dashboard.js:509:      }
+  public\js\dashboard.js:617:
+  public\js\dashboard.js:618:  if (!automatic) {
+> public\js\dashboard.js:619:    const unanswered = state.attempt.questions.filter(item =>
+!item.selectedAnswer).length;
+  public\js\dashboard.js:620:    const message = unanswered
+  public\js\dashboard.js:621:      ? `You have ${unanswered} unanswered question(s). They will be marked incorrect.
+Submit anyway?`
+  public\js\dashboard.js:622:      : 'Are you sure you want to submit your examination?';
+  public\js\dashboard.js:712:          <div class="review-answer-line">
+  public\js\dashboard.js:713:            <strong>Your answer:</strong>
+> public\js\dashboard.js:714:            ${item.selectedAnswer
+> public\js\dashboard.js:715:              ? `${escapeHtml(item.selectedAnswer)} —
+${escapeHtml(item.options?.[item.selectedAnswer] || '')}`
+  public\js\dashboard.js:716:              : 'Unanswered'}
+  public\js\dashboard.js:717:          </div>
+  public\js\dashboard.js:718:          <div class="review-correct-answer">
+  public\js\dashboard.js:719:            <strong>Correct answer:</strong>
+> public\js\dashboard.js:720:            ${escapeHtml(item.correctAnswer)} —
+${escapeHtml(item.options?.[item.correctAnswer] || '')}
+  public\js\dashboard.js:721:          </div>
+  public\js\dashboard.js:722:          ${item.explanation
+  public\js\dashboard.js:723:            ? `<p class="review-explanation">${escapeHtml(item.explanation)}</p>`
+
+
+PS C:\Users\mavmu\Desktop\Traffic Sim\LMS>
