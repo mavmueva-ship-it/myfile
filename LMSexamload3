@@ -1,0 +1,291 @@
+PS C:\Users\mavmu\Desktop\Traffic Sim\LMS> node .\inspect-upload-content.js
+
+--- Passages HEADERS ---
+[
+  'PassageID',
+  'PassageTitle',
+  'PassageText',
+  'SharedInstructions',
+  'Category',
+  'Topic',
+  'SourceTitle',
+  'SourcePage',
+  'SourceURL',
+  'RightsStatus',
+  'ReviewStatus',
+  'AdminNotes'
+]
+
+ROW 2
+[
+  'S3-P05-G1',
+  'Shared material for questions 2-6',
+  'NOT FOR SALE NOT FOR SALE Free reviewer for all… arranged by Leonalyn Mutia-Tayone 20. 1. Research / Report Writing',
+  'For Q2 to Q6:',
+  'Numerical Ability',
+  'Graphs / Charts / Data',
+  'Civil Service Exam Complete Reviewer 2020_3rd revision.pdf',
+  'PDF page 5',
+  <1 empty item>,
+  'Unverified - permission/licensing review required',
+  'Needs review',
+  'Shared passage/chart instructions extracted; inspect page image for complete asset'
+]
+
+ROW 3
+[
+  'S3-P06-G1',
+  'Shared material for questions 7-9',
+  "NOT FOR SALE NOT FOR SALE Free reviewer for all… arranged by Leonalyn Mutia-Tayone 3. What was absolute difference in the FDI to Philippines in between 1996 and 1997 ? a. 7.29 b. 7.13 c. 8.13 d. None of these 4. If Philippine FDI from OPEC countries was proportionately the same in 1992 and 1997 as the total FDI from all over the world and if the FDI in 1992 from the OPEC countries was Euro 2 million. What was the amount of FDI from the OPEC countries in 1997 ? a. 11 b. 10.72 c. 11.28 d. 11.5 5. Which year exhibited the highest growth in FDI in Philippines over the period shown ? a. 1993 b. 1994 c. 1995 d. 1996 6. What was Philippines' total FDI for the period shown in the figure ? a. 93.82 b. 93.22 c. 93.19 d. None of these Free reviewer for all… arranged by Leonalyn Mutia-Tayone For Q7 to Q9: Line chart: Marks obtained by student in six periodical held in every two months during the year in the session 2001-2002. Maximum total marks in each periodical exam = 500",
+  'For Q7 to Q9:',
+  'Numerical Ability',
+  'Graphs / Charts / Data',
+  'Civil Service Exam Complete Reviewer 2020_3rd revision.pdf',
+  'PDF page 6',
+  <1 empty item>,
+  'Unverified - permission/licensing review required',
+  'Needs review',
+  'Shared passage/chart instructions extracted; inspect page image for complete asset'
+]
+
+ROW 4
+[
+  'S3-P15-G1',
+  'Shared material for questions 79-87',
+  'NOT FOR SALE NOT FOR SALE Free reviewer for all… arranged by Leonalyn Mutia-Tayone Questions 79–87 are about the following passage. Free reviewer for all… arranged by Leonalyn Mutia-Tayone When another old cave is discovered in the south of France, it is not usually news. Rather, it is an ordinary event. Such discoveries are so frequent these days that hardly anybody pays heed to them. However, when the Lascaux cave complex was discovered in 1940, the world was amazed. Painted directly on its walls were hundreds of scenes showing how people lived thousands of years ago. The scenes show people hunting animals, such as bison or wild cats. Other images depict birds and, most noticeably, horses, which appear in more than 300 wall images, by far outnumbering all other animals. Early artists drawing these animals accomplished a monumental and difficult task. THEY did not limit themselves to the easily accessible walls but carried their painting materials to spaces that required climbing steep walls or crawling into narrow passages in the Lascaux complex. Unfortunately, the paintings have been exposed to the destructive action of water and temperature changes, which easily wear the images away. Because the Lascaux caves have many entrances, air movement has also damaged the images inside. Although they are not out in the open air, where natural light would have destroyed them long ago, many of the images have deteriorated and are barely recognizable. To prevent further damage, the site was closed to tourists in 1963, 23 years after it was discovered. 79.) Which title best summarizes the main idea of the passage? a. Wild Animals in Art b. Hidden Prehistoric Paintings c. Exploring Caves Respectfully d. Determining the Age of French Caves 80.) In 2nd sentence, the words pays heed to are closest in meaning to _______. a. discovers b. watches c. notices d. buys 81.) Based on the passage, what is probably true about the south of France? a. It is home to rare animals. b. It has a large number of caves. c. It is known for horse-racing events. d. It has attracted many famous artists. 82. According to the passage, which animals appear most often on the cave walls? a. Birds b. Bison c. Horses d. Wild cats 83.) the word depict is closest in meaning to _______. a. show b. hunt c. count d. draw 84.) Why was painting inside the Lascaux complex a difficult task? a. It was completely dark inside. b. The caves were full of wild animals. c. Painting materials were hard to find. d. Many painting spaces were difficult to reach.',
+  'Questions 79–87 are about the following passage',
+  'Verbal Ability',
+  'Reading Comprehension',
+  'Civil Service Exam Complete Reviewer 2020_3rd revision.pdf',
+  'PDF page 15',
+  <1 empty item>,
+  'Unverified - permission/licensing review required',
+  'Needs review',
+  'Shared passage/chart instructions extracted; inspect page image for complete asset'
+]
+
+ROW 5
+[
+  'S3-P16-G1',
+  'Shared material for questions 88-90',
+  `NOT FOR SALE NOT FOR SALE Free reviewer for all… arranged by Leonalyn Mutia-Tayone 85.) In the 3rd paragraph, the word THEY refers to _______. a. walls b. artists c. animals d. materials 86.) According to the passage, all of the following have caused damage to the paintings EXCEPT _______. a. temperature changes b. air movement c. water d. light 87.) What does the passage say happened at the Lascaux caves in 1963? a. Visitors were prohibited from entering. b. A new lighting system was installed. c. Another part was discovered. d. A new entrance was created. Questions 88–90 are about the following passage. Free reviewer for all… arranged by Leonalyn Mutia-Tayone Official records state that the Pueblo Indians lived in New Mexico and Arizona. The word "Pueblo" comes from the Spanish word "pueblo," meaning town or village. The Spaniards found these Indians living in apartment houses, some of them on the side of a cliff in order that they could be reached only by ladders. Whenever they were attacked by Apaches, the Pueblos would pull up the ladders. They grew corn, which they watered with water flowing down in ditches. They wove cloth, made wonderful baskets, and created jars and pots out of clay proving how skilful they were at hand-craft. 88.) From the passage we understand that the Pueblo Indians were afraid of ............. . a) cliff dwelling d) water flowing down in ditches b) Apache Indians e) solitary life c) apartment houses 89.) Why the Spaniards called these Indians "Pueblos" is because they ................ . a) were close to the Apaches b) lived together in a town or village c) farmed and brought down water in ditches d) pulled up their ladders when attacked e) achieved fame thanks to their hand-craft 90.) The Pueblo Indians lived on the side of a cliff ................ . a) although they had apartment houses b) to observe the stars in the sky for rain season c) so that they could provide themselves with shelters d) and, the didn't have a lake, a stream, or a pond e) as long as they were all together`,
+  'Questions 88–90 are about the following passage',
+  'Verbal Ability',
+  'Reading Comprehension',
+  'Civil Service Exam Complete Reviewer 2020_3rd revision.pdf',
+  'PDF page 16',
+  <1 empty item>,
+  'Unverified - permission/licensing review required',
+  'Needs review',
+  'Shared passage/chart instructions extracted; inspect page image for complete asset'
+]
+
+--- Media HEADERS ---
+[
+  'MediaID',
+  'Filename',
+  'MediaType',
+  'AltText',
+  'CaptionOrDescription',
+  'UsedInRecordType',
+  'UsedInRecordID',
+  'Placement',
+  'SourcePage',
+  'SourceTitle',
+  'SourcePageNumber',
+  'SourceURL',
+  'RightsStatus',
+  'ReviewStatus',
+  'AdminNotes'
+]
+
+ROW 2
+[
+  'S1-IMG-P055',
+  'source_S1_page_055.png',
+  'page_image',
+  'Visual question diagram; crop exact figure before import',
+  'Question prompt',
+  'question',
+  'S1-Q055-035-02',
+  'Prompt',
+  <1 empty item>,
+  'Civil-Service-Exam-Reviewer-for-Professional-and-Sub-Professional-Levels-v2-2.p (1).pdf',
+  'PDF page 55',
+  <1 empty item>,
+  'Unverified - permission/licensing review required',
+  'Needs extraction/cropping',
+  'Image-based item detected; page image not embedded in workbook'
+]
+
+ROW 3
+[
+  'S1-IMG-P086',
+  'source_S1_page_086.png',
+  'page_image',
+  'Visual question diagram; crop exact figure before import',
+  'Question prompt',
+  'question',
+  'S1-Q086-008-01',
+  'Prompt',
+  <1 empty item>,
+  'Civil-Service-Exam-Reviewer-for-Professional-and-Sub-Professional-Levels-v2-2.p (1).pdf',
+  'PDF page 86',
+  <1 empty item>,
+  'Unverified - permission/licensing review required',
+  'Needs extraction/cropping',
+  'Image-based item detected; page image not embedded in workbook'
+]
+
+ROW 4
+[
+  'S1-IMG-P092',
+  'source_S1_page_092.png',
+  'page_image',
+  'Visual question diagram; crop exact figure before import',
+  'Question prompt',
+  'question',
+  'S1-Q092-030-02',
+  'Prompt',
+  <1 empty item>,
+  'Civil-Service-Exam-Reviewer-for-Professional-and-Sub-Professional-Levels-v2-2.p (1).pdf',
+  'PDF page 92',
+  <1 empty item>,
+  'Unverified - permission/licensing review required',
+  'Needs extraction/cropping',
+  'Image-based item detected; page image not embedded in workbook'
+]
+
+ROW 5
+[
+  'S3-IMG-P05',
+  'source_S3_page_05.png',
+  'page_image',
+  'Chart/table/graph visual; crop and retain original labels',
+  'Shared prompt',
+  'passage/group',
+  <1 empty item>,
+  'Shared chart/table',
+  <1 empty item>,
+  'Civil Service Exam Complete Reviewer 2020_3rd revision.pdf',
+  'PDF page 5',
+  <1 empty item>,
+  'Unverified - permission/licensing review required',
+  'Needs extraction/cropping',
+  'Image visual detected; not embedded in workbook'
+]
+
+ROW 6
+[
+  'S3-IMG-P06',
+  'source_S3_page_06.png',
+  'page_image',
+  'Chart/table/graph visual; crop and retain original labels',
+  'Shared prompt',
+  'passage/group',
+  <1 empty item>,
+  'Shared chart/table',
+  <1 empty item>,
+  'Civil Service Exam Complete Reviewer 2020_3rd revision.pdf',
+  'PDF page 6',
+  <1 empty item>,
+  'Unverified - permission/licensing review required',
+  'Needs extraction/cropping',
+  'Image visual detected; not embedded in workbook'
+]
+
+ROW 7
+[
+  'S3-IMG-P07',
+  'source_S3_page_07.png',
+  'page_image',
+  'Chart/table/graph visual; crop and retain original labels',
+  'Shared prompt',
+  'passage/group',
+  <1 empty item>,
+  'Shared chart/table',
+  <1 empty item>,
+  'Civil Service Exam Complete Reviewer 2020_3rd revision.pdf',
+  'PDF page 7',
+  <1 empty item>,
+  'Unverified - permission/licensing review required',
+  'Needs extraction/cropping',
+  'Image visual detected; not embedded in workbook'
+]
+
+ROW 8
+[
+  'S3-IMG-P13',
+  'source_S3_page_13.png',
+  'page_image',
+  'Chart/table/graph visual; crop and retain original labels',
+  'Shared prompt',
+  'passage/group',
+  <1 empty item>,
+  'Shared chart/table',
+  <1 empty item>,
+  'Civil Service Exam Complete Reviewer 2020_3rd revision.pdf',
+  'PDF page 13',
+  <1 empty item>,
+  'Unverified - permission/licensing review required',
+  'Needs extraction/cropping',
+  'Image visual detected; not embedded in workbook'
+]
+
+ROW 9
+[
+  'S3-IMG-P14',
+  'source_S3_page_14.png',
+  'page_image',
+  'Chart/table/graph visual; crop and retain original labels',
+  'Shared prompt',
+  'passage/group',
+  <1 empty item>,
+  'Shared chart/table',
+  <1 empty item>,
+  'Civil Service Exam Complete Reviewer 2020_3rd revision.pdf',
+  'PDF page 14',
+  <1 empty item>,
+  'Unverified - permission/licensing review required',
+  'Needs extraction/cropping',
+  'Image visual detected; not embedded in workbook'
+]
+
+ROW 10
+[
+  'S3-IMG-P16',
+  'source_S3_page_16.png',
+  'page_image',
+  'Chart/table/graph visual; crop and retain original labels',
+  'Shared prompt',
+  'passage/group',
+  <1 empty item>,
+  'Shared chart/table',
+  <1 empty item>,
+  'Civil Service Exam Complete Reviewer 2020_3rd revision.pdf',
+  'PDF page 16',
+  <1 empty item>,
+  'Unverified - permission/licensing review required',
+  'Needs extraction/cropping',
+  'Image visual detected; not embedded in workbook'
+]
+
+ROW 11
+[
+  'S3-IMG-P17',
+  'source_S3_page_17.png',
+  'page_image',
+  'Chart/table/graph visual; crop and retain original labels',
+  'Shared prompt',
+  'passage/group',
+  <1 empty item>,
+  'Shared chart/table',
+  <1 empty item>,
+  'Civil Service Exam Complete Reviewer 2020_3rd revision.pdf',
+  'PDF page 17',
+  <1 empty item>,
+  'Unverified - permission/licensing review required',
+  'Needs extraction/cropping',
+  'Image visual detected; not embedded in workbook'
+]
+PS C:\Users\mavmu\Desktop\Traffic Sim\LMS>
