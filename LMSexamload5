@@ -1,0 +1,253 @@
+    const row = sheet.getRow(r);
+    const record = {};
+    for (const h of qHeaders) record[h] = cell(row, h, qHeaders);
+    if (Object.values(record).some(x => x !== "")) questions.push({ rowNumber: r, data: record });
+  }
+
+  const passages = [];
+  for (let r = 2; r <= passageSheet.rowCount; r++) {
+    const row = passageSheet.getRow(r);
+    const record = {};
+    for (const h of pHeaders) record[h] = cell(row, h, pHeaders);
+    if (Object.values(record).some(x => x !== "")) passages.push(record);
+  }
+
+  const media = [];
+  for (let r = 2; r <= mediaSheet.rowCount; r++) {
+    const row = mediaSheet.getRow(r);
+    const record = {};
+    for (const h of mHeaders) record[h] = cell(row, h, mHeaders);
+    if (Object.values(record).some(x => x !== "")) media.push(record);
+  }
+
+  const db = new DatabaseSync(dbPath);
+  db.exec("PRAGMA foreign_keys=ON");
+  let batchId = null;
+  let imported = 0;
+  let errorRows = new Set();
+  const passageMap = new Map();
+  const questionMap = new Map();
+
+  try {
+    db.exec("BEGIN IMMEDIATE");
+
+    const batch = db.prepare("INSERT INTO question_import_batches (original_filename,status,total_rows,uploaded_by) VALUES (?,'validating',?,3)")
+      .run(filename, questions.length);
+    batchId = Number(batch.lastInsertRowid);
+
+    const insertPassage = db.prepare(`
+      INSERT INTO question_passages
+      (title,passage_text,content_json,source_title,source_page,source_url,rights_status,review_status,created_by,created_at,updated_at)
+      VALUES (?,?,?,?,?,?,?,'draft',3,?,?)
+    `);
+
+    for (const p of passages) {
+      const originalId = p.PassageID;
+      const metadata = {
+        originalPassageID: originalId,
+        sharedInstructions: p.SharedInstructions,
+        category: p.Category,
+        topic: p.Topic,
+        adminNotes: p.AdminNotes,
+        originalReviewStatus: p.ReviewStatus
+      };
+      const result = insertPassage.run(
+        p.PassageTitle || "",
+        p.PassageText || "",
+        JSON.stringify(metadata),
+        p.SourceTitle || null,
+        p.SourcePage || null,
+        p.SourceURL || null,
+        p.RightsStatus || null,
+        now,
+        now
+      );
+      passageMap.set(originalId, Number(result.lastInsertRowid));
+      if (!p.PassageText) addError(db, batchId, null, "PassageText", "MISSING_PASSAGE_TEXT", "Passage " + originalId + " has no passage text.");
+      if ((p.ReviewStatus || "").toLowerCase() !== "approved") {
+        addError(db, batchId, null, "ReviewStatus", "PASSAGE_NOT_APPROVED", "Passage " + originalId + " is retained as a draft and requires review.");
+      }
+    }
+
+    const insertQuestion = db.prepare(`
+      INSERT INTO questions
+      (text,options,correct_answer,explanation,category,difficulty,active,created_at,
+       version_number,review_status,question_type,content_json,topic,exam_level,
+       source_title,source_page,source_url,rights_status,permission_notes,updated_at,created_by)
+      VALUES (?,?,?,?,?,?,0,?,1,'draft',?,?,?,?,?,?,?,?,?,?,3)
+    `);
+
+    const insertItem = db.prepare(
+      "INSERT INTO question_import_items (batch_id,row_number,question_id,status) VALUES (?,?,?,'imported')"
+    );
+
+    for (const item of questions) {
+      const q = item.data;
+      const rowNumber = item.rowNumber;
+      const originalId = q.QuestionID || "";
+      const prompt = q.PromptText || "";
+      const type = q.QuestionType || "unknown";
+      const category = q.Category || "General";
+      const correct = (q.CorrectOption || "").toUpperCase();
+      const choices = {};
+      const fullChoices = {};
+
+      for (const letter of ["A","B","C","D","E"]) {
+        const text = q["Option" + letter + "_Text"] || "";
+        const mediaId = q["Option" + letter + "_MediaID"] || "";
+        fullChoices[letter] = { text, mediaId };
+        choices[letter] = text || (mediaId ? "[image reference: " + mediaId + "]" : "");
+      }
+
+      const content = {
+        originalQuestionID: originalId,
+        questionType: type,
+        promptText: prompt,
+        promptMediaID: q.PromptMediaID || "",
+        options: fullChoices,
+        passageID: q.PassageID || "",
+        sourceTitle: q.SourceTitle || "",
+        sourcePage: q.SourcePage || "",
+        sourceURL: q.SourceURL || "",
+        rightsStatus: q.RightsStatus || "",
+        originalReviewStatus: q.ReviewStatus || "",
+        adminNotes: q.AdminNotes || "",
+        difficulty: q.Difficulty || "",
+        examLevel: q.ExamLevel || ""
+      };
+
+      const rowErrors = [];
+      function issue(field, code, message) {
+        rowErrors.push({ field, code, message });
+      }
+
+      if (!originalId) issue("QuestionID", "MISSING_QUESTION_ID", "Question has no source ID.");
+      if (!prompt && !q.PromptMediaID) issue("PromptText", "MISSING_PROMPT", "Question has neither prompt text nor a prompt image reference.");
+      if (!correct || !["A","B","C","D","E"].includes(correct)) {
+        issue("CorrectOption", "MISSING_OR_INVALID_ANSWER", "Correct answer is missing or is not A, B, C, D, or E.");
+      }
+      for (const letter of ["A","B","C","D"]) {
+        if (!choices[letter]) issue("Option" + letter, "MISSING_OPTION", "Option " + letter + " has neither text nor a media reference.");
+      }
+      if (q.PassageID && !passageMap.has(q.PassageID)) {
+        issue("PassageID", "PASSAGE_NOT_FOUND", "Referenced passage " + q.PassageID + " was not found in the Passages sheet.");
+      }
+      if ((q.ReviewStatus || "").toLowerCase() !== "approved") {
+        issue("ReviewStatus", "QUESTION_NOT_APPROVED", "Source record is not approved; imported as a draft.");
+      }
+
+      const mediaRefs = [q.PromptMediaID, ...Object.keys(fullChoices).map(k => fullChoices[k].mediaId)].filter(Boolean);
+      for (const mediaId of mediaRefs) {
+        if (!media.some(m => m.MediaID === mediaId)) {
+          issue("Media", "MEDIA_METADATA_NOT_FOUND", "Media reference " + mediaId + " has no matching Media sheet record.");
+        }
+      }
+
+      const legacyOptions = {
+        A: choices.A,
+        B: choices.B,
+        C: choices.C,
+        D: choices.D
+      };
+
+      const result = insertQuestion.run(
+        prompt,
+        JSON.stringify(legacyOptions),
+        correct,
+        q.Explanation || "",
+        category,
+        q.Difficulty || "medium",
+        now,
+        type,
+        JSON.stringify(content),
+        q.Topic || null,
+        q.ExamLevel || null,
+        q.SourceTitle || null,
+        q.SourcePage || null,
+        q.SourceURL || null,
+        q.RightsStatus || null,
+        q.PermissionNotes || null,
+        now
+      );
+
+      const questionId = Number(result.lastInsertRowid);
+      db.prepare("UPDATE questions SET question_group_id=? WHERE id=?").run(questionId, questionId);
+      insertItem.run(batchId, rowNumber, questionId);
+      questionMap.set(originalId, questionId);
+      imported++;
+
+      for (const e of rowErrors) {
+        addError(db, batchId, rowNumber, e.field, e.code, e.message);
+        errorRows.add(rowNumber);
+      }
+    }
+
+    const insertLink = db.prepare(
+      "INSERT INTO question_passage_links (question_id,passage_id,group_position) VALUES (?,?,?)"
+    );
+    const groupPositions = new Map();
+
+    for (const item of questions) {
+      const q = item.data;
+      if (!q.PassageID || !passageMap.has(q.PassageID) || !questionMap.has(q.QuestionID)) continue;
+      const key = q.PassageID;
+      const position = (groupPositions.get(key) || 0) + 1;
+      groupPositions.set(key, position);
+      insertLink.run(questionMap.get(q.QuestionID), passageMap.get(key), position);
+    }
+
+    for (const m of media) {
+      addError(
+        db, batchId, null, "Media:" + (m.MediaID || "unknown"),
+        "MEDIA_ASSET_NOT_VERIFIED",
+        "Media " + (m.MediaID || "") + " (" + (m.Filename || "unnamed") + ") has no verified physical asset; retained as a reference only."
+      );
+    }
+
+    const passageWarnings = [
+      ["S3-P05-G1","Passage content appears unrelated to its linked question group; requires source verification."],
+      ["S3-P06-G1","Passage text appears to contain question content and chart instructions; requires correction."],
+      ["S3-P15-G1","Passage appears incomplete for its linked question range; requires source verification."],
+      ["S3-P16-G1","Passage appears to begin with questions from the preceding group; requires correction."]
+    ];
+    for (const [id, message] of passageWarnings) {
+      if (passageMap.has(id)) addError(db, batchId, null, "Passage:" + id, "PASSAGE_CONTENT_REVIEW", message);
+    }
+
+    db.prepare(`
+      UPDATE question_import_batches
+      SET status='imported', imported_rows=?, error_rows=?, completed_at=?
+      WHERE id=?
+    `).run(imported, errorRows.size, now, batchId);
+
+    db.exec("COMMIT");
+
+    console.log("IMPORT TEST COMPLETED");
+    console.log("Workbook:", filename);
+    console.log("Database:", dbPath);
+    console.log("Batch ID:", batchId);
+    console.log("Question rows found:", questions.length);
+    console.log("Questions imported as drafts:", imported);
+    console.log("Passages imported as drafts:", passages.length);
+    console.log("Media metadata records retained as references:", media.length);
+    console.log("Question rows with validation errors:", errorRows.size);
+    console.log("Total recorded errors/warnings:", db.prepare("SELECT COUNT(*) AS n FROM question_import_errors WHERE batch_id=?").get(batchId).n);
+    console.log("Passage links created:", db.prepare("SELECT COUNT(*) AS n FROM question_passage_links qpl JOIN question_import_items i ON i.question_id=qpl.question_id WHERE i.batch_id=?").get(batchId).n);
+    console.log("Question review statuses:", db.prepare("SELECT review_status,COUNT(*) AS n FROM questions WHERE id IN (SELECT question_id FROM question_import_items WHERE batch_id=?) GROUP BY review_status").all(batchId));
+    console.log("Database integrity:", db.prepare("PRAGMA integrity_check").get());
+    console.log("Foreign key issues:", db.prepare("PRAGMA foreign_key_check").all().length);
+  } catch (error) {
+    try { db.exec("ROLLBACK"); } catch (_) {}
+    console.error("IMPORT FAILED; transaction rolled back.");
+    console.error(error.stack || error.message);
+    process.exitCode = 1;
+  } finally {
+    db.close();
+  }
+}
+
+main().catch(error => {
+  console.error(error.stack || error.message);
+  process.exitCode = 1;
+});
+PS C:\Users\mavmu\Desktop\Traffic Sim\LMS>
