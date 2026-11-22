@@ -1,0 +1,255 @@
+  exam-routes.js:88:        const exam = db.prepare(`
+  exam-routes.js:89:          SELECT id, title, description, duration_minutes,
+> exam-routes.js:90:                 passing_score, exam_type, category
+  exam-routes.js:91:          FROM exams
+  exam-routes.js:92:          WHERE id = ? AND active = 1
+  exam-routes.js:93:        `).get(examId);
+  exam-routes.js:137:              UPDATE attempts
+  exam-routes.js:138:              SET score = ?, total_questions = ?,
+> exam-routes.js:139:                  status = 'completed', completed_at = ?
+  exam-routes.js:140:              WHERE id = ? AND status = 'in_progress'
+  exam-routes.js:141:            `).run(correct, answers.length, nowIso, resumable.id);
+  exam-routes.js:142:
+  exam-routes.js:151:              message: 'The mock exam deadline has passed and the attempt was automatically submitted.',
+  exam-routes.js:152:              attemptId: resumable.id,
+> exam-routes.js:153:              status: 'completed',
+  exam-routes.js:154:              autoSubmitted: true,
+  exam-routes.js:155:              score: correct,
+  exam-routes.js:156:              totalQuestions,
+  exam-routes.js:157:              percentage,
+> exam-routes.js:158:              passingScore: exam.passing_score,
+  exam-routes.js:159:              passed: totalQuestions > 0 &&
+> exam-routes.js:160:                percentage >= exam.passing_score,
+> exam-routes.js:161:              completedAt: nowIso,
+  exam-routes.js:162:              reviewAvailable: true
+  exam-routes.js:163:            });
+  exam-routes.js:164:          }
+  exam-routes.js:216:            JOIN exams e ON e.id = a.exam_id
+  exam-routes.js:217:            WHERE a.user_id = ?
+> exam-routes.js:218:              AND a.status = 'completed'
+  exam-routes.js:219:              AND a.is_staff_test = 0
+  exam-routes.js:220:              AND e.exam_type = 'category'
+  exam-routes.js:221:              AND a.total_questions > 0
+  exam-routes.js:222:              AND a.score >=
+> exam-routes.js:223:                  CAST((a.total_questions * e.passing_score + 99) / 100 AS INTEGER)
+  exam-routes.js:224:          `).all(req.user.id).map(row => row.category);
+  exam-routes.js:225:
+  exam-routes.js:226:          const missing = REQUIRED_CATEGORIES.filter(
+  exam-routes.js:590:        const attempt = db.prepare(`
+  exam-routes.js:591:          SELECT a.id, a.user_id, a.status, a.deadline_at,
+> exam-routes.js:592:                 e.passing_score, e.exam_type
+  exam-routes.js:593:          FROM attempts a
+  exam-routes.js:594:          JOIN exams e ON e.id = a.exam_id
+  exam-routes.js:595:          WHERE a.id = ? AND a.user_id = ?
+  exam-routes.js:601:        }
+  exam-routes.js:602:
+> exam-routes.js:603:        if (attempt.status === 'completed') {
+  exam-routes.js:604:          const existing = db.prepare(`
+> exam-routes.js:605:            SELECT score, total_questions, completed_at
+  exam-routes.js:606:            FROM attempts WHERE id = ?
+  exam-routes.js:607:          `).get(attemptId);
+  exam-routes.js:608:
+  exam-routes.js:612:            message: 'This attempt was already submitted.',
+  exam-routes.js:613:            attemptId,
+> exam-routes.js:614:            status: 'completed',
+  exam-routes.js:615:            score: existing.score,
+  exam-routes.js:616:            totalQuestions: existing.total_questions,
+  exam-routes.js:617:            percentage: existing.total_questions
+  exam-routes.js:619:              : 0,
+  exam-routes.js:620:            passed: existing.total_questions > 0 &&
+> exam-routes.js:621:              existing.score / existing.total_questions * 100 >= attempt.passing_score,
+> exam-routes.js:622:            completedAt: existing.completed_at
+  exam-routes.js:623:          });
+  exam-routes.js:624:        }
+  exam-routes.js:625:
+  exam-routes.js:662:        const total = questions.length;
+  exam-routes.js:663:        const percentage = Number((correct / total * 100).toFixed(2));
+> exam-routes.js:664:        const passed = percentage >= attempt.passing_score;
+> exam-routes.js:665:        const completedAt = new Date().toISOString();
+  exam-routes.js:666:
+  exam-routes.js:667:        const updateResult = db.prepare(`
+  exam-routes.js:668:          UPDATE attempts
+  exam-routes.js:669:          SET score = ?, total_questions = ?,
+> exam-routes.js:670:              status = 'completed', completed_at = ?
+  exam-routes.js:671:          WHERE id = ? AND status = 'in_progress'
+> exam-routes.js:672:        `).run(correct, total, completedAt, attemptId);
+  exam-routes.js:673:
+  exam-routes.js:674:        if (Number(updateResult.changes) !== 1) {
+  exam-routes.js:675:          db.exec('ROLLBACK');
+  exam-routes.js:676:          return res.status(409).json({
+> exam-routes.js:677:            error: 'The attempt changed before submission could be completed. Please check its status.'
+  exam-routes.js:678:          });
+  exam-routes.js:679:        }
+  exam-routes.js:680:
+  exam-routes.js:686:            : 'Exam submitted successfully.',
+  exam-routes.js:687:          attemptId,
+> exam-routes.js:688:          status: 'completed',
+  exam-routes.js:689:          autoSubmitted,
+  exam-routes.js:690:          score: correct,
+  exam-routes.js:691:          totalQuestions: total,
+  exam-routes.js:692:          percentage,
+> exam-routes.js:693:          passingScore: attempt.passing_score,
+  exam-routes.js:694:          passed,
+> exam-routes.js:695:          completedAt,
+  exam-routes.js:696:          reviewAvailable: true
+  exam-routes.js:697:        });
+  exam-routes.js:698:      } catch (error) {
+  exam-routes.js:724:        const attempt = db.prepare(`
+  exam-routes.js:725:          SELECT a.id, a.status, a.deadline_at, a.score,
+> exam-routes.js:726:                 a.total_questions, a.completed_at,
+> exam-routes.js:727:                 e.exam_type, e.passing_score
+  exam-routes.js:728:          FROM attempts a
+  exam-routes.js:729:          JOIN exams e ON e.id = a.exam_id
+  exam-routes.js:730:          WHERE a.id = ? AND a.user_id = ?
+  exam-routes.js:756:          ).length;
+  exam-routes.js:757:
+> exam-routes.js:758:          const completedAt = new Date().toISOString();
+  exam-routes.js:759:
+  exam-routes.js:760:          db.prepare(`
+  exam-routes.js:761:            UPDATE attempts
+  exam-routes.js:762:            SET score = ?, total_questions = ?,
+> exam-routes.js:763:                status = 'completed', completed_at = ?
+  exam-routes.js:764:            WHERE id = ? AND status = 'in_progress'
+> exam-routes.js:765:          `).run(correct, questions.length, completedAt, attemptId);
+  exam-routes.js:766:
+  exam-routes.js:767:          db.exec('COMMIT');
+  exam-routes.js:768:
+  exam-routes.js:769:          return res.json({
+  exam-routes.js:770:            attemptId,
+> exam-routes.js:771:            status: 'completed',
+  exam-routes.js:772:            autoSubmitted: true,
+  exam-routes.js:773:            score: correct,
+  exam-routes.js:774:            totalQuestions: questions.length,
+  exam-routes.js:777:              : 0,
+  exam-routes.js:778:            passed: questions.length > 0 &&
+> exam-routes.js:779:              correct / questions.length * 100 >= attempt.passing_score,
+> exam-routes.js:780:            completedAt
+  exam-routes.js:781:          });
+  exam-routes.js:782:        }
+  exam-routes.js:783:
+  exam-routes.js:797:          totalQuestions,
+  exam-routes.js:798:          percentage,
+> exam-routes.js:799:          passingScore: attempt.passing_score,
+> exam-routes.js:800:          passed: attempt.status === 'completed' &&
+  exam-routes.js:801:            totalQuestions > 0 &&
+> exam-routes.js:802:            percentage >= attempt.passing_score,
+> exam-routes.js:803:          completedAt: attempt.completed_at,
+  exam-routes.js:804:          autoSubmitted: false
+  exam-routes.js:805:        });
+  exam-routes.js:806:      } catch (error) {
+  exam-routes.js:829:      const attempt = db.prepare(`
+  exam-routes.js:830:        SELECT a.id, a.status, a.score, a.total_questions,
+> exam-routes.js:831:               a.completed_at, e.title, e.passing_score
+  exam-routes.js:832:        FROM attempts a
+  exam-routes.js:833:        JOIN exams e ON e.id = a.exam_id
+  exam-routes.js:834:        WHERE a.id = ? AND a.user_id = ?
+  exam-routes.js:839:      }
+  exam-routes.js:840:
+> exam-routes.js:841:      if (attempt.status !== 'completed') {
+  exam-routes.js:842:        return res.status(409).json({
+> exam-routes.js:843:          error: 'Review is available only after the exam is completed.'
+  exam-routes.js:844:        });
+  exam-routes.js:845:      }
+  exam-routes.js:846:
+  exam-routes.js:890:        totalQuestions: attempt.total_questions,
+  exam-routes.js:891:        percentage,
+> exam-routes.js:892:        passingScore: attempt.passing_score,
+> exam-routes.js:893:        passed: percentage >= attempt.passing_score,
+> exam-routes.js:894:        completedAt: attempt.completed_at,
+  exam-routes.js:895:        incorrectCount: incorrectQuestions.length,
+  exam-routes.js:896:        questions: incorrectQuestions
+  exam-routes.js:897:      });
+  exam-routes.js:921:      const staffFilter = isStudent ? 0 : 1;
+  exam-routes.js:922:
+> exam-routes.js:923:      const completed = db.prepare(`
+> exam-routes.js:924:        SELECT a.id, a.score, a.total_questions, a.completed_at,
+> exam-routes.js:925:               e.title, e.exam_type, e.category, e.passing_score
+  exam-routes.js:926:        FROM attempts a
+  exam-routes.js:927:        JOIN exams e ON e.id = a.exam_id
+  exam-routes.js:928:        WHERE a.user_id = ?
+  exam-routes.js:929:          AND a.is_staff_test = ?
+> exam-routes.js:930:          AND a.status = 'completed'
+> exam-routes.js:931:        ORDER BY a.completed_at DESC
+  exam-routes.js:932:      `).all(userId, staffFilter);
+  exam-routes.js:933:
+> exam-routes.js:934:      const percentages = completed
+  exam-routes.js:935:        .filter(item => item.total_questions > 0)
+  exam-routes.js:936:        .map(item => item.score / item.total_questions * 100);
+  exam-routes.js:937:
+> exam-routes.js:938:      const totalExams = completed.length;
+  exam-routes.js:939:      const averageScore = percentages.length
+  exam-routes.js:940:        ? Number((percentages.reduce((sum, value) => sum + value, 0) /
+  exam-routes.js:941:            percentages.length).toFixed(2))
+  exam-routes.js:963:              WHERE a.user_id = ?
+  exam-routes.js:964:                AND a.is_staff_test = 0
+> exam-routes.js:965:                AND a.status = 'completed'
+  exam-routes.js:966:                AND e.exam_type = 'category'
+  exam-routes.js:967:                AND e.category = ?
+  exam-routes.js:968:                AND a.total_questions > 0
+> exam-routes.js:969:                AND (a.score * 100.0 / a.total_questions) >= e.passing_score
+  exam-routes.js:970:              LIMIT 1
+  exam-routes.js:971:            `).get(userId, category))
+  exam-routes.js:972:          : null;
+  exam-routes.js:1004:          attemptsRemainingToday: Math.max(0, 3 - attemptsToday),
+  exam-routes.js:1005:          dailyAttemptLimit: 3,
+> exam-routes.js:1006:          hasUnfinishedAttempt: Boolean(unfinishedAttempt),
+  exam-routes.js:1007:          unfinishedAttemptId: unfinishedAttempt?.id ?? null
+  exam-routes.js:1008:        };
+  exam-routes.js:1009:      });
+  exam-routes.js:1032:      `).get(userId, staffFilter);
+  exam-routes.js:1033:
+> exam-routes.js:1034:      const recentMocks = isStudent
+  exam-routes.js:1035:        ? db.prepare(`
+> exam-routes.js:1036:            SELECT a.id, a.score, a.total_questions, a.completed_at,
+> exam-routes.js:1037:                   e.title, e.passing_score
+  exam-routes.js:1038:            FROM attempts a
+  exam-routes.js:1039:            JOIN exams e ON e.id = a.exam_id
+  exam-routes.js:1040:            WHERE a.user_id = ?
+  exam-routes.js:1041:              AND a.is_staff_test = 0
+> exam-routes.js:1042:              AND a.status = 'completed'
+  exam-routes.js:1043:              AND e.exam_type = 'mock'
+  exam-routes.js:1044:              AND a.total_questions > 0
+> exam-routes.js:1045:            ORDER BY a.completed_at DESC, a.id DESC
+  exam-routes.js:1046:            LIMIT 4
+  exam-routes.js:1047:          `).all(userId)
+  exam-routes.js:1048:        : [];
+  exam-routes.js:1049:
+> exam-routes.js:1050:      const mockResults = recentMocks.map(item => ({
+  exam-routes.js:1051:        attemptId: item.id,
+  exam-routes.js:1052:        title: item.title,
+  exam-routes.js:1053:        score: item.score,
+  exam-routes.js:1054:        totalQuestions: item.total_questions,
+  exam-routes.js:1055:        percentage: Number((item.score / item.total_questions * 100).toFixed(2)),
+> exam-routes.js:1056:        passingScore: item.passing_score,
+> exam-routes.js:1057:        passed: item.score / item.total_questions * 100 >= item.passing_score,
+> exam-routes.js:1058:        completedAt: item.completed_at
+  exam-routes.js:1059:      }));
+  exam-routes.js:1060:
+> exam-routes.js:1061:      const readinessAverage = mockResults.length === 4
+  exam-routes.js:1062:        ? Number((mockResults.reduce((sum, item) => sum + item.percentage, 0) / 4).toFixed(2))
+  exam-routes.js:1063:        : null;
+  exam-routes.js:1064:
+  exam-routes.js:1066:        mockResults.length === 4 &&
+  exam-routes.js:1067:        mockResults.every(item => item.passed) &&
+> exam-routes.js:1068:        readinessAverage >= 80;
+  exam-routes.js:1069:
+> exam-routes.js:1070:      const activity = completed.slice(0, 8).map(item => ({
+  exam-routes.js:1071:        attemptId: item.id,
+  exam-routes.js:1072:        examTitle: item.title,
+  exam-routes.js:1073:        examType: item.exam_type,
+  exam-routes.js:1078:          ? Number((item.score / item.total_questions * 100).toFixed(2))
+  exam-routes.js:1079:          : 0,
+> exam-routes.js:1080:        completedAt: item.completed_at
+  exam-routes.js:1081:      }));
+  exam-routes.js:1082:
+  exam-routes.js:1083:      return res.json({
+  exam-routes.js:1093:          attemptsRemainingToday: Math.max(0, 2 - mockAttemptsToday),
+  exam-routes.js:1094:          dailyAttemptLimit: 2,
+> exam-routes.js:1095:          hasUnfinishedAttempt: Boolean(unfinishedMockAttempt),
+  exam-routes.js:1096:          unfinishedAttemptId: unfinishedMockAttempt?.id ?? null
+  exam-routes.js:1097:        },
+> exam-routes.js:1098:        readiness: {
+  exam-routes.js:1099:          eligible: isStudent,
+
+
+PS C:\Users\mavmu\Desktop\Traffic Sim\LMS>
