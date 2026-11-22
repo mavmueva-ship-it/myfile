@@ -1,0 +1,472 @@
+
+===== ALL EXAM QUESTION QUERIES =====
+
+  exam-routes.js:87:      try {
+  exam-routes.js:88:        const exam = db.prepare(`
+  exam-routes.js:89:          SELECT id, title, description, duration_minutes,
+  exam-routes.js:90:                 passing_score, exam_type, category
+  exam-routes.js:91:          FROM exams
+> exam-routes.js:92:          WHERE id = ? AND active = 1
+  exam-routes.js:93:        `).get(examId);
+  exam-routes.js:94:
+  exam-routes.js:95:        if (!exam) {
+  exam-routes.js:96:          db.exec('ROLLBACK');
+  exam-routes.js:97:          return res.status(404).json({ error: 'Exam not found or inactive.' });
+  exam-routes.js:98:        }
+  exam-routes.js:99:
+  exam-routes.js:100:        if (!['category', 'mock'].includes(exam.exam_type)) {
+  exam-routes.js:101:          db.exec('ROLLBACK');
+  exam-routes.js:282:
+  exam-routes.js:283:        let assignedQuestions = db.prepare(`
+  exam-routes.js:284:          SELECT q.id, q.text, q.options, q.correct_answer,
+  exam-routes.js:285:                 q.explanation, q.category
+  exam-routes.js:286:          FROM exam_questions eq
+> exam-routes.js:287:          JOIN questions q ON q.id = eq.question_id
+  exam-routes.js:288:          WHERE eq.exam_id = ?
+> exam-routes.js:289:            AND q.active = 1
+  exam-routes.js:290:          ORDER BY eq.position, eq.id
+  exam-routes.js:291:        `).all(exam.id);
+  exam-routes.js:292:
+  exam-routes.js:293:        if (exam.exam_type === 'category' && assignedQuestions.length > requiredCount) {
+  exam-routes.js:294:          for (let i = assignedQuestions.length - 1; i > 0; i--) {
+  exam-routes.js:295:            const j = Math.floor(Math.random() * (i + 1));
+  exam-routes.js:296:            [assignedQuestions[i], assignedQuestions[j]] = [assignedQuestions[j], assignedQuestions[i]];
+  exam-routes.js:297:          }
+  exam-routes.js:298:          assignedQuestions = assignedQuestions.slice(0, requiredCount);
+  exam-routes.js:923:        const exam = db.prepare(`
+  exam-routes.js:924:          SELECT id
+  exam-routes.js:925:          FROM exams
+  exam-routes.js:926:          WHERE exam_type = 'category'
+  exam-routes.js:927:            AND category = ?
+> exam-routes.js:928:            AND active = 1
+  exam-routes.js:929:          ORDER BY id
+  exam-routes.js:930:          LIMIT 1
+  exam-routes.js:931:        `).get(category);
+  exam-routes.js:932:
+  exam-routes.js:933:        const passed = isStudent
+  exam-routes.js:934:          ? Boolean(db.prepare(`
+  exam-routes.js:935:              SELECT 1
+  exam-routes.js:936:              FROM attempts a
+  exam-routes.js:937:              JOIN exams e ON e.id = a.exam_id
+
+===== QUESTION BANK SCHEMA =====
+const { DatabaseSync } = require('node:sqlite');
+const path = require('node:path');
+
+const databasePath = process.argv[2];
+
+if (!databasePath) {
+  console.error('Usage: node question-bank-schema.js <database-path>');
+  process.exit(1);
+}
+
+const db = new DatabaseSync(path.resolve(databasePath));
+
+function addColumn(table, name, definition) {
+  const columns = db.prepare(`PRAGMA table_info(${table})`).all();
+  if (!columns.some(column => column.name === name)) {
+    db.exec(`ALTER TABLE ${table} ADD COLUMN ${name} ${definition}`);
+  }
+}
+
+try {
+  db.exec('PRAGMA foreign_keys = ON;');
+  db.exec('BEGIN IMMEDIATE;');
+
+  addColumn('questions', 'question_group_id', 'INTEGER');
+  addColumn('questions', 'version_number', 'INTEGER NOT NULL DEFAULT 1');
+  addColumn('questions', 'review_status',
+    "TEXT NOT NULL DEFAULT 'draft' CHECK(review_status IN ('draft','pending_review','approved','rejected','withdrawn'))");
+  addColumn('questions', 'question_type', "TEXT NOT NULL DEFAULT 'multiple_choice'");
+  addColumn('questions', 'content_json', 'TEXT');
+  addColumn('questions', 'topic', 'TEXT');
+  addColumn('questions', 'exam_level', 'TEXT');
+  addColumn('questions', 'source_title', 'TEXT');
+  addColumn('questions', 'source_page', 'TEXT');
+  addColumn('questions', 'source_url', 'TEXT');
+  addColumn('questions', 'rights_status', 'TEXT');
+  addColumn('questions', 'permission_notes', 'TEXT');
+  addColumn('questions', 'updated_at', 'TEXT');
+  addColumn('questions', 'created_by', 'INTEGER REFERENCES users(id)');
+  addColumn('questions', 'reviewed_by', 'INTEGER REFERENCES users(id)');
+  addColumn('questions', 'reviewed_at', 'TEXT');
+
+  db.exec(`
+    UPDATE questions
+    SET question_group_id = id,
+        review_status = CASE WHEN active = 1 THEN 'approved' ELSE 'draft' END,
+        updated_at = COALESCE(updated_at, created_at)
+    WHERE question_group_id IS NULL;
+  `);
+
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS question_current_versions (
+      question_group_id INTEGER PRIMARY KEY,
+      question_id INTEGER NOT NULL UNIQUE,
+      updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (question_group_id) REFERENCES questions(id),
+      FOREIGN KEY (question_id) REFERENCES questions(id)
+    );
+
+    INSERT OR IGNORE INTO question_current_versions
+      (question_group_id, question_id)
+    SELECT id, id
+    FROM questions
+    WHERE active = 1 AND review_status = 'approved';
+
+    CREATE TABLE IF NOT EXISTS question_review_history (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      question_id INTEGER NOT NULL,
+      actor_id INTEGER NOT NULL,
+      action TEXT NOT NULL CHECK(action IN (
+        'submitted','approved','rejected','returned_for_changes',
+        'resubmitted','withdrawn'
+      )),
+      previous_status TEXT,
+      new_status TEXT NOT NULL,
+      notes TEXT NOT NULL DEFAULT '',
+      created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (question_id) REFERENCES questions(id),
+      FOREIGN KEY (actor_id) REFERENCES users(id)
+    );
+  `);
+
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS question_passages (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      title TEXT NOT NULL DEFAULT '',
+      passage_text TEXT NOT NULL,
+      content_json TEXT,
+      source_title TEXT,
+      source_page TEXT,
+      source_url TEXT,
+      rights_status TEXT,
+      permission_notes TEXT,
+      review_status TEXT NOT NULL DEFAULT 'draft'
+        CHECK(review_status IN ('draft','pending_review','approved','rejected','withdrawn')),
+      created_by INTEGER,
+      created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      updated_at TEXT,
+      FOREIGN KEY (created_by) REFERENCES users(id)
+    );
+
+    CREATE TABLE IF NOT EXISTS question_passage_links (
+      question_id INTEGER PRIMARY KEY,
+      passage_id INTEGER NOT NULL,
+      group_position INTEGER NOT NULL DEFAULT 0,
+      FOREIGN KEY (question_id) REFERENCES questions(id),
+      FOREIGN KEY (passage_id) REFERENCES question_passages(id)
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_question_passage_links_passage
+      ON question_passage_links(passage_id, group_position);
+  `);
+
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS question_media (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      storage_key TEXT NOT NULL UNIQUE,
+      original_filename TEXT NOT NULL,
+      mime_type TEXT NOT NULL,
+      byte_size INTEGER NOT NULL CHECK(byte_size > 0),
+      sha256 TEXT,
+      alt_text TEXT NOT NULL DEFAULT '',
+      uploaded_by INTEGER,
+      created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (uploaded_by) REFERENCES users(id)
+    );
+
+    CREATE TABLE IF NOT EXISTS question_media_links (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      question_id INTEGER NOT NULL,
+      media_id INTEGER NOT NULL,
+      usage_type TEXT NOT NULL CHECK(usage_type IN (
+        'prompt','option_a','option_b','option_c','option_d'
+      )),
+      position INTEGER NOT NULL DEFAULT 0,
+      FOREIGN KEY (question_id) REFERENCES questions(id),
+      FOREIGN KEY (media_id) REFERENCES question_media(id),
+      UNIQUE(question_id, media_id, usage_type)
+    );
+
+    CREATE TABLE IF NOT EXISTS passage_media_links (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      passage_id INTEGER NOT NULL,
+      media_id INTEGER NOT NULL,
+      position INTEGER NOT NULL DEFAULT 0,
+      FOREIGN KEY (passage_id) REFERENCES question_passages(id),
+      FOREIGN KEY (media_id) REFERENCES question_media(id),
+      UNIQUE(passage_id, media_id)
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_question_media_links_question
+      ON question_media_links(question_id, usage_type);
+  `);
+
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS question_import_batches (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      original_filename TEXT NOT NULL,
+      status TEXT NOT NULL DEFAULT 'uploaded'
+        CHECK(status IN ('uploaded','validating','validated','imported','failed')),
+      total_rows INTEGER NOT NULL DEFAULT 0,
+      imported_rows INTEGER NOT NULL DEFAULT 0,
+      error_rows INTEGER NOT NULL DEFAULT 0,
+      uploaded_by INTEGER,
+      created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      completed_at TEXT,
+      FOREIGN KEY (uploaded_by) REFERENCES users(id)
+    );
+
+    CREATE TABLE IF NOT EXISTS question_import_items (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      batch_id INTEGER NOT NULL,
+      row_number INTEGER NOT NULL,
+      question_id INTEGER,
+      status TEXT NOT NULL DEFAULT 'pending'
+        CHECK(status IN ('pending','imported','rejected')),
+      FOREIGN KEY (batch_id) REFERENCES question_import_batches(id),
+      FOREIGN KEY (question_id) REFERENCES questions(id),
+      UNIQUE(batch_id, row_number)
+    );
+
+    CREATE TABLE IF NOT EXISTS question_import_errors (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      batch_id INTEGER NOT NULL,
+      row_number INTEGER,
+      field_name TEXT,
+      error_code TEXT NOT NULL,
+      message TEXT NOT NULL,
+      created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (batch_id) REFERENCES question_import_batches(id)
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_question_import_items_batch
+      ON question_import_items(batch_id, status);
+  `);
+
+  db.exec(`
+    CREATE INDEX IF NOT EXISTS idx_questions_review_status
+      ON questions(review_status, active);
+
+    CREATE INDEX IF NOT EXISTS idx_questions_group_version
+      ON questions(question_group_id, version_number);
+
+    CREATE INDEX IF NOT EXISTS idx_question_review_history_question
+      ON question_review_history(question_id, created_at);
+  `);
+
+
+  const duplicateVersion = db.prepare(`
+    SELECT question_group_id, version_number, COUNT(*) AS count
+    FROM questions
+    GROUP BY question_group_id, version_number
+    HAVING COUNT(*) > 1
+    LIMIT 1
+  `).get();
+
+  if (duplicateVersion) {
+    throw new Error(
+      'Duplicate question version found in group ' +
+      duplicateVersion.question_group_id
+    );
+  }
+
+  db.exec(`
+    CREATE UNIQUE INDEX IF NOT EXISTS uq_question_group_version
+      ON questions(question_group_id, version_number);
+
+    CREATE UNIQUE INDEX IF NOT EXISTS uq_question_group_id_pair
+      ON questions(question_group_id, id);
+
+    DROP TRIGGER IF EXISTS current_question_cannot_lose_approval;
+    DROP TABLE IF EXISTS question_current_versions_new;
+
+    CREATE TABLE question_current_versions_new (
+      question_group_id INTEGER PRIMARY KEY,
+      question_id INTEGER NOT NULL UNIQUE,
+      updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (question_group_id, question_id)
+        REFERENCES questions(question_group_id, id)
+    );
+
+    INSERT INTO question_current_versions_new
+      (question_group_id, question_id, updated_at)
+    SELECT question_group_id, question_id, updated_at
+    FROM question_current_versions;
+
+    DROP TABLE question_current_versions;
+
+    ALTER TABLE question_current_versions_new
+      RENAME TO question_current_versions;
+
+    CREATE TRIGGER IF NOT EXISTS question_current_version_must_be_approved_insert
+    BEFORE INSERT ON question_current_versions
+    WHEN NOT EXISTS (
+      SELECT 1 FROM questions
+      WHERE id = NEW.question_id
+        AND question_group_id = NEW.question_group_id
+        AND review_status = 'approved'
+    )
+    BEGIN
+      SELECT RAISE(ABORT, 'Current version must be approved and belong to its group');
+    END;
+
+    CREATE TRIGGER IF NOT EXISTS question_current_version_must_be_approved_update
+    BEFORE UPDATE OF question_group_id, question_id
+    ON question_current_versions
+    WHEN NOT EXISTS (
+      SELECT 1 FROM questions
+      WHERE id = NEW.question_id
+        AND question_group_id = NEW.question_group_id
+        AND review_status = 'approved'
+    )
+    BEGIN
+      SELECT RAISE(ABORT, 'Current version must be approved and belong to its group');
+    END;
+
+    CREATE TRIGGER IF NOT EXISTS current_question_cannot_lose_approval
+    BEFORE UPDATE OF review_status ON questions
+    WHEN NEW.review_status <> 'approved'
+      AND EXISTS (
+        SELECT 1 FROM question_current_versions
+        WHERE question_id = OLD.id
+      )
+    BEGIN
+      SELECT RAISE(ABORT, 'Move the current version pointer before changing its approval status');
+    END;
+  `);
+
+  db.exec(`
+    CREATE TRIGGER IF NOT EXISTS questions_must_start_as_draft
+    BEFORE INSERT ON questions
+    WHEN NEW.review_status <> 'draft' OR NEW.active <> 0
+    BEGIN
+      SELECT RAISE(ABORT, 'New questions must start as inactive drafts');
+    END;
+
+    CREATE TRIGGER IF NOT EXISTS approved_question_content_is_immutable
+    BEFORE UPDATE OF id, text, options, correct_answer, explanation, category, created_at, created_by,
+      difficulty, question_group_id, version_number, question_type,
+      content_json, topic, exam_level, source_title, source_page,
+      source_url, rights_status, permission_notes
+    ON questions
+    WHEN OLD.review_status = 'approved'
+    BEGIN
+      SELECT RAISE(ABORT, 'Approved question content is immutable; create a new version');
+    END;
+
+    CREATE TRIGGER IF NOT EXISTS approved_question_status_transition_guard
+    BEFORE UPDATE OF review_status ON questions
+    WHEN OLD.review_status = 'approved'
+      AND NEW.review_status NOT IN ('approved', 'withdrawn')
+    BEGIN
+      SELECT RAISE(ABORT, 'Approved questions can only remain approved or be withdrawn');
+    END;
+
+    CREATE TRIGGER IF NOT EXISTS approved_questions_cannot_be_deleted
+    BEFORE DELETE ON questions
+    WHEN OLD.review_status = 'approved'
+    BEGIN
+      SELECT RAISE(ABORT, 'Approved questions cannot be deleted');
+    END;
+  `);
+  db.exec('COMMIT');
+
+  const integrity = db.prepare('PRAGMA integrity_check').all();
+  const foreignKeys = db.prepare('PRAGMA foreign_key_check').all();
+
+  const questions = db.prepare(`
+    SELECT COUNT(*) AS total,
+           SUM(CASE WHEN review_status = 'approved' THEN 1 ELSE 0 END) AS approved,
+           SUM(CASE WHEN review_status = 'draft' THEN 1 ELSE 0 END) AS drafts
+    FROM questions
+  `).get();
+
+  console.log('Question-bank migration completed.');
+  console.log('Integrity:', integrity);
+  console.log('Foreign-key issues:', foreignKeys.length);
+  console.log('Question counts:', questions);
+
+  if (integrity.length !== 1 || integrity[0].integrity_check !== 'ok' || foreignKeys.length) {
+    process.exitCode = 1;
+  }
+} catch (error) {
+  try { db.exec('ROLLBACK'); } catch {}
+  console.error('Question-bank migration failed:', error.message);
+  process.exitCode = 1;
+} finally {
+  db.close();
+}
+
+
+
+===== OWNER DASHBOARD SCRIPT START =====
+const profileName = document.getElementById('profileName');
+const avatar = document.getElementById('avatar');
+const logoutButton = document.getElementById('logoutButton');
+const menuButton = document.getElementById('menuButton');
+const sidebar = document.getElementById('sidebar');
+const exportMessage = document.getElementById('exportMessage');
+
+async function loadOwner() {
+  try {
+    const response = await fetch('/api/me', {
+      credentials: 'same-origin'
+    });
+
+    if (!response.ok) {
+      window.location.href = '/';
+      return;
+    }
+
+    const data = await response.json();
+
+    if (data.user.role !== 'owner') {
+      window.location.href = data.user.role === 'admin'
+        ? '/admin.html'
+        : '/dashboard.html';
+      return;
+    }
+
+    profileName.textContent = data.user.username;
+    avatar.textContent = data.user.username.charAt(0).toUpperCase();
+    await loadAccounts();
+  } catch {
+    window.location.href = '/';
+  }
+}
+
+async function downloadCsv(dataset, button) {
+  const originalText = button.textContent;
+
+  button.disabled = true;
+  button.textContent = 'Preparing CSV...';
+  exportMessage.textContent = '';
+
+  try {
+    const response = await fetch(
+      `/api/owner/export/${encodeURIComponent(dataset)}`,
+      { credentials: 'same-origin' }
+    );
+
+    if (!response.ok) {
+      const data = await response.json().catch(() => ({}));
+      throw new Error(data.error || 'Unable to export data.');
+    }
+
+    const blob = await response.blob();
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+
+    const disposition = response.headers.get('Content-Disposition') || '';
+    const match = disposition.match(/filename="([^"]+)"/);
+    link.href = url;
+    link.download = match ? match[1] : `learnspace-${dataset}.csv`;
+
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+
+
+PS C:\Users\mavmu\Desktop\Traffic Sim\LMS>
