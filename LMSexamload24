@@ -1,0 +1,750 @@
+
+===== QUESTION ASSIGNMENT ACROSS PROJECT =====
+
+  backup-exam-foundation-2026-11-20T00-51-24-265Z\server.js:420:
+  backup-exam-foundation-2026-11-20T00-51-24-265Z\server.js:421:  const totalQuestions = db.prepare(
+> backup-exam-foundation-2026-11-20T00-51-24-265Z\server.js:422:    'SELECT COUNT(*) AS count FROM questions'
+  backup-exam-foundation-2026-11-20T00-51-24-265Z\server.js:423:  ).get().count;
+  backup-exam-foundation-2026-11-20T00-51-24-265Z\server.js:424:
+  backup-exam-foundation-2026-11-20T00-51-24-265Z\server.js:425:  const totalStudents = db.prepare(
+  backup-exam-foundation-2026-11-20T00-51-24-265Z\server.js:426:    "SELECT COUNT(*) AS count FROM users WHERE role = 'student'"
+  backup-exam-foundation-2026-11-20T00-51-24-265Z\server.js:427:  ).get().count;
+  backup-exam-foundation-2026-11-20T00-51-24-265Z\server.js:581:    questions: {
+  backup-exam-foundation-2026-11-20T00-51-24-265Z\server.js:582:      filename: 'learnspace-questions',
+> backup-exam-foundation-2026-11-20T00-51-24-265Z\server.js:583:      sql: 'SELECT id, text, options, correct_answer, explanation, category,
+difficulty, active, created_at FROM questions ORDER BY id',
+  backup-exam-foundation-2026-11-20T00-51-24-265Z\server.js:584:      columns: [
+  backup-exam-foundation-2026-11-20T00-51-24-265Z\server.js:585:        { key: 'id', label: 'Question ID' },
+  backup-exam-foundation-2026-11-20T00-51-24-265Z\server.js:586:        { key: 'text', label: 'Question' },
+  backup-exam-foundation-2026-11-20T00-51-24-265Z\server.js:587:        { key: 'options', label: 'Options JSON' },
+  backup-exam-foundation-2026-11-20T00-51-24-265Z\server.js:588:        { key: 'correct_answer', label: 'Correct answer' },
+  backup-question-bank-2026-11-21T01-28-19-811Z\exam-routes.js:255:                 q.explanation, q.category
+  backup-question-bank-2026-11-21T01-28-19-811Z\exam-routes.js:256:          FROM exam_questions eq
+> backup-question-bank-2026-11-21T01-28-19-811Z\exam-routes.js:257:          JOIN questions q ON q.id = eq.question_id
+  backup-question-bank-2026-11-21T01-28-19-811Z\exam-routes.js:258:          WHERE eq.exam_id = ?
+  backup-question-bank-2026-11-21T01-28-19-811Z\exam-routes.js:259:            AND q.active = 1
+  backup-question-bank-2026-11-21T01-28-19-811Z\exam-routes.js:260:          ORDER BY eq.position, eq.id
+  backup-question-bank-2026-11-21T01-28-19-811Z\exam-routes.js:261:        `).all(exam.id);
+  backup-question-bank-2026-11-21T01-28-19-811Z\exam-routes.js:262:
+  backup-question-bank-2026-11-21T01-28-19-811Z\server.js:479:
+  backup-question-bank-2026-11-21T01-28-19-811Z\server.js:480:  const totalQuestions = db.prepare(
+> backup-question-bank-2026-11-21T01-28-19-811Z\server.js:481:    'SELECT COUNT(*) AS count FROM questions'
+  backup-question-bank-2026-11-21T01-28-19-811Z\server.js:482:  ).get().count;
+  backup-question-bank-2026-11-21T01-28-19-811Z\server.js:483:
+  backup-question-bank-2026-11-21T01-28-19-811Z\server.js:484:  const totalStudents = db.prepare(
+  backup-question-bank-2026-11-21T01-28-19-811Z\server.js:485:    "SELECT COUNT(*) AS count FROM users WHERE role = 'student'"
+  backup-question-bank-2026-11-21T01-28-19-811Z\server.js:486:  ).get().count;
+  backup-question-bank-2026-11-21T01-28-19-811Z\server.js:640:    questions: {
+  backup-question-bank-2026-11-21T01-28-19-811Z\server.js:641:      filename: 'learnspace-questions',
+> backup-question-bank-2026-11-21T01-28-19-811Z\server.js:642:      sql: 'SELECT id, text, options, correct_answer, explanation, category,
+difficulty, active, created_at FROM questions ORDER BY id',
+  backup-question-bank-2026-11-21T01-28-19-811Z\server.js:643:      columns: [
+  backup-question-bank-2026-11-21T01-28-19-811Z\server.js:644:        { key: 'id', label: 'Question ID' },
+  backup-question-bank-2026-11-21T01-28-19-811Z\server.js:645:        { key: 'text', label: 'Question' },
+  backup-question-bank-2026-11-21T01-28-19-811Z\server.js:646:        { key: 'options', label: 'Options JSON' },
+  backup-question-bank-2026-11-21T01-28-19-811Z\server.js:647:        { key: 'correct_answer', label: 'Correct answer' },
+  clear-question-bank.js:14:  for(const t of deps){ db.exec('DELETE FROM "'+t+'"'); }
+  clear-question-bank.js:15:  if(tables.includes('question_passages')) db.exec('DELETE FROM question_passages');
+> clear-question-bank.js:16:  db.exec('DELETE FROM questions');
+  clear-question-bank.js:17:  db.exec('COMMIT');
+  clear-question-bank.js:18:}catch(e){
+  clear-question-bank.js:19:  try{db.exec('ROLLBACK')}catch{}
+  clear-question-bank.js:20:  console.error('FAILED, nothing was changed:',e.message);
+  clear-question-bank.js:21:  process.exit(1);
+  exam-routes-before-answer-validation-fix.js:255:                 q.explanation, q.category
+  exam-routes-before-answer-validation-fix.js:256:          FROM exam_questions eq
+> exam-routes-before-answer-validation-fix.js:257:          JOIN questions q ON q.id = eq.question_id
+  exam-routes-before-answer-validation-fix.js:258:          WHERE eq.exam_id = ?
+  exam-routes-before-answer-validation-fix.js:259:            AND q.active = 1
+  exam-routes-before-answer-validation-fix.js:260:          ORDER BY eq.position, eq.id
+  exam-routes-before-answer-validation-fix.js:261:        `).all(exam.id);
+  exam-routes-before-answer-validation-fix.js:262:
+  exam-routes-before-category-count-fix.js:255:                 q.explanation, q.category
+  exam-routes-before-category-count-fix.js:256:          FROM exam_questions eq
+> exam-routes-before-category-count-fix.js:257:          JOIN questions q ON q.id = eq.question_id
+  exam-routes-before-category-count-fix.js:258:          WHERE eq.exam_id = ?
+  exam-routes-before-category-count-fix.js:259:            AND q.active = 1
+  exam-routes-before-category-count-fix.js:260:          ORDER BY eq.position, eq.id
+  exam-routes-before-category-count-fix.js:261:        `).all(exam.id);
+  exam-routes-before-category-count-fix.js:262:
+  exam-routes-before-dynamic-options.js:255:                 q.explanation, q.category
+  exam-routes-before-dynamic-options.js:256:          FROM exam_questions eq
+> exam-routes-before-dynamic-options.js:257:          JOIN questions q ON q.id = eq.question_id
+  exam-routes-before-dynamic-options.js:258:          WHERE eq.exam_id = ?
+  exam-routes-before-dynamic-options.js:259:            AND q.active = 1
+  exam-routes-before-dynamic-options.js:260:          ORDER BY eq.position, eq.id
+  exam-routes-before-dynamic-options.js:261:        `).all(exam.id);
+  exam-routes-before-dynamic-options.js:262:
+  exam-routes-before-empty-slot-fix-20261121-075412.js:255:                 q.explanation, q.category
+  exam-routes-before-empty-slot-fix-20261121-075412.js:256:          FROM exam_questions eq
+> exam-routes-before-empty-slot-fix-20261121-075412.js:257:          JOIN questions q ON q.id = eq.question_id
+  exam-routes-before-empty-slot-fix-20261121-075412.js:258:          WHERE eq.exam_id = ?
+  exam-routes-before-empty-slot-fix-20261121-075412.js:259:            AND q.active = 1
+  exam-routes-before-empty-slot-fix-20261121-075412.js:260:          ORDER BY eq.position, eq.id
+  exam-routes-before-empty-slot-fix-20261121-075412.js:261:        `).all(exam.id);
+  exam-routes-before-empty-slot-fix-20261121-075412.js:262:
+  exam-routes-before-empty-slot-fix2-20261121-075829.js:255:                 q.explanation, q.category
+  exam-routes-before-empty-slot-fix2-20261121-075829.js:256:          FROM exam_questions eq
+> exam-routes-before-empty-slot-fix2-20261121-075829.js:257:          JOIN questions q ON q.id = eq.question_id
+  exam-routes-before-empty-slot-fix2-20261121-075829.js:258:          WHERE eq.exam_id = ?
+  exam-routes-before-empty-slot-fix2-20261121-075829.js:259:            AND q.active = 1
+  exam-routes-before-empty-slot-fix2-20261121-075829.js:260:          ORDER BY eq.position, eq.id
+  exam-routes-before-empty-slot-fix2-20261121-075829.js:261:        `).all(exam.id);
+  exam-routes-before-empty-slot-fix2-20261121-075829.js:262:
+  exam-routes-before-history-20261120.js:255:                 q.explanation, q.category
+  exam-routes-before-history-20261120.js:256:          FROM exam_questions eq
+> exam-routes-before-history-20261120.js:257:          JOIN questions q ON q.id = eq.question_id
+  exam-routes-before-history-20261120.js:258:          WHERE eq.exam_id = ?
+  exam-routes-before-history-20261120.js:259:            AND q.active = 1
+  exam-routes-before-history-20261120.js:260:          ORDER BY eq.position, eq.id
+  exam-routes-before-history-20261120.js:261:        `).all(exam.id);
+  exam-routes-before-history-20261120.js:262:
+  exam-routes-before-integrity-fix-20261120-010622.js:255:                 q.explanation, q.category
+  exam-routes-before-integrity-fix-20261120-010622.js:256:          FROM exam_questions eq
+> exam-routes-before-integrity-fix-20261120-010622.js:257:          JOIN questions q ON q.id = eq.question_id
+  exam-routes-before-integrity-fix-20261120-010622.js:258:          WHERE eq.exam_id = ?
+  exam-routes-before-integrity-fix-20261120-010622.js:259:            AND q.active = 1
+  exam-routes-before-integrity-fix-20261120-010622.js:260:          ORDER BY eq.position, eq.id
+  exam-routes-before-integrity-fix-20261120-010622.js:261:        `).all(exam.id);
+  exam-routes-before-integrity-fix-20261120-010622.js:262:
+  exam-routes-before-media-rendering-20261122081846.js:255:                 q.explanation, q.category
+  exam-routes-before-media-rendering-20261122081846.js:256:          FROM exam_questions eq
+> exam-routes-before-media-rendering-20261122081846.js:257:          JOIN questions q ON q.id = eq.question_id
+  exam-routes-before-media-rendering-20261122081846.js:258:          WHERE eq.exam_id = ?
+  exam-routes-before-media-rendering-20261122081846.js:259:            AND q.active = 1
+  exam-routes-before-media-rendering-20261122081846.js:260:          ORDER BY eq.position, eq.id
+  exam-routes-before-media-rendering-20261122081846.js:261:        `).all(exam.id);
+  exam-routes-before-media-rendering-20261122081846.js:262:
+  exam-routes-before-mock-flex-20261121-082422.js:255:                 q.explanation, q.category
+  exam-routes-before-mock-flex-20261121-082422.js:256:          FROM exam_questions eq
+> exam-routes-before-mock-flex-20261121-082422.js:257:          JOIN questions q ON q.id = eq.question_id
+  exam-routes-before-mock-flex-20261121-082422.js:258:          WHERE eq.exam_id = ?
+  exam-routes-before-mock-flex-20261121-082422.js:259:            AND q.active = 1
+  exam-routes-before-mock-flex-20261121-082422.js:260:          ORDER BY eq.position, eq.id
+  exam-routes-before-mock-flex-20261121-082422.js:261:        `).all(exam.id);
+  exam-routes-before-mock-flex-20261121-082422.js:262:
+  exam-routes-before-random-30-20261121-080544.js:255:                 q.explanation, q.category
+  exam-routes-before-random-30-20261121-080544.js:256:          FROM exam_questions eq
+> exam-routes-before-random-30-20261121-080544.js:257:          JOIN questions q ON q.id = eq.question_id
+  exam-routes-before-random-30-20261121-080544.js:258:          WHERE eq.exam_id = ?
+  exam-routes-before-random-30-20261121-080544.js:259:            AND q.active = 1
+  exam-routes-before-random-30-20261121-080544.js:260:          ORDER BY eq.position, eq.id
+  exam-routes-before-random-30-20261121-080544.js:261:        `).all(exam.id);
+  exam-routes-before-random-30-20261121-080544.js:262:
+  exam-routes-before-resume-dashboard-20261120-021643.js:255:                 q.explanation, q.category
+  exam-routes-before-resume-dashboard-20261120-021643.js:256:          FROM exam_questions eq
+> exam-routes-before-resume-dashboard-20261120-021643.js:257:          JOIN questions q ON q.id = eq.question_id
+  exam-routes-before-resume-dashboard-20261120-021643.js:258:          WHERE eq.exam_id = ?
+  exam-routes-before-resume-dashboard-20261120-021643.js:259:            AND q.active = 1
+  exam-routes-before-resume-dashboard-20261120-021643.js:260:          ORDER BY eq.position, eq.id
+  exam-routes-before-resume-dashboard-20261120-021643.js:261:        `).all(exam.id);
+  exam-routes-before-resume-dashboard-20261120-021643.js:262:
+  exam-routes-before-start-validation-fix.js:255:                 q.explanation, q.category
+  exam-routes-before-start-validation-fix.js:256:          FROM exam_questions eq
+> exam-routes-before-start-validation-fix.js:257:          JOIN questions q ON q.id = eq.question_id
+  exam-routes-before-start-validation-fix.js:258:          WHERE eq.exam_id = ?
+  exam-routes-before-start-validation-fix.js:259:            AND q.active = 1
+  exam-routes-before-start-validation-fix.js:260:          ORDER BY eq.position, eq.id
+  exam-routes-before-start-validation-fix.js:261:        `).all(exam.id);
+  exam-routes-before-start-validation-fix.js:262:
+  exam-routes.js:285:                 q.explanation, q.category
+  exam-routes.js:286:          FROM exam_questions eq
+> exam-routes.js:287:          JOIN questions q ON q.id = eq.question_id
+  exam-routes.js:288:          WHERE eq.exam_id = ?
+  exam-routes.js:289:            AND q.active = 1
+  exam-routes.js:290:          ORDER BY eq.position, eq.id
+  exam-routes.js:291:        `).all(exam.id);
+  exam-routes.js:292:
+  import-question-bank-2020-test.js:77:    db.exec("BEGIN IMMEDIATE");
+  import-question-bank-2020-test.js:78:
+> import-question-bank-2020-test.js:79:    const batch = db.prepare("INSERT INTO question_import_batches
+(original_filename,status,total_rows,uploaded_by) VALUES (?,'validating',?,3)")
+  import-question-bank-2020-test.js:80:      .run(filename, questions.length);
+  import-question-bank-2020-test.js:81:    batchId = Number(batch.lastInsertRowid);
+  import-question-bank-2020-test.js:82:
+  import-question-bank-2020-test.js:83:    const insertPassage = db.prepare(`
+  import-question-bank-2020-test.js:84:      INSERT INTO question_passages
+  import-question-bank-2020-test.js:261:
+  import-question-bank-2020-test.js:262:    db.prepare(`
+> import-question-bank-2020-test.js:263:      UPDATE question_import_batches
+  import-question-bank-2020-test.js:264:      SET status='imported', imported_rows=?, error_rows=?, completed_at=?
+  import-question-bank-2020-test.js:265:      WHERE id=?
+  import-question-bank-2020-test.js:266:    `).run(imported, errorRows.size, now, batchId);
+  import-question-bank-2020-test.js:267:
+  import-question-bank-2020-test.js:268:    db.exec("COMMIT");
+  import-question-bank-2020-test.js:279:    console.log("Total recorded errors/warnings:", db.prepare("SELECT COUNT(*) AS n FROM
+question_import_errors WHERE batch_id=?").get(batchId).n);
+  import-question-bank-2020-test.js:280:    console.log("Passage links created:", db.prepare("SELECT COUNT(*) AS n FROM
+question_passage_links qpl JOIN question_import_items i ON i.question_id=qpl.question_id WHERE i.batch_id=?").get(batchId).n);
+> import-question-bank-2020-test.js:281:    console.log("Question review statuses:", db.prepare("SELECT review_status,COUNT(*) AS n FROM
+questions WHERE id IN (SELECT question_id FROM question_import_items WHERE batch_id=?) GROUP BY review_status").all(batchId));
+  import-question-bank-2020-test.js:282:    console.log("Database integrity:", db.prepare("PRAGMA integrity_check").get());
+  import-question-bank-2020-test.js:283:    console.log("Foreign key issues:", db.prepare("PRAGMA foreign_key_check").all().length);
+  import-question-bank-2020-test.js:284:  } catch (error) {
+  import-question-bank-2020-test.js:285:    try { db.exec("ROLLBACK"); } catch (_) {}
+  import-question-bank-2020-test.js:286:    console.error("IMPORT FAILED; transaction rolled back.");
+  import-question-bank-cse2017-before-media-integration-20261122-072337.js:77:    db.exec("BEGIN IMMEDIATE");
+  import-question-bank-cse2017-before-media-integration-20261122-072337.js:78:
+> import-question-bank-cse2017-before-media-integration-20261122-072337.js:79:    const batch = db.prepare("INSERT INTO
+question_import_batches (original_filename,status,total_rows,uploaded_by) VALUES (?,'validating',?,3)")
+  import-question-bank-cse2017-before-media-integration-20261122-072337.js:80:      .run(filename, questions.length);
+  import-question-bank-cse2017-before-media-integration-20261122-072337.js:81:    batchId = Number(batch.lastInsertRowid);
+  import-question-bank-cse2017-before-media-integration-20261122-072337.js:82:
+  import-question-bank-cse2017-before-media-integration-20261122-072337.js:83:    const insertPassage = db.prepare(`
+  import-question-bank-cse2017-before-media-integration-20261122-072337.js:84:      INSERT INTO question_passages
+  import-question-bank-cse2017-before-media-integration-20261122-072337.js:261:
+  import-question-bank-cse2017-before-media-integration-20261122-072337.js:262:    db.prepare(`
+> import-question-bank-cse2017-before-media-integration-20261122-072337.js:263:      UPDATE question_import_batches
+  import-question-bank-cse2017-before-media-integration-20261122-072337.js:264:      SET status='imported', imported_rows=?, error_rows=?,
+completed_at=?
+  import-question-bank-cse2017-before-media-integration-20261122-072337.js:265:      WHERE id=?
+  import-question-bank-cse2017-before-media-integration-20261122-072337.js:266:    `).run(imported, errorRows.size, now, batchId);
+  import-question-bank-cse2017-before-media-integration-20261122-072337.js:267:
+  import-question-bank-cse2017-before-media-integration-20261122-072337.js:268:    db.exec("COMMIT");
+  import-question-bank-cse2017-before-media-integration-20261122-072337.js:279:    console.log("Total recorded errors/warnings:",
+db.prepare("SELECT COUNT(*) AS n FROM question_import_errors WHERE batch_id=?").get(batchId).n);
+  import-question-bank-cse2017-before-media-integration-20261122-072337.js:280:    console.log("Passage links created:", db.prepare("SELECT
+COUNT(*) AS n FROM question_passage_links qpl JOIN question_import_items i ON i.question_id=qpl.question_id WHERE
+i.batch_id=?").get(batchId).n);
+> import-question-bank-cse2017-before-media-integration-20261122-072337.js:281:    console.log("Question review statuses:",
+db.prepare("SELECT review_status,COUNT(*) AS n FROM questions WHERE id IN (SELECT question_id FROM question_import_items WHERE batch_id=?)
+GROUP BY review_status").all(batchId));
+  import-question-bank-cse2017-before-media-integration-20261122-072337.js:282:    console.log("Database integrity:", db.prepare("PRAGMA
+integrity_check").get());
+  import-question-bank-cse2017-before-media-integration-20261122-072337.js:283:    console.log("Foreign key issues:", db.prepare("PRAGMA
+foreign_key_check").all().length);
+  import-question-bank-cse2017-before-media-integration-20261122-072337.js:284:  } catch (error) {
+  import-question-bank-cse2017-before-media-integration-20261122-072337.js:285:    try { db.exec("ROLLBACK"); } catch (_) {}
+  import-question-bank-cse2017-before-media-integration-20261122-072337.js:286:    console.error("IMPORT FAILED; transaction rolled back.");
+  import-question-bank-cse2017-before-media.js:77:    db.exec("BEGIN IMMEDIATE");
+  import-question-bank-cse2017-before-media.js:78:
+> import-question-bank-cse2017-before-media.js:79:    const batch = db.prepare("INSERT INTO question_import_batches
+(original_filename,status,total_rows,uploaded_by) VALUES (?,'validating',?,3)")
+  import-question-bank-cse2017-before-media.js:80:      .run(filename, questions.length);
+  import-question-bank-cse2017-before-media.js:81:    batchId = Number(batch.lastInsertRowid);
+  import-question-bank-cse2017-before-media.js:82:
+  import-question-bank-cse2017-before-media.js:83:    const insertPassage = db.prepare(`
+  import-question-bank-cse2017-before-media.js:84:      INSERT INTO question_passages
+  import-question-bank-cse2017-before-media.js:261:
+  import-question-bank-cse2017-before-media.js:262:    db.prepare(`
+> import-question-bank-cse2017-before-media.js:263:      UPDATE question_import_batches
+  import-question-bank-cse2017-before-media.js:264:      SET status='imported', imported_rows=?, error_rows=?, completed_at=?
+  import-question-bank-cse2017-before-media.js:265:      WHERE id=?
+  import-question-bank-cse2017-before-media.js:266:    `).run(imported, errorRows.size, now, batchId);
+  import-question-bank-cse2017-before-media.js:267:
+  import-question-bank-cse2017-before-media.js:268:    db.exec("COMMIT");
+  import-question-bank-cse2017-before-media.js:279:    console.log("Total recorded errors/warnings:", db.prepare("SELECT COUNT(*) AS n FROM
+question_import_errors WHERE batch_id=?").get(batchId).n);
+  import-question-bank-cse2017-before-media.js:280:    console.log("Passage links created:", db.prepare("SELECT COUNT(*) AS n FROM
+question_passage_links qpl JOIN question_import_items i ON i.question_id=qpl.question_id WHERE i.batch_id=?").get(batchId).n);
+> import-question-bank-cse2017-before-media.js:281:    console.log("Question review statuses:", db.prepare("SELECT review_status,COUNT(*) AS
+n FROM questions WHERE id IN (SELECT question_id FROM question_import_items WHERE batch_id=?) GROUP BY review_status").all(batchId));
+  import-question-bank-cse2017-before-media.js:282:    console.log("Database integrity:", db.prepare("PRAGMA integrity_check").get());
+  import-question-bank-cse2017-before-media.js:283:    console.log("Foreign key issues:", db.prepare("PRAGMA
+foreign_key_check").all().length);
+  import-question-bank-cse2017-before-media.js:284:  } catch (error) {
+  import-question-bank-cse2017-before-media.js:285:    try { db.exec("ROLLBACK"); } catch (_) {}
+  import-question-bank-cse2017-before-media.js:286:    console.error("IMPORT FAILED; transaction rolled back.");
+  import-question-bank-cse2017-before-mediatype-fix-20261121-235819.js:80:    db.exec("BEGIN IMMEDIATE");
+  import-question-bank-cse2017-before-mediatype-fix-20261121-235819.js:81:
+> import-question-bank-cse2017-before-mediatype-fix-20261121-235819.js:82:    const batch = db.prepare("INSERT INTO question_import_batches
+(original_filename,status,total_rows,uploaded_by) VALUES (?,'validating',?,3)")
+  import-question-bank-cse2017-before-mediatype-fix-20261121-235819.js:83:      .run(filename, questions.length);
+  import-question-bank-cse2017-before-mediatype-fix-20261121-235819.js:84:    batchId = Number(batch.lastInsertRowid);
+  import-question-bank-cse2017-before-mediatype-fix-20261121-235819.js:85:
+  import-question-bank-cse2017-before-mediatype-fix-20261121-235819.js:86:    const insertPassage = db.prepare(`
+  import-question-bank-cse2017-before-mediatype-fix-20261121-235819.js:87:      INSERT INTO question_passages
+  import-question-bank-cse2017-before-mediatype-fix-20261121-235819.js:255:      "INSERT INTO passage_media_links
+(passage_id,media_id,position) VALUES (?,?,?)"
+  import-question-bank-cse2017-before-mediatype-fix-20261121-235819.js:256:    );
+> import-question-bank-cse2017-before-mediatype-fix-20261121-235819.js:257:    const getQuestionContent = db.prepare("SELECT content_json
+FROM questions WHERE id=?");
+  import-question-bank-cse2017-before-mediatype-fix-20261121-235819.js:258:    const updateQuestionContent = db.prepare("UPDATE questions SET
+content_json=? WHERE id=?");
+  import-question-bank-cse2017-before-mediatype-fix-20261121-235819.js:259:    const getPassageContent = db.prepare("SELECT content_json FROM
+question_passages WHERE id=?");
+  import-question-bank-cse2017-before-mediatype-fix-20261121-235819.js:260:    const updatePassageContent = db.prepare("UPDATE
+question_passages SET content_json=? WHERE id=?");
+  import-question-bank-cse2017-before-mediatype-fix-20261121-235819.js:261:
+  import-question-bank-cse2017-before-mediatype-fix-20261121-235819.js:262:    const questionSourceRows = new Map(
+  import-question-bank-cse2017-before-mediatype-fix-20261121-235819.js:581:
+  import-question-bank-cse2017-before-mediatype-fix-20261121-235819.js:582:    db.prepare(`
+> import-question-bank-cse2017-before-mediatype-fix-20261121-235819.js:583:      UPDATE question_import_batches
+  import-question-bank-cse2017-before-mediatype-fix-20261121-235819.js:584:      SET status='imported', imported_rows=?, error_rows=?,
+completed_at=?
+  import-question-bank-cse2017-before-mediatype-fix-20261121-235819.js:585:      WHERE id=?
+  import-question-bank-cse2017-before-mediatype-fix-20261121-235819.js:586:    `).run(imported, errorRows.size, now, batchId);
+  import-question-bank-cse2017-before-mediatype-fix-20261121-235819.js:587:
+  import-question-bank-cse2017-before-mediatype-fix-20261121-235819.js:588:    db.exec("COMMIT");
+  import-question-bank-cse2017-before-mediatype-fix-20261121-235819.js:599:    console.log("Total recorded errors/warnings:",
+db.prepare("SELECT COUNT(*) AS n FROM question_import_errors WHERE batch_id=?").get(batchId).n);
+  import-question-bank-cse2017-before-mediatype-fix-20261121-235819.js:600:    console.log("Passage links created:", db.prepare("SELECT
+COUNT(*) AS n FROM question_passage_links qpl JOIN question_import_items i ON i.question_id=qpl.question_id WHERE
+i.batch_id=?").get(batchId).n);
+> import-question-bank-cse2017-before-mediatype-fix-20261121-235819.js:601:    console.log("Question review statuses:", db.prepare("SELECT
+review_status,COUNT(*) AS n FROM questions WHERE id IN (SELECT question_id FROM question_import_items WHERE batch_id=?) GROUP BY
+review_status").all(batchId));
+  import-question-bank-cse2017-before-mediatype-fix-20261121-235819.js:602:    console.log("Database integrity:", db.prepare("PRAGMA
+integrity_check").get());
+  import-question-bank-cse2017-before-mediatype-fix-20261121-235819.js:603:    console.log("Foreign key issues:", db.prepare("PRAGMA
+foreign_key_check").all().length);
+  import-question-bank-cse2017-before-mediatype-fix-20261121-235819.js:604:  } catch (error) {
+  import-question-bank-cse2017-before-mediatype-fix-20261121-235819.js:605:    try { db.exec("ROLLBACK"); } catch (_) {}
+  import-question-bank-cse2017-before-mediatype-fix-20261121-235819.js:606:    for (const mediaPath of createdMediaFiles) {
+  import-question-bank-cse2017-before-universal-resolver-20261121-233737.js:79:    db.exec("BEGIN IMMEDIATE");
+  import-question-bank-cse2017-before-universal-resolver-20261121-233737.js:80:
+> import-question-bank-cse2017-before-universal-resolver-20261121-233737.js:81:    const batch = db.prepare("INSERT INTO
+question_import_batches (original_filename,status,total_rows,uploaded_by) VALUES (?,'validating',?,3)")
+  import-question-bank-cse2017-before-universal-resolver-20261121-233737.js:82:      .run(filename, questions.length);
+  import-question-bank-cse2017-before-universal-resolver-20261121-233737.js:83:    batchId = Number(batch.lastInsertRowid);
+  import-question-bank-cse2017-before-universal-resolver-20261121-233737.js:84:
+  import-question-bank-cse2017-before-universal-resolver-20261121-233737.js:85:    const insertPassage = db.prepare(`
+  import-question-bank-cse2017-before-universal-resolver-20261121-233737.js:86:      INSERT INTO question_passages
+  import-question-bank-cse2017-before-universal-resolver-20261121-233737.js:261:    );
+  import-question-bank-cse2017-before-universal-resolver-20261121-233737.js:262:    const getQuestionContent = db.prepare(
+> import-question-bank-cse2017-before-universal-resolver-20261121-233737.js:263:      "SELECT content_json FROM questions WHERE id=?"
+  import-question-bank-cse2017-before-universal-resolver-20261121-233737.js:264:    );
+  import-question-bank-cse2017-before-universal-resolver-20261121-233737.js:265:    const updateQuestionContent = db.prepare(
+  import-question-bank-cse2017-before-universal-resolver-20261121-233737.js:266:      "UPDATE questions SET content_json=? WHERE id=?"
+  import-question-bank-cse2017-before-universal-resolver-20261121-233737.js:267:    );
+  import-question-bank-cse2017-before-universal-resolver-20261121-233737.js:268:
+  import-question-bank-cse2017-before-universal-resolver-20261121-233737.js:360:
+  import-question-bank-cse2017-before-universal-resolver-20261121-233737.js:361:    db.prepare(`
+> import-question-bank-cse2017-before-universal-resolver-20261121-233737.js:362:      UPDATE question_import_batches
+  import-question-bank-cse2017-before-universal-resolver-20261121-233737.js:363:      SET status='imported', imported_rows=?, error_rows=?,
+completed_at=?
+  import-question-bank-cse2017-before-universal-resolver-20261121-233737.js:364:      WHERE id=?
+  import-question-bank-cse2017-before-universal-resolver-20261121-233737.js:365:    `).run(imported, errorRows.size, now, batchId);
+  import-question-bank-cse2017-before-universal-resolver-20261121-233737.js:366:
+  import-question-bank-cse2017-before-universal-resolver-20261121-233737.js:367:    db.exec("COMMIT");
+  import-question-bank-cse2017-before-universal-resolver-20261121-233737.js:378:    console.log("Total recorded errors/warnings:",
+db.prepare("SELECT COUNT(*) AS n FROM question_import_errors WHERE batch_id=?").get(batchId).n);
+  import-question-bank-cse2017-before-universal-resolver-20261121-233737.js:379:    console.log("Passage links created:", db.prepare("SELECT
+COUNT(*) AS n FROM question_passage_links qpl JOIN question_import_items i ON i.question_id=qpl.question_id WHERE
+i.batch_id=?").get(batchId).n);
+> import-question-bank-cse2017-before-universal-resolver-20261121-233737.js:380:    console.log("Question review statuses:",
+db.prepare("SELECT review_status,COUNT(*) AS n FROM questions WHERE id IN (SELECT question_id FROM question_import_items WHERE batch_id=?)
+GROUP BY review_status").all(batchId));
+  import-question-bank-cse2017-before-universal-resolver-20261121-233737.js:381:    console.log("Database integrity:", db.prepare("PRAGMA
+integrity_check").get());
+  import-question-bank-cse2017-before-universal-resolver-20261121-233737.js:382:    console.log("Foreign key issues:", db.prepare("PRAGMA
+foreign_key_check").all().length);
+  import-question-bank-cse2017-before-universal-resolver-20261121-233737.js:383:  } catch (error) {
+  import-question-bank-cse2017-before-universal-resolver-20261121-233737.js:384:    try { db.exec("ROLLBACK"); } catch (_) {}
+  import-question-bank-cse2017-before-universal-resolver-20261121-233737.js:385:    console.error("IMPORT FAILED; transaction rolled back.");
+  import-question-bank-cse2017.js:82:    db.exec("BEGIN IMMEDIATE");
+  import-question-bank-cse2017.js:83:
+> import-question-bank-cse2017.js:84:    const batch = db.prepare("INSERT INTO question_import_batches
+(original_filename,status,total_rows,uploaded_by) VALUES (?,'validating',?,?)")
+  import-question-bank-cse2017.js:85:      .run(filename, questions.length, uploaderId);
+  import-question-bank-cse2017.js:86:    batchId = Number(batch.lastInsertRowid);
+  import-question-bank-cse2017.js:87:
+  import-question-bank-cse2017.js:88:    const insertPassage = db.prepare(`
+  import-question-bank-cse2017.js:89:      INSERT INTO question_passages
+  import-question-bank-cse2017.js:258:      "INSERT INTO passage_media_links (passage_id,media_id,position) VALUES (?,?,?)"
+  import-question-bank-cse2017.js:259:    );
+> import-question-bank-cse2017.js:260:    const getQuestionContent = db.prepare("SELECT content_json FROM questions WHERE id=?");
+  import-question-bank-cse2017.js:261:    const updateQuestionContent = db.prepare("UPDATE questions SET content_json=? WHERE id=?");
+  import-question-bank-cse2017.js:262:    const getPassageContent = db.prepare("SELECT content_json FROM question_passages WHERE id=?");
+  import-question-bank-cse2017.js:263:    const updatePassageContent = db.prepare("UPDATE question_passages SET content_json=? WHERE id=?");
+  import-question-bank-cse2017.js:264:
+  import-question-bank-cse2017.js:265:    const questionSourceRows = new Map(
+  import-question-bank-cse2017.js:584:
+  import-question-bank-cse2017.js:585:    db.prepare(`
+> import-question-bank-cse2017.js:586:      UPDATE question_import_batches
+  import-question-bank-cse2017.js:587:      SET status='imported', imported_rows=?, error_rows=?, completed_at=?
+  import-question-bank-cse2017.js:588:      WHERE id=?
+  import-question-bank-cse2017.js:589:    `).run(imported, errorRows.size, now, batchId);
+  import-question-bank-cse2017.js:590:
+  import-question-bank-cse2017.js:591:    db.exec("COMMIT");
+  import-question-bank-cse2017.js:602:    console.log("Total recorded errors/warnings:", db.prepare("SELECT COUNT(*) AS n FROM
+question_import_errors WHERE batch_id=?").get(batchId).n);
+  import-question-bank-cse2017.js:603:    console.log("Passage links created:", db.prepare("SELECT COUNT(*) AS n FROM question_passage_links
+qpl JOIN question_import_items i ON i.question_id=qpl.question_id WHERE i.batch_id=?").get(batchId).n);
+> import-question-bank-cse2017.js:604:    console.log("Question review statuses:", db.prepare("SELECT review_status,COUNT(*) AS n FROM
+questions WHERE id IN (SELECT question_id FROM question_import_items WHERE batch_id=?) GROUP BY review_status").all(batchId));
+  import-question-bank-cse2017.js:605:    console.log("Database integrity:", db.prepare("PRAGMA integrity_check").get());
+  import-question-bank-cse2017.js:606:    console.log("Foreign key issues:", db.prepare("PRAGMA foreign_key_check").all().length);
+  import-question-bank-cse2017.js:607:  } catch (error) {
+  import-question-bank-cse2017.js:608:    try { db.exec("ROLLBACK"); } catch (_) {}
+  import-question-bank-cse2017.js:609:    for (const mediaPath of createdMediaFiles) {
+  import-question-bank-live.js:77:    db.exec("BEGIN IMMEDIATE");
+  import-question-bank-live.js:78:
+> import-question-bank-live.js:79:    const batch = db.prepare("INSERT INTO question_import_batches
+(original_filename,status,total_rows,uploaded_by) VALUES (?,'validating',?,3)")
+  import-question-bank-live.js:80:      .run(filename, questions.length);
+  import-question-bank-live.js:81:    batchId = Number(batch.lastInsertRowid);
+  import-question-bank-live.js:82:
+  import-question-bank-live.js:83:    const insertPassage = db.prepare(`
+  import-question-bank-live.js:84:      INSERT INTO question_passages
+  import-question-bank-live.js:261:
+  import-question-bank-live.js:262:    db.prepare(`
+> import-question-bank-live.js:263:      UPDATE question_import_batches
+  import-question-bank-live.js:264:      SET status='imported', imported_rows=?, error_rows=?, completed_at=?
+  import-question-bank-live.js:265:      WHERE id=?
+  import-question-bank-live.js:266:    `).run(imported, errorRows.size, now, batchId);
+  import-question-bank-live.js:267:
+  import-question-bank-live.js:268:    db.exec("COMMIT");
+  import-question-bank-live.js:279:    console.log("Total recorded errors/warnings:", db.prepare("SELECT COUNT(*) AS n FROM
+question_import_errors WHERE batch_id=?").get(batchId).n);
+  import-question-bank-live.js:280:    console.log("Passage links created:", db.prepare("SELECT COUNT(*) AS n FROM question_passage_links qpl
+JOIN question_import_items i ON i.question_id=qpl.question_id WHERE i.batch_id=?").get(batchId).n);
+> import-question-bank-live.js:281:    console.log("Question review statuses:", db.prepare("SELECT review_status,COUNT(*) AS n FROM questions
+WHERE id IN (SELECT question_id FROM question_import_items WHERE batch_id=?) GROUP BY review_status").all(batchId));
+  import-question-bank-live.js:282:    console.log("Database integrity:", db.prepare("PRAGMA integrity_check").get());
+  import-question-bank-live.js:283:    console.log("Foreign key issues:", db.prepare("PRAGMA foreign_key_check").all().length);
+  import-question-bank-live.js:284:  } catch (error) {
+  import-question-bank-live.js:285:    try { db.exec("ROLLBACK"); } catch (_) {}
+  import-question-bank-live.js:286:    console.error("IMPORT FAILED; transaction rolled back.");
+  import-question-bank-test.js:77:    db.exec("BEGIN IMMEDIATE");
+  import-question-bank-test.js:78:
+> import-question-bank-test.js:79:    const batch = db.prepare("INSERT INTO question_import_batches
+(original_filename,status,total_rows,uploaded_by) VALUES (?,'validating',?,3)")
+  import-question-bank-test.js:80:      .run(filename, questions.length);
+  import-question-bank-test.js:81:    batchId = Number(batch.lastInsertRowid);
+  import-question-bank-test.js:82:
+  import-question-bank-test.js:83:    const insertPassage = db.prepare(`
+  import-question-bank-test.js:84:      INSERT INTO question_passages
+  import-question-bank-test.js:261:
+  import-question-bank-test.js:262:    db.prepare(`
+> import-question-bank-test.js:263:      UPDATE question_import_batches
+  import-question-bank-test.js:264:      SET status='imported', imported_rows=?, error_rows=?, completed_at=?
+  import-question-bank-test.js:265:      WHERE id=?
+  import-question-bank-test.js:266:    `).run(imported, errorRows.size, now, batchId);
+  import-question-bank-test.js:267:
+  import-question-bank-test.js:268:    db.exec("COMMIT");
+  import-question-bank-test.js:279:    console.log("Total recorded errors/warnings:", db.prepare("SELECT COUNT(*) AS n FROM
+question_import_errors WHERE batch_id=?").get(batchId).n);
+  import-question-bank-test.js:280:    console.log("Passage links created:", db.prepare("SELECT COUNT(*) AS n FROM question_passage_links qpl
+JOIN question_import_items i ON i.question_id=qpl.question_id WHERE i.batch_id=?").get(batchId).n);
+> import-question-bank-test.js:281:    console.log("Question review statuses:", db.prepare("SELECT review_status,COUNT(*) AS n FROM questions
+WHERE id IN (SELECT question_id FROM question_import_items WHERE batch_id=?) GROUP BY review_status").all(batchId));
+  import-question-bank-test.js:282:    console.log("Database integrity:", db.prepare("PRAGMA integrity_check").get());
+  import-question-bank-test.js:283:    console.log("Foreign key issues:", db.prepare("PRAGMA foreign_key_check").all().length);
+  import-question-bank-test.js:284:  } catch (error) {
+  import-question-bank-test.js:285:    try { db.exec("ROLLBACK"); } catch (_) {}
+  import-question-bank-test.js:286:    console.error("IMPORT FAILED; transaction rolled back.");
+  inspect-reset-dependencies.js:4:for (const table of tables) {
+  inspect-reset-dependencies.js:5:  const refs = db.prepare(`PRAGMA foreign_key_list("${table}")`).all()
+> inspect-reset-dependencies.js:6:    .filter(x =>
+['users','exams','questions','question_passages','question_import_batches'].includes(x.table));
+  inspect-reset-dependencies.js:7:  if (refs.length) console.log(table + ': ' + refs.map(x => `${x.from} -> ${x.table}.${x.to}`).join('; '));
+  inspect-reset-dependencies.js:8:}
+  inspect-reset-dependencies.js:9:for (const table of
+['registration_extensions','payments','course_enrollments','audit_logs','sessions','password_reset_tokens']) {
+  inspect-reset-dependencies.js:10:  console.log(table + ' rows: ' + db.prepare(`SELECT COUNT(*) AS n FROM "${table}"`).get().n);
+  inspect-reset-dependencies.js:11:}
+  preview-reset.js:1:const { DatabaseSync } = require('node:sqlite');
+  preview-reset.js:2:const db = new DatabaseSync('./database/lms.db', { readOnly: true });
+> preview-reset.js:3:for (const t of ['questions','answers','question_passages','question_passage_links','question_media','question_media_link
+s','passage_media_links','question_import_batches','question_import_items','question_import_errors','question_review_history','question_curren
+t_versions','exam_questions','exams','attempts','attempt_questions','attempt_answers']) {
+  preview-reset.js:4:  console.log(t + ': ' + db.prepare(`SELECT COUNT(*) AS n FROM "${t}"`).get().n);
+  preview-reset.js:5:}
+  preview-reset.js:6:console.log('Student accounts kept: ' + db.prepare("SELECT COUNT(*) AS n FROM users WHERE role='student'").get().n);
+  preview-reset.js:7:db.close();
+  question-bank-schema-before-constraints.js:60:      (question_group_id, question_id)
+  question-bank-schema-before-constraints.js:61:    SELECT id, id
+> question-bank-schema-before-constraints.js:62:    FROM questions
+  question-bank-schema-before-constraints.js:63:    WHERE active = 1 AND review_status = 'approved';
+  question-bank-schema-before-constraints.js:64:
+  question-bank-schema-before-constraints.js:65:    CREATE TABLE IF NOT EXISTS question_review_history (
+  question-bank-schema-before-constraints.js:66:      id INTEGER PRIMARY KEY AUTOINCREMENT,
+  question-bank-schema-before-constraints.js:67:      question_id INTEGER NOT NULL,
+  question-bank-schema-before-constraints.js:153:
+  question-bank-schema-before-constraints.js:154:  db.exec(`
+> question-bank-schema-before-constraints.js:155:    CREATE TABLE IF NOT EXISTS question_import_batches (
+  question-bank-schema-before-constraints.js:156:      id INTEGER PRIMARY KEY AUTOINCREMENT,
+  question-bank-schema-before-constraints.js:157:      original_filename TEXT NOT NULL,
+  question-bank-schema-before-constraints.js:158:      status TEXT NOT NULL DEFAULT 'uploaded'
+  question-bank-schema-before-constraints.js:159:        CHECK(status IN ('uploaded','validating','validated','imported','failed')),
+  question-bank-schema-before-constraints.js:160:      total_rows INTEGER NOT NULL DEFAULT 0,
+  question-bank-schema-before-constraints.js:174:      status TEXT NOT NULL DEFAULT 'pending'
+  question-bank-schema-before-constraints.js:175:        CHECK(status IN ('pending','imported','rejected')),
+> question-bank-schema-before-constraints.js:176:      FOREIGN KEY (batch_id) REFERENCES question_import_batches(id),
+  question-bank-schema-before-constraints.js:177:      FOREIGN KEY (question_id) REFERENCES questions(id),
+  question-bank-schema-before-constraints.js:178:      UNIQUE(batch_id, row_number)
+  question-bank-schema-before-constraints.js:179:    );
+  question-bank-schema-before-constraints.js:180:
+  question-bank-schema-before-constraints.js:181:    CREATE TABLE IF NOT EXISTS question_import_errors (
+  question-bank-schema-before-constraints.js:187:      message TEXT NOT NULL,
+  question-bank-schema-before-constraints.js:188:      created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+> question-bank-schema-before-constraints.js:189:      FOREIGN KEY (batch_id) REFERENCES question_import_batches(id)
+  question-bank-schema-before-constraints.js:190:    );
+  question-bank-schema-before-constraints.js:191:
+  question-bank-schema-before-constraints.js:192:    CREATE INDEX IF NOT EXISTS idx_question_import_items_batch
+  question-bank-schema-before-constraints.js:193:      ON question_import_items(batch_id, status);
+  question-bank-schema-before-constraints.js:194:  `);
+  question-bank-schema-before-constraints.js:214:           SUM(CASE WHEN review_status = 'approved' THEN 1 ELSE 0 END) AS approved,
+  question-bank-schema-before-constraints.js:215:           SUM(CASE WHEN review_status = 'draft' THEN 1 ELSE 0 END) AS drafts
+> question-bank-schema-before-constraints.js:216:    FROM questions
+  question-bank-schema-before-constraints.js:217:  `).get();
+  question-bank-schema-before-constraints.js:218:
+  question-bank-schema-before-constraints.js:219:  console.log('Question-bank migration completed.');
+  question-bank-schema-before-constraints.js:220:  console.log('Integrity:', integrity);
+  question-bank-schema-before-constraints.js:221:  console.log('Foreign-key issues:', foreignKeys.length);
+  question-bank-schema-before-immutability-hardening.js:60:      (question_group_id, question_id)
+  question-bank-schema-before-immutability-hardening.js:61:    SELECT id, id
+> question-bank-schema-before-immutability-hardening.js:62:    FROM questions
+  question-bank-schema-before-immutability-hardening.js:63:    WHERE active = 1 AND review_status = 'approved';
+  question-bank-schema-before-immutability-hardening.js:64:
+  question-bank-schema-before-immutability-hardening.js:65:    CREATE TABLE IF NOT EXISTS question_review_history (
+  question-bank-schema-before-immutability-hardening.js:66:      id INTEGER PRIMARY KEY AUTOINCREMENT,
+  question-bank-schema-before-immutability-hardening.js:67:      question_id INTEGER NOT NULL,
+  question-bank-schema-before-immutability-hardening.js:153:
+  question-bank-schema-before-immutability-hardening.js:154:  db.exec(`
+> question-bank-schema-before-immutability-hardening.js:155:    CREATE TABLE IF NOT EXISTS question_import_batches (
+  question-bank-schema-before-immutability-hardening.js:156:      id INTEGER PRIMARY KEY AUTOINCREMENT,
+  question-bank-schema-before-immutability-hardening.js:157:      original_filename TEXT NOT NULL,
+  question-bank-schema-before-immutability-hardening.js:158:      status TEXT NOT NULL DEFAULT 'uploaded'
+  question-bank-schema-before-immutability-hardening.js:159:        CHECK(status IN
+('uploaded','validating','validated','imported','failed')),
+  question-bank-schema-before-immutability-hardening.js:160:      total_rows INTEGER NOT NULL DEFAULT 0,
+  question-bank-schema-before-immutability-hardening.js:174:      status TEXT NOT NULL DEFAULT 'pending'
+  question-bank-schema-before-immutability-hardening.js:175:        CHECK(status IN ('pending','imported','rejected')),
+> question-bank-schema-before-immutability-hardening.js:176:      FOREIGN KEY (batch_id) REFERENCES question_import_batches(id),
+  question-bank-schema-before-immutability-hardening.js:177:      FOREIGN KEY (question_id) REFERENCES questions(id),
+  question-bank-schema-before-immutability-hardening.js:178:      UNIQUE(batch_id, row_number)
+  question-bank-schema-before-immutability-hardening.js:179:    );
+  question-bank-schema-before-immutability-hardening.js:180:
+  question-bank-schema-before-immutability-hardening.js:181:    CREATE TABLE IF NOT EXISTS question_import_errors (
+  question-bank-schema-before-immutability-hardening.js:187:      message TEXT NOT NULL,
+  question-bank-schema-before-immutability-hardening.js:188:      created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+> question-bank-schema-before-immutability-hardening.js:189:      FOREIGN KEY (batch_id) REFERENCES question_import_batches(id)
+  question-bank-schema-before-immutability-hardening.js:190:    );
+  question-bank-schema-before-immutability-hardening.js:191:
+  question-bank-schema-before-immutability-hardening.js:192:    CREATE INDEX IF NOT EXISTS idx_question_import_items_batch
+  question-bank-schema-before-immutability-hardening.js:193:      ON question_import_items(batch_id, status);
+  question-bank-schema-before-immutability-hardening.js:194:  `);
+  question-bank-schema-before-immutability-hardening.js:208:  const duplicateVersion = db.prepare(`
+  question-bank-schema-before-immutability-hardening.js:209:    SELECT question_group_id, version_number, COUNT(*) AS count
+> question-bank-schema-before-immutability-hardening.js:210:    FROM questions
+  question-bank-schema-before-immutability-hardening.js:211:    GROUP BY question_group_id, version_number
+  question-bank-schema-before-immutability-hardening.js:212:    HAVING COUNT(*) > 1
+  question-bank-schema-before-immutability-hardening.js:213:    LIMIT 1
+  question-bank-schema-before-immutability-hardening.js:214:  `).get();
+  question-bank-schema-before-immutability-hardening.js:215:
+  question-bank-schema-before-immutability-hardening.js:252:    BEFORE INSERT ON question_current_versions
+  question-bank-schema-before-immutability-hardening.js:253:    WHEN NOT EXISTS (
+> question-bank-schema-before-immutability-hardening.js:254:      SELECT 1 FROM questions
+  question-bank-schema-before-immutability-hardening.js:255:      WHERE id = NEW.question_id
+  question-bank-schema-before-immutability-hardening.js:256:        AND question_group_id = NEW.question_group_id
+  question-bank-schema-before-immutability-hardening.js:257:        AND review_status = 'approved'
+  question-bank-schema-before-immutability-hardening.js:258:    )
+  question-bank-schema-before-immutability-hardening.js:259:    BEGIN
+  question-bank-schema-before-immutability-hardening.js:265:    ON question_current_versions
+  question-bank-schema-before-immutability-hardening.js:266:    WHEN NOT EXISTS (
+> question-bank-schema-before-immutability-hardening.js:267:      SELECT 1 FROM questions
+  question-bank-schema-before-immutability-hardening.js:268:      WHERE id = NEW.question_id
+  question-bank-schema-before-immutability-hardening.js:269:        AND question_group_id = NEW.question_group_id
+  question-bank-schema-before-immutability-hardening.js:270:        AND review_status = 'approved'
+  question-bank-schema-before-immutability-hardening.js:271:    )
+  question-bank-schema-before-immutability-hardening.js:272:    BEGIN
+  question-bank-schema-before-immutability-hardening.js:321:           SUM(CASE WHEN review_status = 'approved' THEN 1 ELSE 0 END) AS
+approved,
+  question-bank-schema-before-immutability-hardening.js:322:           SUM(CASE WHEN review_status = 'draft' THEN 1 ELSE 0 END) AS drafts
+> question-bank-schema-before-immutability-hardening.js:323:    FROM questions
+  question-bank-schema-before-immutability-hardening.js:324:  `).get();
+  question-bank-schema-before-immutability-hardening.js:325:
+  question-bank-schema-before-immutability-hardening.js:326:  console.log('Question-bank migration completed.');
+  question-bank-schema-before-immutability-hardening.js:327:  console.log('Integrity:', integrity);
+  question-bank-schema-before-immutability-hardening.js:328:  console.log('Foreign-key issues:', foreignKeys.length);
+  question-bank-schema-before-immutability.js:60:      (question_group_id, question_id)
+  question-bank-schema-before-immutability.js:61:    SELECT id, id
+> question-bank-schema-before-immutability.js:62:    FROM questions
+  question-bank-schema-before-immutability.js:63:    WHERE active = 1 AND review_status = 'approved';
+  question-bank-schema-before-immutability.js:64:
+  question-bank-schema-before-immutability.js:65:    CREATE TABLE IF NOT EXISTS question_review_history (
+  question-bank-schema-before-immutability.js:66:      id INTEGER PRIMARY KEY AUTOINCREMENT,
+  question-bank-schema-before-immutability.js:67:      question_id INTEGER NOT NULL,
+  question-bank-schema-before-immutability.js:153:
+  question-bank-schema-before-immutability.js:154:  db.exec(`
+> question-bank-schema-before-immutability.js:155:    CREATE TABLE IF NOT EXISTS question_import_batches (
+  question-bank-schema-before-immutability.js:156:      id INTEGER PRIMARY KEY AUTOINCREMENT,
+  question-bank-schema-before-immutability.js:157:      original_filename TEXT NOT NULL,
+  question-bank-schema-before-immutability.js:158:      status TEXT NOT NULL DEFAULT 'uploaded'
+  question-bank-schema-before-immutability.js:159:        CHECK(status IN ('uploaded','validating','validated','imported','failed')),
+  question-bank-schema-before-immutability.js:160:      total_rows INTEGER NOT NULL DEFAULT 0,
+  question-bank-schema-before-immutability.js:174:      status TEXT NOT NULL DEFAULT 'pending'
+  question-bank-schema-before-immutability.js:175:        CHECK(status IN ('pending','imported','rejected')),
+> question-bank-schema-before-immutability.js:176:      FOREIGN KEY (batch_id) REFERENCES question_import_batches(id),
+  question-bank-schema-before-immutability.js:177:      FOREIGN KEY (question_id) REFERENCES questions(id),
+  question-bank-schema-before-immutability.js:178:      UNIQUE(batch_id, row_number)
+  question-bank-schema-before-immutability.js:179:    );
+  question-bank-schema-before-immutability.js:180:
+  question-bank-schema-before-immutability.js:181:    CREATE TABLE IF NOT EXISTS question_import_errors (
+  question-bank-schema-before-immutability.js:187:      message TEXT NOT NULL,
+  question-bank-schema-before-immutability.js:188:      created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+> question-bank-schema-before-immutability.js:189:      FOREIGN KEY (batch_id) REFERENCES question_import_batches(id)
+  question-bank-schema-before-immutability.js:190:    );
+  question-bank-schema-before-immutability.js:191:
+  question-bank-schema-before-immutability.js:192:    CREATE INDEX IF NOT EXISTS idx_question_import_items_batch
+  question-bank-schema-before-immutability.js:193:      ON question_import_items(batch_id, status);
+  question-bank-schema-before-immutability.js:194:  `);
+  question-bank-schema-before-immutability.js:208:  const duplicateVersion = db.prepare(`
+  question-bank-schema-before-immutability.js:209:    SELECT question_group_id, version_number, COUNT(*) AS count
+> question-bank-schema-before-immutability.js:210:    FROM questions
+  question-bank-schema-before-immutability.js:211:    GROUP BY question_group_id, version_number
+  question-bank-schema-before-immutability.js:212:    HAVING COUNT(*) > 1
+  question-bank-schema-before-immutability.js:213:    LIMIT 1
+  question-bank-schema-before-immutability.js:214:  `).get();
+  question-bank-schema-before-immutability.js:215:
+  question-bank-schema-before-immutability.js:252:    BEFORE INSERT ON question_current_versions
+  question-bank-schema-before-immutability.js:253:    WHEN NOT EXISTS (
+> question-bank-schema-before-immutability.js:254:      SELECT 1 FROM questions
+  question-bank-schema-before-immutability.js:255:      WHERE id = NEW.question_id
+  question-bank-schema-before-immutability.js:256:        AND question_group_id = NEW.question_group_id
+  question-bank-schema-before-immutability.js:257:        AND review_status = 'approved'
+  question-bank-schema-before-immutability.js:258:    )
+  question-bank-schema-before-immutability.js:259:    BEGIN
+  question-bank-schema-before-immutability.js:265:    ON question_current_versions
+  question-bank-schema-before-immutability.js:266:    WHEN NOT EXISTS (
+> question-bank-schema-before-immutability.js:267:      SELECT 1 FROM questions
+  question-bank-schema-before-immutability.js:268:      WHERE id = NEW.question_id
+  question-bank-schema-before-immutability.js:269:        AND question_group_id = NEW.question_group_id
+  question-bank-schema-before-immutability.js:270:        AND review_status = 'approved'
+  question-bank-schema-before-immutability.js:271:    )
+  question-bank-schema-before-immutability.js:272:    BEGIN
+  question-bank-schema-before-immutability.js:295:           SUM(CASE WHEN review_status = 'approved' THEN 1 ELSE 0 END) AS approved,
+  question-bank-schema-before-immutability.js:296:           SUM(CASE WHEN review_status = 'draft' THEN 1 ELSE 0 END) AS drafts
+> question-bank-schema-before-immutability.js:297:    FROM questions
+  question-bank-schema-before-immutability.js:298:  `).get();
+  question-bank-schema-before-immutability.js:299:
+  question-bank-schema-before-immutability.js:300:  console.log('Question-bank migration completed.');
+  question-bank-schema-before-immutability.js:301:  console.log('Integrity:', integrity);
+  question-bank-schema-before-immutability.js:302:  console.log('Foreign-key issues:', foreignKeys.length);
+  question-bank-schema.js:60:      (question_group_id, question_id)
+  question-bank-schema.js:61:    SELECT id, id
+> question-bank-schema.js:62:    FROM questions
+  question-bank-schema.js:63:    WHERE active = 1 AND review_status = 'approved';
+  question-bank-schema.js:64:
+  question-bank-schema.js:65:    CREATE TABLE IF NOT EXISTS question_review_history (
+  question-bank-schema.js:66:      id INTEGER PRIMARY KEY AUTOINCREMENT,
+  question-bank-schema.js:67:      question_id INTEGER NOT NULL,
+  question-bank-schema.js:153:
+  question-bank-schema.js:154:  db.exec(`
+> question-bank-schema.js:155:    CREATE TABLE IF NOT EXISTS question_import_batches (
+  question-bank-schema.js:156:      id INTEGER PRIMARY KEY AUTOINCREMENT,
+  question-bank-schema.js:157:      original_filename TEXT NOT NULL,
+  question-bank-schema.js:158:      status TEXT NOT NULL DEFAULT 'uploaded'
+  question-bank-schema.js:159:        CHECK(status IN ('uploaded','validating','validated','imported','failed')),
+  question-bank-schema.js:160:      total_rows INTEGER NOT NULL DEFAULT 0,
+  question-bank-schema.js:174:      status TEXT NOT NULL DEFAULT 'pending'
+  question-bank-schema.js:175:        CHECK(status IN ('pending','imported','rejected')),
+> question-bank-schema.js:176:      FOREIGN KEY (batch_id) REFERENCES question_import_batches(id),
+  question-bank-schema.js:177:      FOREIGN KEY (question_id) REFERENCES questions(id),
+  question-bank-schema.js:178:      UNIQUE(batch_id, row_number)
+  question-bank-schema.js:179:    );
+  question-bank-schema.js:180:
+  question-bank-schema.js:181:    CREATE TABLE IF NOT EXISTS question_import_errors (
+  question-bank-schema.js:187:      message TEXT NOT NULL,
+  question-bank-schema.js:188:      created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+> question-bank-schema.js:189:      FOREIGN KEY (batch_id) REFERENCES question_import_batches(id)
+  question-bank-schema.js:190:    );
+  question-bank-schema.js:191:
+  question-bank-schema.js:192:    CREATE INDEX IF NOT EXISTS idx_question_import_items_batch
+  question-bank-schema.js:193:      ON question_import_items(batch_id, status);
+  question-bank-schema.js:194:  `);
+  question-bank-schema.js:208:  const duplicateVersion = db.prepare(`
+  question-bank-schema.js:209:    SELECT question_group_id, version_number, COUNT(*) AS count
+> question-bank-schema.js:210:    FROM questions
+  question-bank-schema.js:211:    GROUP BY question_group_id, version_number
+  question-bank-schema.js:212:    HAVING COUNT(*) > 1
+  question-bank-schema.js:213:    LIMIT 1
+  question-bank-schema.js:214:  `).get();
+  question-bank-schema.js:215:
+  question-bank-schema.js:252:    BEFORE INSERT ON question_current_versions
+  question-bank-schema.js:253:    WHEN NOT EXISTS (
+> question-bank-schema.js:254:      SELECT 1 FROM questions
+  question-bank-schema.js:255:      WHERE id = NEW.question_id
+  question-bank-schema.js:256:        AND question_group_id = NEW.question_group_id
+  question-bank-schema.js:257:        AND review_status = 'approved'
+  question-bank-schema.js:258:    )
+  question-bank-schema.js:259:    BEGIN
+  question-bank-schema.js:265:    ON question_current_versions
+  question-bank-schema.js:266:    WHEN NOT EXISTS (
+> question-bank-schema.js:267:      SELECT 1 FROM questions
+  question-bank-schema.js:268:      WHERE id = NEW.question_id
+  question-bank-schema.js:269:        AND question_group_id = NEW.question_group_id
+  question-bank-schema.js:270:        AND review_status = 'approved'
+  question-bank-schema.js:271:    )
+  question-bank-schema.js:272:    BEGIN
+  question-bank-schema.js:329:           SUM(CASE WHEN review_status = 'approved' THEN 1 ELSE 0 END) AS approved,
+  question-bank-schema.js:330:           SUM(CASE WHEN review_status = 'draft' THEN 1 ELSE 0 END) AS drafts
+> question-bank-schema.js:331:    FROM questions
+  question-bank-schema.js:332:  `).get();
+  question-bank-schema.js:333:
+  question-bank-schema.js:334:  console.log('Question-bank migration completed.');
+  question-bank-schema.js:335:  console.log('Integrity:', integrity);
+  question-bank-schema.js:336:  console.log('Foreign-key issues:', foreignKeys.length);
+  reset-question-bank.js:33:    'question_import_errors',
+  reset-question-bank.js:34:    'question_import_items',
+> reset-question-bank.js:35:    'question_import_batches',
+  reset-question-bank.js:36:    'question_media_links',
+  reset-question-bank.js:37:    'passage_media_links',
+  reset-question-bank.js:38:    'questions',
+  reset-question-bank.js:39:    'question_passages',
+  reset-question-bank.js:40:    'question_media',
+  server-before-private-media-route-20261122-000230.js:479:
+  server-before-private-media-route-20261122-000230.js:480:  const totalQuestions = db.prepare(
+> server-before-private-media-route-20261122-000230.js:481:    'SELECT COUNT(*) AS count FROM questions'
+  server-before-private-media-route-20261122-000230.js:482:  ).get().count;
+  server-before-private-media-route-20261122-000230.js:483:
+  server-before-private-media-route-20261122-000230.js:484:  const totalStudents = db.prepare(
+  server-before-private-media-route-20261122-000230.js:485:    "SELECT COUNT(*) AS count FROM users WHERE role = 'student'"
+  server-before-private-media-route-20261122-000230.js:486:  ).get().count;
+  server-before-private-media-route-20261122-000230.js:640:    questions: {
+  server-before-private-media-route-20261122-000230.js:641:      filename: 'learnspace-questions',
+> server-before-private-media-route-20261122-000230.js:642:      sql: 'SELECT id, text, options, correct_answer, explanation, category,
+difficulty, active, created_at FROM questions ORDER BY id',
+  server-before-private-media-route-20261122-000230.js:643:      columns: [
+  server-before-private-media-route-20261122-000230.js:644:        { key: 'id', label: 'Question ID' },
+  server-before-private-media-route-20261122-000230.js:645:        { key: 'text', label: 'Question' },
+  server-before-private-media-route-20261122-000230.js:646:        { key: 'options', label: 'Options JSON' },
+  server-before-private-media-route-20261122-000230.js:647:        { key: 'correct_answer', label: 'Correct answer' },
+  server.js:518:
+  server.js:519:  const totalQuestions = db.prepare(
+> server.js:520:    'SELECT COUNT(*) AS count FROM questions'
+  server.js:521:  ).get().count;
+  server.js:522:
+  server.js:523:  const totalStudents = db.prepare(
+  server.js:524:    "SELECT COUNT(*) AS count FROM users WHERE role = 'student'"
+  server.js:525:  ).get().count;
+  server.js:570:  if (!req.file) return res.status(400).json({ error: 'Choose an .xlsx workbook.' });
+  server.js:571:
+> server.js:572:  const existingQuestions = db.prepare('SELECT COUNT(*) AS count FROM questions').get().count;
+  server.js:573:  if (existingQuestions > 0) {
+  server.js:574:    return res.status(409).json({ error: 'The question bank is not empty. Upload cancelled to prevent duplicate questions.'
+});
+  server.js:575:  }
+  server.js:576:
+  server.js:577:  let tempDir;
+  server.js:733:    questions: {
+  server.js:734:      filename: 'learnspace-questions',
+> server.js:735:      sql: 'SELECT id, text, options, correct_answer, explanation, category, difficulty, active, created_at FROM questions
+ORDER BY id',
+  server.js:736:      columns: [
+  server.js:737:        { key: 'id', label: 'Question ID' },
+  server.js:738:        { key: 'text', label: 'Question' },
+  server.js:739:        { key: 'options', label: 'Options JSON' },
+  server.js:740:        { key: 'correct_answer', label: 'Correct answer' },
+
+===== IMPORTER SCHEMA SETUP =====
+  import-question-bank-cse2017.js:82:    db.exec("BEGIN IMMEDIATE");
+  import-question-bank-cse2017.js:83:
+> import-question-bank-cse2017.js:84:    const batch = db.prepare("INSERT INTO question_import_batches
+(original_filename,status,total_rows,uploaded_by) VALUES (?,'validating',?,?)")
+  import-question-bank-cse2017.js:85:      .run(filename, questions.length, uploaderId);
+  import-question-bank-cse2017.js:86:    batchId = Number(batch.lastInsertRowid);
+  import-question-bank-cse2017.js:87:
+  import-question-bank-cse2017.js:88:    const insertPassage = db.prepare(`
+  import-question-bank-cse2017.js:584:
+  import-question-bank-cse2017.js:585:    db.prepare(`
+> import-question-bank-cse2017.js:586:      UPDATE question_import_batches
+  import-question-bank-cse2017.js:587:      SET status='imported', imported_rows=?, error_rows=?, completed_at=?
+  import-question-bank-cse2017.js:588:      WHERE id=?
+  import-question-bank-cse2017.js:589:    `).run(imported, errorRows.size, now, batchId);
+  import-question-bank-cse2017.js:590:
+
+
+PS C:\Users\mavmu\Desktop\Traffic Sim\LMS>
