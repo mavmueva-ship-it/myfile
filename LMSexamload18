@@ -1,0 +1,560 @@
+PS C:\Users\mavmu\Desktop\Traffic Sim\LMS> @'
+>> const db = require('./database');
+>> const tables = db.prepare("SELECT name, type FROM sqlite_master WHERE type IN ('table','view') AND (name LIKE '%question%' OR name LIKE '%passage%' OR name LIKE '%exam%' OR name LIKE '%batch%' OR name LIKE '%attempt%') ORDER BY name").all();
+>> for (const item of tables) {
+>>   console.log('\n### ' + item.name + ' (' + item.type + ')');
+>>   console.log('Columns:', db.prepare(`PRAGMA table_info("${item.name}")`).all().map(x => x.name));
+>>   console.log('Foreign keys:', db.prepare(`PRAGMA foreign_key_list("${item.name}")`).all());
+>> }
+>> db.close();
+>> '@ | Set-Content -Path .\inspect-upload-relations.cjs -Encoding UTF8; node .\inspect-upload-relations.cjs; Select-String -Path .\import-question-bank-cse2017.js -Pattern 'batchId|batch_id|question_import_batches|question_passages|INSERT INTO questions|INSERT INTO question_passages' -Context 2,3
+LearnSpace database initialized successfully.
+All required tables and indexes are available.
+Existing records were preserved.
+Database path: C:\Users\mavmu\Desktop\Traffic Sim\LMS\database\lms.db
+
+### attempt_answers (table)
+Columns: [ 'id', 'attempt_id', 'question_id', 'selected_answer', 'saved_at' ]
+Foreign keys: [
+  [Object: null prototype] {
+    id: 0,
+    seq: 0,
+    table: 'questions',
+    from: 'question_id',
+    to: 'id',
+    on_update: 'NO ACTION',
+    on_delete: 'NO ACTION',
+    match: 'NONE'
+  },
+  [Object: null prototype] {
+    id: 1,
+    seq: 0,
+    table: 'attempts',
+    from: 'attempt_id',
+    to: 'id',
+    on_update: 'NO ACTION',
+    on_delete: 'CASCADE',
+    match: 'NONE'
+  }
+]
+
+### attempt_questions (table)
+Columns: [
+  'id',
+  'attempt_id',
+  'question_id',
+  'position',
+  'question_snapshot',
+  'answer_key_snapshot',
+  'explanation_snapshot'
+]
+Foreign keys: [
+  [Object: null prototype] {
+    id: 0,
+    seq: 0,
+    table: 'questions',
+    from: 'question_id',
+    to: 'id',
+    on_update: 'NO ACTION',
+    on_delete: 'NO ACTION',
+    match: 'NONE'
+  },
+  [Object: null prototype] {
+    id: 1,
+    seq: 0,
+    table: 'attempts',
+    from: 'attempt_id',
+    to: 'id',
+    on_update: 'NO ACTION',
+    on_delete: 'CASCADE',
+    match: 'NONE'
+  }
+]
+
+### attempts (table)
+Columns: [
+  'id',
+  'user_id',
+  'score',
+  'total_questions',
+  'status',
+  'started_at',
+  'completed_at',
+  'exam_id',
+  'access_mode',
+  'is_staff_test',
+  'deadline_at'
+]
+Foreign keys: [
+  [Object: null prototype] {
+    id: 0,
+    seq: 0,
+    table: 'users',
+    from: 'user_id',
+    to: 'id',
+    on_update: 'NO ACTION',
+    on_delete: 'NO ACTION',
+    match: 'NONE'
+  },
+  [Object: null prototype] {
+    id: 1,
+    seq: 0,
+    table: 'exams',
+    from: 'exam_id',
+    to: 'id',
+    on_update: 'NO ACTION',
+    on_delete: 'NO ACTION',
+    match: 'NONE'
+  }
+]
+
+### exam_questions (table)
+Columns: [ 'id', 'exam_id', 'question_id', 'position' ]
+Foreign keys: [
+  [Object: null prototype] {
+    id: 0,
+    seq: 0,
+    table: 'questions',
+    from: 'question_id',
+    to: 'id',
+    on_update: 'NO ACTION',
+    on_delete: 'NO ACTION',
+    match: 'NONE'
+  },
+  [Object: null prototype] {
+    id: 1,
+    seq: 0,
+    table: 'exams',
+    from: 'exam_id',
+    to: 'id',
+    on_update: 'NO ACTION',
+    on_delete: 'CASCADE',
+    match: 'NONE'
+  }
+]
+
+### exams (table)
+Columns: [
+  'id',            'title',
+  'description',   'duration_minutes',
+  'passing_score', 'active',
+  'created_by',    'created_at',
+  'updated_at',    'price_cents',
+  'currency',      'exam_type',
+  'category'
+]
+Foreign keys: [
+  [Object: null prototype] {
+    id: 0,
+    seq: 0,
+    table: 'users',
+    from: 'created_by',
+    to: 'id',
+    on_update: 'NO ACTION',
+    on_delete: 'NO ACTION',
+    match: 'NONE'
+  }
+]
+
+### passage_media_links (table)
+Columns: [ 'id', 'passage_id', 'media_id', 'position' ]
+Foreign keys: [
+  [Object: null prototype] {
+    id: 0,
+    seq: 0,
+    table: 'question_media',
+    from: 'media_id',
+    to: 'id',
+    on_update: 'NO ACTION',
+    on_delete: 'NO ACTION',
+    match: 'NONE'
+  },
+  [Object: null prototype] {
+    id: 1,
+    seq: 0,
+    table: 'question_passages',
+    from: 'passage_id',
+    to: 'id',
+    on_update: 'NO ACTION',
+    on_delete: 'NO ACTION',
+    match: 'NONE'
+  }
+]
+
+### question_current_versions (table)
+Columns: [ 'question_group_id', 'question_id', 'updated_at' ]
+Foreign keys: [
+  [Object: null prototype] {
+    id: 0,
+    seq: 0,
+    table: 'questions',
+    from: 'question_group_id',
+    to: 'question_group_id',
+    on_update: 'NO ACTION',
+    on_delete: 'NO ACTION',
+    match: 'NONE'
+  },
+  [Object: null prototype] {
+    id: 0,
+    seq: 1,
+    table: 'questions',
+    from: 'question_id',
+    to: 'id',
+    on_update: 'NO ACTION',
+    on_delete: 'NO ACTION',
+    match: 'NONE'
+  }
+]
+
+### question_import_batches (table)
+Columns: [
+  'id',
+  'original_filename',
+  'status',
+  'total_rows',
+  'imported_rows',
+  'error_rows',
+  'uploaded_by',
+  'created_at',
+  'completed_at'
+]
+Foreign keys: [
+  [Object: null prototype] {
+    id: 0,
+    seq: 0,
+    table: 'users',
+    from: 'uploaded_by',
+    to: 'id',
+    on_update: 'NO ACTION',
+    on_delete: 'NO ACTION',
+    match: 'NONE'
+  }
+]
+
+### question_import_errors (table)
+Columns: [
+  'id',
+  'batch_id',
+  'row_number',
+  'field_name',
+  'error_code',
+  'message',
+  'created_at'
+]
+Foreign keys: [
+  [Object: null prototype] {
+    id: 0,
+    seq: 0,
+    table: 'question_import_batches',
+    from: 'batch_id',
+    to: 'id',
+    on_update: 'NO ACTION',
+    on_delete: 'NO ACTION',
+    match: 'NONE'
+  }
+]
+
+### question_import_items (table)
+Columns: [ 'id', 'batch_id', 'row_number', 'question_id', 'status' ]
+Foreign keys: [
+  [Object: null prototype] {
+    id: 0,
+    seq: 0,
+    table: 'questions',
+    from: 'question_id',
+    to: 'id',
+    on_update: 'NO ACTION',
+    on_delete: 'NO ACTION',
+    match: 'NONE'
+  },
+  [Object: null prototype] {
+    id: 1,
+    seq: 0,
+    table: 'question_import_batches',
+    from: 'batch_id',
+    to: 'id',
+    on_update: 'NO ACTION',
+    on_delete: 'NO ACTION',
+    match: 'NONE'
+  }
+]
+
+### question_media (table)
+Columns: [
+  'id',
+  'storage_key',
+  'original_filename',
+  'mime_type',
+  'byte_size',
+  'sha256',
+  'alt_text',
+  'uploaded_by',
+  'created_at'
+]
+Foreign keys: [
+  [Object: null prototype] {
+    id: 0,
+    seq: 0,
+    table: 'users',
+    from: 'uploaded_by',
+    to: 'id',
+    on_update: 'NO ACTION',
+    on_delete: 'NO ACTION',
+    match: 'NONE'
+  }
+]
+
+### question_media_links (table)
+Columns: [ 'id', 'question_id', 'media_id', 'usage_type', 'position' ]
+Foreign keys: [
+  [Object: null prototype] {
+    id: 0,
+    seq: 0,
+    table: 'question_media',
+    from: 'media_id',
+    to: 'id',
+    on_update: 'NO ACTION',
+    on_delete: 'NO ACTION',
+    match: 'NONE'
+  },
+  [Object: null prototype] {
+    id: 1,
+    seq: 0,
+    table: 'questions',
+    from: 'question_id',
+    to: 'id',
+    on_update: 'NO ACTION',
+    on_delete: 'NO ACTION',
+    match: 'NONE'
+  }
+]
+
+### question_passage_links (table)
+Columns: [ 'question_id', 'passage_id', 'group_position' ]
+Foreign keys: [
+  [Object: null prototype] {
+    id: 0,
+    seq: 0,
+    table: 'question_passages',
+    from: 'passage_id',
+    to: 'id',
+    on_update: 'NO ACTION',
+    on_delete: 'NO ACTION',
+    match: 'NONE'
+  },
+  [Object: null prototype] {
+    id: 1,
+    seq: 0,
+    table: 'questions',
+    from: 'question_id',
+    to: 'id',
+    on_update: 'NO ACTION',
+    on_delete: 'NO ACTION',
+    match: 'NONE'
+  }
+]
+
+### question_passages (table)
+Columns: [
+  'id',
+  'title',
+  'passage_text',
+  'content_json',
+  'source_title',
+  'source_page',
+  'source_url',
+  'rights_status',
+  'permission_notes',
+  'review_status',
+  'created_by',
+  'created_at',
+  'updated_at'
+]
+Foreign keys: [
+  [Object: null prototype] {
+    id: 0,
+    seq: 0,
+    table: 'users',
+    from: 'created_by',
+    to: 'id',
+    on_update: 'NO ACTION',
+    on_delete: 'NO ACTION',
+    match: 'NONE'
+  }
+]
+
+### question_review_history (table)
+Columns: [
+  'id',
+  'question_id',
+  'actor_id',
+  'action',
+  'previous_status',
+  'new_status',
+  'notes',
+  'created_at'
+]
+Foreign keys: [
+  [Object: null prototype] {
+    id: 0,
+    seq: 0,
+    table: 'users',
+    from: 'actor_id',
+    to: 'id',
+    on_update: 'NO ACTION',
+    on_delete: 'NO ACTION',
+    match: 'NONE'
+  },
+  [Object: null prototype] {
+    id: 1,
+    seq: 0,
+    table: 'questions',
+    from: 'question_id',
+    to: 'id',
+    on_update: 'NO ACTION',
+    on_delete: 'NO ACTION',
+    match: 'NONE'
+  }
+]
+
+### questions (table)
+Columns: [
+  'id',               'text',
+  'options',          'correct_answer',
+  'explanation',      'category',
+  'difficulty',       'active',
+  'created_at',       'question_group_id',
+  'version_number',   'review_status',
+  'question_type',    'content_json',
+  'topic',            'exam_level',
+  'source_title',     'source_page',
+  'source_url',       'rights_status',
+  'permission_notes', 'updated_at',
+  'created_by',       'reviewed_by',
+  'reviewed_at'
+]
+Foreign keys: [
+  [Object: null prototype] {
+    id: 0,
+    seq: 0,
+    table: 'users',
+    from: 'reviewed_by',
+    to: 'id',
+    on_update: 'NO ACTION',
+    on_delete: 'NO ACTION',
+    match: 'NONE'
+  },
+  [Object: null prototype] {
+    id: 1,
+    seq: 0,
+    table: 'users',
+    from: 'created_by',
+    to: 'id',
+    on_update: 'NO ACTION',
+    on_delete: 'NO ACTION',
+    match: 'NONE'
+  }
+]
+
+  import-question-bank-cse2017.js:28:}
+  import-question-bank-cse2017.js:29:
+> import-question-bank-cse2017.js:30:function addError(db, batchId, rowNumber, field, code, message) {
+> import-question-bank-cse2017.js:31:  db.prepare("INSERT INTO question_import_errors (batch_id,row_number,field_name,error_code,message)
+VALUES (?,?,?,?,?)")
+> import-question-bank-cse2017.js:32:    .run(batchId, rowNumber, field, code, message);
+  import-question-bank-cse2017.js:33:}
+  import-question-bank-cse2017.js:34:
+  import-question-bank-cse2017.js:35:async function main() {
+  import-question-bank-cse2017.js:72:  const db = new DatabaseSync(dbPath);
+  import-question-bank-cse2017.js:73:  db.exec("PRAGMA foreign_keys=ON");
+> import-question-bank-cse2017.js:74:  let batchId = null;
+  import-question-bank-cse2017.js:75:  let imported = 0;
+  import-question-bank-cse2017.js:76:  let errorRows = new Set();
+  import-question-bank-cse2017.js:77:  const createdMediaFiles = [];
+  import-question-bank-cse2017.js:82:    db.exec("BEGIN IMMEDIATE");
+  import-question-bank-cse2017.js:83:
+> import-question-bank-cse2017.js:84:    const batch = db.prepare("INSERT INTO question_import_batches
+(original_filename,status,total_rows,uploaded_by) VALUES (?,'validating',?,?)")
+  import-question-bank-cse2017.js:85:      .run(filename, questions.length, uploaderId);
+> import-question-bank-cse2017.js:86:    batchId = Number(batch.lastInsertRowid);
+  import-question-bank-cse2017.js:87:
+  import-question-bank-cse2017.js:88:    const insertPassage = db.prepare(`
+> import-question-bank-cse2017.js:89:      INSERT INTO question_passages
+  import-question-bank-cse2017.js:90:
+(title,passage_text,content_json,source_title,source_page,source_url,rights_status,review_status,created_by,created_at,updated_at)
+  import-question-bank-cse2017.js:91:      VALUES (?,?,?,?,?,?,?,'draft',?,?,?)
+  import-question-bank-cse2017.js:92:    `);
+  import-question-bank-cse2017.js:115:      );
+  import-question-bank-cse2017.js:116:      passageMap.set(originalId, Number(result.lastInsertRowid));
+> import-question-bank-cse2017.js:117:      if (!p.PassageText) addError(db, batchId, null, "PassageText", "MISSING_PASSAGE_TEXT", "Passage "
++ originalId + " has no passage text.");
+  import-question-bank-cse2017.js:118:      if ((p.ReviewStatus || "").toLowerCase() !== "approved") {
+> import-question-bank-cse2017.js:119:        addError(db, batchId, null, "ReviewStatus", "PASSAGE_NOT_APPROVED", "Passage " + originalId + "
+is retained as a draft and requires review.");
+  import-question-bank-cse2017.js:120:      }
+  import-question-bank-cse2017.js:121:    }
+  import-question-bank-cse2017.js:122:
+  import-question-bank-cse2017.js:123:    const insertQuestion = db.prepare(`
+> import-question-bank-cse2017.js:124:      INSERT INTO questions
+  import-question-bank-cse2017.js:125:      (text,options,correct_answer,explanation,category,difficulty,active,created_at,
+  import-question-bank-cse2017.js:126:       version_number,review_status,question_type,content_json,topic,exam_level,
+  import-question-bank-cse2017.js:127:       source_title,source_page,source_url,rights_status,permission_notes,updated_at,created_by)
+  import-question-bank-cse2017.js:130:
+  import-question-bank-cse2017.js:131:    const insertItem = db.prepare(
+> import-question-bank-cse2017.js:132:      "INSERT INTO question_import_items (batch_id,row_number,question_id,status) VALUES
+(?,?,?,'imported')"
+  import-question-bank-cse2017.js:133:    );
+  import-question-bank-cse2017.js:134:
+  import-question-bank-cse2017.js:135:    for (const item of questions) {
+  import-question-bank-cse2017.js:224:      const questionId = Number(result.lastInsertRowid);
+  import-question-bank-cse2017.js:225:      db.prepare("UPDATE questions SET question_group_id=? WHERE id=?").run(questionId, questionId);
+> import-question-bank-cse2017.js:226:      insertItem.run(batchId, rowNumber, questionId);
+  import-question-bank-cse2017.js:227:      questionMap.set(originalId, questionId);
+  import-question-bank-cse2017.js:228:      imported++;
+  import-question-bank-cse2017.js:229:
+  import-question-bank-cse2017.js:230:      for (const e of rowErrors) {
+> import-question-bank-cse2017.js:231:        addError(db, batchId, rowNumber, e.field, e.code, e.message);
+  import-question-bank-cse2017.js:232:        errorRows.add(rowNumber);
+  import-question-bank-cse2017.js:233:      }
+  import-question-bank-cse2017.js:234:    }
+  import-question-bank-cse2017.js:260:    const getQuestionContent = db.prepare("SELECT content_json FROM questions WHERE id=?");
+  import-question-bank-cse2017.js:261:    const updateQuestionContent = db.prepare("UPDATE questions SET content_json=? WHERE id=?");
+> import-question-bank-cse2017.js:262:    const getPassageContent = db.prepare("SELECT content_json FROM question_passages WHERE id=?");
+> import-question-bank-cse2017.js:263:    const updatePassageContent = db.prepare("UPDATE question_passages SET content_json=? WHERE id=?");
+  import-question-bank-cse2017.js:264:
+  import-question-bank-cse2017.js:265:    const questionSourceRows = new Map(
+  import-question-bank-cse2017.js:266:      questions.map(item => [item.data.QuestionID, item.rowNumber])
+  import-question-bank-cse2017.js:580:    ];
+  import-question-bank-cse2017.js:581:    for (const [id, message] of passageWarnings) {
+> import-question-bank-cse2017.js:582:      if (passageMap.has(id)) addError(db, batchId, null, "Passage:" + id, "PASSAGE_CONTENT_REVIEW",
+message);
+  import-question-bank-cse2017.js:583:    }
+  import-question-bank-cse2017.js:584:
+  import-question-bank-cse2017.js:585:    db.prepare(`
+> import-question-bank-cse2017.js:586:      UPDATE question_import_batches
+  import-question-bank-cse2017.js:587:      SET status='imported', imported_rows=?, error_rows=?, completed_at=?
+  import-question-bank-cse2017.js:588:      WHERE id=?
+> import-question-bank-cse2017.js:589:    `).run(imported, errorRows.size, now, batchId);
+  import-question-bank-cse2017.js:590:
+  import-question-bank-cse2017.js:591:    db.exec("COMMIT");
+  import-question-bank-cse2017.js:592:
+  import-question-bank-cse2017.js:594:    console.log("Workbook:", filename);
+  import-question-bank-cse2017.js:595:    console.log("Database:", dbPath);
+> import-question-bank-cse2017.js:596:    console.log("Batch ID:", batchId);
+  import-question-bank-cse2017.js:597:    console.log("Question rows found:", questions.length);
+  import-question-bank-cse2017.js:598:    console.log("Questions imported as drafts:", imported);
+  import-question-bank-cse2017.js:599:    console.log("Passages imported as drafts:", passages.length);
+  import-question-bank-cse2017.js:600:    console.log("Media metadata records retained as references:", media.length);
+  import-question-bank-cse2017.js:601:    console.log("Question rows with validation errors:", errorRows.size);
+> import-question-bank-cse2017.js:602:    console.log("Total recorded errors/warnings:", db.prepare("SELECT COUNT(*) AS n FROM
+question_import_errors WHERE batch_id=?").get(batchId).n);
+> import-question-bank-cse2017.js:603:    console.log("Passage links created:", db.prepare("SELECT COUNT(*) AS n FROM question_passage_links
+qpl JOIN question_import_items i ON i.question_id=qpl.question_id WHERE i.batch_id=?").get(batchId).n);
+> import-question-bank-cse2017.js:604:    console.log("Question review statuses:", db.prepare("SELECT review_status,COUNT(*) AS n FROM
+questions WHERE id IN (SELECT question_id FROM question_import_items WHERE batch_id=?) GROUP BY review_status").all(batchId));
+  import-question-bank-cse2017.js:605:    console.log("Database integrity:", db.prepare("PRAGMA integrity_check").get());
+  import-question-bank-cse2017.js:606:    console.log("Foreign key issues:", db.prepare("PRAGMA foreign_key_check").all().length);
+  import-question-bank-cse2017.js:607:  } catch (error) {
+
+
+PS C:\Users\mavmu\Desktop\Traffic Sim\LMS>
