@@ -1,0 +1,172 @@
+
+===== QUESTION / PASSAGE / MEDIA TABLES =====
+
+> question-bank-schema.js:51:    CREATE TABLE IF NOT EXISTS question_current_versions (
+  question-bank-schema.js:52:      question_group_id INTEGER PRIMARY KEY,
+  question-bank-schema.js:53:      question_id INTEGER NOT NULL UNIQUE,
+  question-bank-schema.js:54:      updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  question-bank-schema.js:55:      FOREIGN KEY (question_group_id) REFERENCES questions(id),
+  question-bank-schema.js:56:      FOREIGN KEY (question_id) REFERENCES questions(id)
+  question-bank-schema.js:57:    );
+  question-bank-schema.js:58:
+  question-bank-schema.js:59:    INSERT OR IGNORE INTO question_current_versions
+  question-bank-schema.js:60:      (question_group_id, question_id)
+  question-bank-schema.js:61:    SELECT id, id
+  question-bank-schema.js:62:    FROM questions
+  question-bank-schema.js:63:    WHERE active = 1 AND review_status = 'approved';
+  question-bank-schema.js:64:
+> question-bank-schema.js:65:    CREATE TABLE IF NOT EXISTS question_review_history (
+  question-bank-schema.js:66:      id INTEGER PRIMARY KEY AUTOINCREMENT,
+  question-bank-schema.js:67:      question_id INTEGER NOT NULL,
+  question-bank-schema.js:68:      actor_id INTEGER NOT NULL,
+  question-bank-schema.js:69:      action TEXT NOT NULL CHECK(action IN (
+  question-bank-schema.js:70:        'submitted','approved','rejected','returned_for_changes',
+  question-bank-schema.js:71:        'resubmitted','withdrawn'
+  question-bank-schema.js:72:      )),
+  question-bank-schema.js:73:      previous_status TEXT,
+  question-bank-schema.js:74:      new_status TEXT NOT NULL,
+  question-bank-schema.js:75:      notes TEXT NOT NULL DEFAULT '',
+  question-bank-schema.js:76:      created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  question-bank-schema.js:77:      FOREIGN KEY (question_id) REFERENCES questions(id),
+  question-bank-schema.js:78:      FOREIGN KEY (actor_id) REFERENCES users(id)
+  question-bank-schema.js:79:    );
+  question-bank-schema.js:80:  `);
+  question-bank-schema.js:81:
+  question-bank-schema.js:82:  db.exec(`
+> question-bank-schema.js:83:    CREATE TABLE IF NOT EXISTS question_passages (
+  question-bank-schema.js:84:      id INTEGER PRIMARY KEY AUTOINCREMENT,
+  question-bank-schema.js:85:      title TEXT NOT NULL DEFAULT '',
+  question-bank-schema.js:86:      passage_text TEXT NOT NULL,
+  question-bank-schema.js:87:      content_json TEXT,
+  question-bank-schema.js:88:      source_title TEXT,
+  question-bank-schema.js:89:      source_page TEXT,
+  question-bank-schema.js:90:      source_url TEXT,
+  question-bank-schema.js:91:      rights_status TEXT,
+  question-bank-schema.js:92:      permission_notes TEXT,
+  question-bank-schema.js:93:      review_status TEXT NOT NULL DEFAULT 'draft'
+  question-bank-schema.js:94:        CHECK(review_status IN ('draft','pending_review','approved','rejected','withdrawn')),
+  question-bank-schema.js:95:      created_by INTEGER,
+  question-bank-schema.js:96:      created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  question-bank-schema.js:97:      updated_at TEXT,
+  question-bank-schema.js:98:      FOREIGN KEY (created_by) REFERENCES users(id)
+  question-bank-schema.js:99:    );
+  question-bank-schema.js:100:
+> question-bank-schema.js:101:    CREATE TABLE IF NOT EXISTS question_passage_links (
+  question-bank-schema.js:102:      question_id INTEGER PRIMARY KEY,
+  question-bank-schema.js:103:      passage_id INTEGER NOT NULL,
+  question-bank-schema.js:104:      group_position INTEGER NOT NULL DEFAULT 0,
+  question-bank-schema.js:105:      FOREIGN KEY (question_id) REFERENCES questions(id),
+  question-bank-schema.js:106:      FOREIGN KEY (passage_id) REFERENCES question_passages(id)
+  question-bank-schema.js:107:    );
+  question-bank-schema.js:108:
+  question-bank-schema.js:109:    CREATE INDEX IF NOT EXISTS idx_question_passage_links_passage
+  question-bank-schema.js:110:      ON question_passage_links(passage_id, group_position);
+  question-bank-schema.js:111:  `);
+  question-bank-schema.js:112:
+  question-bank-schema.js:113:  db.exec(`
+> question-bank-schema.js:114:    CREATE TABLE IF NOT EXISTS question_media (
+  question-bank-schema.js:115:      id INTEGER PRIMARY KEY AUTOINCREMENT,
+  question-bank-schema.js:116:      storage_key TEXT NOT NULL UNIQUE,
+  question-bank-schema.js:117:      original_filename TEXT NOT NULL,
+  question-bank-schema.js:118:      mime_type TEXT NOT NULL,
+  question-bank-schema.js:119:      byte_size INTEGER NOT NULL CHECK(byte_size > 0),
+  question-bank-schema.js:120:      sha256 TEXT,
+  question-bank-schema.js:121:      alt_text TEXT NOT NULL DEFAULT '',
+  question-bank-schema.js:122:      uploaded_by INTEGER,
+  question-bank-schema.js:123:      created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  question-bank-schema.js:124:      FOREIGN KEY (uploaded_by) REFERENCES users(id)
+  question-bank-schema.js:125:    );
+  question-bank-schema.js:126:
+> question-bank-schema.js:127:    CREATE TABLE IF NOT EXISTS question_media_links (
+  question-bank-schema.js:128:      id INTEGER PRIMARY KEY AUTOINCREMENT,
+  question-bank-schema.js:129:      question_id INTEGER NOT NULL,
+  question-bank-schema.js:130:      media_id INTEGER NOT NULL,
+  question-bank-schema.js:131:      usage_type TEXT NOT NULL CHECK(usage_type IN (
+  question-bank-schema.js:132:        'prompt','option_a','option_b','option_c','option_d'
+  question-bank-schema.js:133:      )),
+  question-bank-schema.js:134:      position INTEGER NOT NULL DEFAULT 0,
+  question-bank-schema.js:135:      FOREIGN KEY (question_id) REFERENCES questions(id),
+  question-bank-schema.js:136:      FOREIGN KEY (media_id) REFERENCES question_media(id),
+  question-bank-schema.js:137:      UNIQUE(question_id, media_id, usage_type)
+  question-bank-schema.js:138:    );
+  question-bank-schema.js:139:
+> question-bank-schema.js:140:    CREATE TABLE IF NOT EXISTS passage_media_links (
+  question-bank-schema.js:141:      id INTEGER PRIMARY KEY AUTOINCREMENT,
+  question-bank-schema.js:142:      passage_id INTEGER NOT NULL,
+  question-bank-schema.js:143:      media_id INTEGER NOT NULL,
+  question-bank-schema.js:144:      position INTEGER NOT NULL DEFAULT 0,
+  question-bank-schema.js:145:      FOREIGN KEY (passage_id) REFERENCES question_passages(id),
+  question-bank-schema.js:146:      FOREIGN KEY (media_id) REFERENCES question_media(id),
+  question-bank-schema.js:147:      UNIQUE(passage_id, media_id)
+  question-bank-schema.js:148:    );
+  question-bank-schema.js:149:
+  question-bank-schema.js:150:    CREATE INDEX IF NOT EXISTS idx_question_media_links_question
+  question-bank-schema.js:151:      ON question_media_links(question_id, usage_type);
+  question-bank-schema.js:152:  `);
+  question-bank-schema.js:153:
+  question-bank-schema.js:154:  db.exec(`
+  question-bank-schema.js:155:    CREATE TABLE IF NOT EXISTS question_import_batches (
+  question-bank-schema.js:156:      id INTEGER PRIMARY KEY AUTOINCREMENT,
+  question-bank-schema.js:157:      original_filename TEXT NOT NULL,
+  question-bank-schema.js:158:      status TEXT NOT NULL DEFAULT 'uploaded'
+  question-bank-schema.js:159:        CHECK(status IN ('uploaded','validating','validated','imported','failed')),
+  question-bank-schema.js:160:      total_rows INTEGER NOT NULL DEFAULT 0,
+  question-bank-schema.js:161:      imported_rows INTEGER NOT NULL DEFAULT 0,
+  question-bank-schema.js:162:      error_rows INTEGER NOT NULL DEFAULT 0,
+  question-bank-schema.js:163:      uploaded_by INTEGER,
+  question-bank-schema.js:164:      created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  question-bank-schema.js:165:      completed_at TEXT,
+  question-bank-schema.js:166:      FOREIGN KEY (uploaded_by) REFERENCES users(id)
+  question-bank-schema.js:167:    );
+  question-bank-schema.js:168:
+
+===== MEDIA STORAGE REFERENCES =====
+  server.js:191:});
+  server.js:192:
+> server.js:193:app.get('/api/question-media/:mediaId', requireAuth, (req, res) => {
+  server.js:194:  if (!/^\d+$/.test(req.params.mediaId)) {
+  server.js:195:    return res.status(404).json({ error: 'Media not found.' });
+  server.js:196:  }
+  server.js:198:  try {
+  server.js:199:    const media = db.prepare(
+> server.js:200:      'SELECT storage_key, mime_type FROM question_media WHERE id = ?'
+  server.js:201:    ).get(Number(req.params.mediaId));
+  server.js:202:
+  server.js:203:    if (!media ||
+> server.js:204:        !/^[a-f0-9]{64}\.(png|jpg|jpeg|gif|webp)$/i.test(media.storage_key) ||
+  server.js:205:        !['image/png', 'image/jpeg', 'image/gif', 'image/webp'].includes(media.mime_type)) {
+  server.js:206:      return res.status(404).json({ error: 'Media not found.' });
+  server.js:207:    }
+  server.js:208:
+> server.js:209:    const mediaPath = path.resolve(__dirname, 'storage', 'question-media', media.storage_key);
+  server.js:210:    res.setHeader('Content-Type', media.mime_type);
+  server.js:211:    res.setHeader('Cache-Control', 'private, no-store');
+  server.js:212:    res.setHeader('X-Content-Type-Options', 'nosniff');
+  import-question-bank-cse2017.js:250:
+  import-question-bank-cse2017.js:251:    const insertMedia = db.prepare(
+> import-question-bank-cse2017.js:252:      "INSERT INTO question_media
+(storage_key,original_filename,mime_type,byte_size,sha256,alt_text,uploaded_by) VALUES (?,?,?,?,?,?,?)"
+  import-question-bank-cse2017.js:253:    );
+  import-question-bank-cse2017.js:254:    const insertQuestionMediaLink = db.prepare(
+> import-question-bank-cse2017.js:255:      "INSERT INTO question_media_links (question_id,media_id,usage_type,position) VALUES (?,?,?,?)"
+  import-question-bank-cse2017.js:256:    );
+  import-question-bank-cse2017.js:257:    const insertPassageMediaLink = db.prepare(
+> import-question-bank-cse2017.js:258:      "INSERT INTO passage_media_links (passage_id,media_id,position) VALUES (?,?,?)"
+  import-question-bank-cse2017.js:259:    );
+  import-question-bank-cse2017.js:260:    const getQuestionContent = db.prepare("SELECT content_json FROM questions WHERE id=?");
+  import-question-bank-cse2017.js:261:    const updateQuestionContent = db.prepare("UPDATE questions SET content_json=? WHERE id=?");
+  import-question-bank-cse2017.js:439:
+  import-question-bank-cse2017.js:440:    const usedBinaryIds = new Set();
+> import-question-bank-cse2017.js:441:    const storageDir = path.resolve("storage", "question-media");
+  import-question-bank-cse2017.js:442:    fs.mkdirSync(storageDir, { recursive: true });
+  import-question-bank-cse2017.js:443:
+  import-question-bank-cse2017.js:444:    const mimeByExtension = {
+  import-question-bank-cse2017.js:527:        id: mediaId,
+  import-question-bank-cse2017.js:528:        mediaID: m.MediaID,
+> import-question-bank-cse2017.js:529:        url: "/api/question-media/" + mediaId,
+  import-question-bank-cse2017.js:530:        filename: originalName,
+  import-question-bank-cse2017.js:531:        mimeType,
+  import-question-bank-cse2017.js:532:        byteSize: buffer.length,
+
+
+PS C:\Users\mavmu\Desktop\Traffic Sim\LMS>
