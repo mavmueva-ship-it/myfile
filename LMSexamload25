@@ -1,0 +1,478 @@
+
+===== LIVE EXAM QUESTION ASSIGNMENT REFERENCES =====
+
+
+Path       : C:\Users\mavmu\Desktop\Traffic Sim\LMS\database-before-test-db-path.js
+LineNumber : 75
+Line       :     CREATE TABLE IF NOT EXISTS exam_questions (
+Context    : Microsoft.PowerShell.Commands.MatchInfoContext
+
+Path       : C:\Users\mavmu\Desktop\Traffic Sim\LMS\database-before-test-db-path.js
+LineNumber : 256
+Line       :     CREATE INDEX IF NOT EXISTS idx_exam_questions_exam
+Context    : Microsoft.PowerShell.Commands.MatchInfoContext
+
+Path       : C:\Users\mavmu\Desktop\Traffic Sim\LMS\database-before-test-db-path.js
+LineNumber : 257
+Line       :       ON exam_questions(exam_id, position);
+Context    : Microsoft.PowerShell.Commands.MatchInfoContext
+
+Path       : C:\Users\mavmu\Desktop\Traffic Sim\LMS\database.js
+LineNumber : 75
+Line       :     CREATE TABLE IF NOT EXISTS exam_questions (
+Context    : Microsoft.PowerShell.Commands.MatchInfoContext
+
+Path       : C:\Users\mavmu\Desktop\Traffic Sim\LMS\database.js
+LineNumber : 256
+Line       :     CREATE INDEX IF NOT EXISTS idx_exam_questions_exam
+Context    : Microsoft.PowerShell.Commands.MatchInfoContext
+
+Path       : C:\Users\mavmu\Desktop\Traffic Sim\LMS\database.js
+LineNumber : 257
+Line       :       ON exam_questions(exam_id, position);
+Context    : Microsoft.PowerShell.Commands.MatchInfoContext
+
+Path       : C:\Users\mavmu\Desktop\Traffic Sim\LMS\exam-routes-before-answer-validation-fix.js
+LineNumber : 256
+Line       :           FROM exam_questions eq
+Context    : Microsoft.PowerShell.Commands.MatchInfoContext
+
+Path       : C:\Users\mavmu\Desktop\Traffic Sim\LMS\exam-routes-before-category-count-fix.js
+LineNumber : 256
+Line       :           FROM exam_questions eq
+Context    : Microsoft.PowerShell.Commands.MatchInfoContext
+
+Path       : C:\Users\mavmu\Desktop\Traffic Sim\LMS\exam-routes-before-dynamic-options.js
+LineNumber : 256
+Line       :           FROM exam_questions eq
+Context    : Microsoft.PowerShell.Commands.MatchInfoContext
+
+Path       : C:\Users\mavmu\Desktop\Traffic Sim\LMS\exam-routes-before-empty-slot-fix-20261121-075412.js
+LineNumber : 256
+Line       :           FROM exam_questions eq
+Context    : Microsoft.PowerShell.Commands.MatchInfoContext
+
+Path       : C:\Users\mavmu\Desktop\Traffic Sim\LMS\exam-routes-before-empty-slot-fix2-20261121-075829.js
+LineNumber : 256
+Line       :           FROM exam_questions eq
+Context    : Microsoft.PowerShell.Commands.MatchInfoContext
+
+Path       : C:\Users\mavmu\Desktop\Traffic Sim\LMS\exam-routes-before-history-20261120.js
+LineNumber : 256
+Line       :           FROM exam_questions eq
+Context    : Microsoft.PowerShell.Commands.MatchInfoContext
+
+Path       : C:\Users\mavmu\Desktop\Traffic Sim\LMS\exam-routes-before-integrity-fix-20261120-010622.js
+LineNumber : 256
+Line       :           FROM exam_questions eq
+Context    : Microsoft.PowerShell.Commands.MatchInfoContext
+
+Path       : C:\Users\mavmu\Desktop\Traffic Sim\LMS\exam-routes-before-media-rendering-20261122081846.js
+LineNumber : 256
+Line       :           FROM exam_questions eq
+Context    : Microsoft.PowerShell.Commands.MatchInfoContext
+
+Path       : C:\Users\mavmu\Desktop\Traffic Sim\LMS\exam-routes-before-mock-flex-20261121-082422.js
+LineNumber : 256
+Line       :           FROM exam_questions eq
+Context    : Microsoft.PowerShell.Commands.MatchInfoContext
+
+Path       : C:\Users\mavmu\Desktop\Traffic Sim\LMS\exam-routes-before-random-30-20261121-080544.js
+LineNumber : 256
+Line       :           FROM exam_questions eq
+Context    : Microsoft.PowerShell.Commands.MatchInfoContext
+
+Path       : C:\Users\mavmu\Desktop\Traffic Sim\LMS\exam-routes-before-resume-dashboard-20261120-021643.js
+LineNumber : 256
+Line       :           FROM exam_questions eq
+Context    : Microsoft.PowerShell.Commands.MatchInfoContext
+
+Path       : C:\Users\mavmu\Desktop\Traffic Sim\LMS\exam-routes-before-start-validation-fix.js
+LineNumber : 256
+Line       :           FROM exam_questions eq
+Context    : Microsoft.PowerShell.Commands.MatchInfoContext
+
+Path       : C:\Users\mavmu\Desktop\Traffic Sim\LMS\exam-routes.js
+LineNumber : 286
+Line       :           FROM exam_questions eq
+Context    : Microsoft.PowerShell.Commands.MatchInfoContext
+
+Path       : C:\Users\mavmu\Desktop\Traffic Sim\LMS\import-question-bank-2020-test.js
+LineNumber : 79
+Line       :     const batch = db.prepare("INSERT INTO question_import_batches (original_filename,status,total_rows,uploaded_by) VALUES
+             (?,'validating',?,3)")
+Context    : Microsoft.PowerShell.Commands.MatchInfoContext
+
+Path       : C:\Users\mavmu\Desktop\Traffic Sim\LMS\import-question-bank-2020-test.js
+LineNumber : 126
+Line       :       "INSERT INTO question_import_items (batch_id,row_number,question_id,status) VALUES (?,?,?,'imported')"
+Context    : Microsoft.PowerShell.Commands.MatchInfoContext
+
+Path       : C:\Users\mavmu\Desktop\Traffic Sim\LMS\import-question-bank-2020-test.js
+LineNumber : 263
+Line       :       UPDATE question_import_batches
+Context    : Microsoft.PowerShell.Commands.MatchInfoContext
+
+Path       : C:\Users\mavmu\Desktop\Traffic Sim\LMS\import-question-bank-2020-test.js
+LineNumber : 280
+Line       :     console.log("Passage links created:", db.prepare("SELECT COUNT(*) AS n FROM question_passage_links qpl JOIN
+             question_import_items i ON i.question_id=qpl.question_id WHERE i.batch_id=?").get(batchId).n);
+Context    : Microsoft.PowerShell.Commands.MatchInfoContext
+
+Path       : C:\Users\mavmu\Desktop\Traffic Sim\LMS\import-question-bank-2020-test.js
+LineNumber : 281
+Line       :     console.log("Question review statuses:", db.prepare("SELECT review_status,COUNT(*) AS n FROM questions WHERE id IN (SELECT
+             question_id FROM question_import_items WHERE batch_id=?) GROUP BY review_status").all(batchId));
+Context    : Microsoft.PowerShell.Commands.MatchInfoContext
+
+Path       : C:\Users\mavmu\Desktop\Traffic Sim\LMS\import-question-bank-cse2017-before-media-integration-20261122-072337.js
+LineNumber : 79
+Line       :     const batch = db.prepare("INSERT INTO question_import_batches (original_filename,status,total_rows,uploaded_by) VALUES
+             (?,'validating',?,3)")
+Context    : Microsoft.PowerShell.Commands.MatchInfoContext
+
+Path       : C:\Users\mavmu\Desktop\Traffic Sim\LMS\import-question-bank-cse2017-before-media-integration-20261122-072337.js
+LineNumber : 126
+Line       :       "INSERT INTO question_import_items (batch_id,row_number,question_id,status) VALUES (?,?,?,'imported')"
+Context    : Microsoft.PowerShell.Commands.MatchInfoContext
+
+Path       : C:\Users\mavmu\Desktop\Traffic Sim\LMS\import-question-bank-cse2017-before-media-integration-20261122-072337.js
+LineNumber : 263
+Line       :       UPDATE question_import_batches
+Context    : Microsoft.PowerShell.Commands.MatchInfoContext
+
+Path       : C:\Users\mavmu\Desktop\Traffic Sim\LMS\import-question-bank-cse2017-before-media-integration-20261122-072337.js
+LineNumber : 280
+Line       :     console.log("Passage links created:", db.prepare("SELECT COUNT(*) AS n FROM question_passage_links qpl JOIN
+             question_import_items i ON i.question_id=qpl.question_id WHERE i.batch_id=?").get(batchId).n);
+Context    : Microsoft.PowerShell.Commands.MatchInfoContext
+
+Path       : C:\Users\mavmu\Desktop\Traffic Sim\LMS\import-question-bank-cse2017-before-media-integration-20261122-072337.js
+LineNumber : 281
+Line       :     console.log("Question review statuses:", db.prepare("SELECT review_status,COUNT(*) AS n FROM questions WHERE id IN (SELECT
+             question_id FROM question_import_items WHERE batch_id=?) GROUP BY review_status").all(batchId));
+Context    : Microsoft.PowerShell.Commands.MatchInfoContext
+
+Path       : C:\Users\mavmu\Desktop\Traffic Sim\LMS\import-question-bank-cse2017-before-media.js
+LineNumber : 79
+Line       :     const batch = db.prepare("INSERT INTO question_import_batches (original_filename,status,total_rows,uploaded_by) VALUES
+             (?,'validating',?,3)")
+Context    : Microsoft.PowerShell.Commands.MatchInfoContext
+
+Path       : C:\Users\mavmu\Desktop\Traffic Sim\LMS\import-question-bank-cse2017-before-media.js
+LineNumber : 126
+Line       :       "INSERT INTO question_import_items (batch_id,row_number,question_id,status) VALUES (?,?,?,'imported')"
+Context    : Microsoft.PowerShell.Commands.MatchInfoContext
+
+Path       : C:\Users\mavmu\Desktop\Traffic Sim\LMS\import-question-bank-cse2017-before-media.js
+LineNumber : 263
+Line       :       UPDATE question_import_batches
+Context    : Microsoft.PowerShell.Commands.MatchInfoContext
+
+Path       : C:\Users\mavmu\Desktop\Traffic Sim\LMS\import-question-bank-cse2017-before-media.js
+LineNumber : 280
+Line       :     console.log("Passage links created:", db.prepare("SELECT COUNT(*) AS n FROM question_passage_links qpl JOIN
+             question_import_items i ON i.question_id=qpl.question_id WHERE i.batch_id=?").get(batchId).n);
+Context    : Microsoft.PowerShell.Commands.MatchInfoContext
+
+Path       : C:\Users\mavmu\Desktop\Traffic Sim\LMS\import-question-bank-cse2017-before-media.js
+LineNumber : 281
+Line       :     console.log("Question review statuses:", db.prepare("SELECT review_status,COUNT(*) AS n FROM questions WHERE id IN (SELECT
+             question_id FROM question_import_items WHERE batch_id=?) GROUP BY review_status").all(batchId));
+Context    : Microsoft.PowerShell.Commands.MatchInfoContext
+
+Path       : C:\Users\mavmu\Desktop\Traffic Sim\LMS\import-question-bank-cse2017-before-mediatype-fix-20261121-235819.js
+LineNumber : 82
+Line       :     const batch = db.prepare("INSERT INTO question_import_batches (original_filename,status,total_rows,uploaded_by) VALUES
+             (?,'validating',?,3)")
+Context    : Microsoft.PowerShell.Commands.MatchInfoContext
+
+Path       : C:\Users\mavmu\Desktop\Traffic Sim\LMS\import-question-bank-cse2017-before-mediatype-fix-20261121-235819.js
+LineNumber : 129
+Line       :       "INSERT INTO question_import_items (batch_id,row_number,question_id,status) VALUES (?,?,?,'imported')"
+Context    : Microsoft.PowerShell.Commands.MatchInfoContext
+
+Path       : C:\Users\mavmu\Desktop\Traffic Sim\LMS\import-question-bank-cse2017-before-mediatype-fix-20261121-235819.js
+LineNumber : 583
+Line       :       UPDATE question_import_batches
+Context    : Microsoft.PowerShell.Commands.MatchInfoContext
+
+Path       : C:\Users\mavmu\Desktop\Traffic Sim\LMS\import-question-bank-cse2017-before-mediatype-fix-20261121-235819.js
+LineNumber : 600
+Line       :     console.log("Passage links created:", db.prepare("SELECT COUNT(*) AS n FROM question_passage_links qpl JOIN
+             question_import_items i ON i.question_id=qpl.question_id WHERE i.batch_id=?").get(batchId).n);
+Context    : Microsoft.PowerShell.Commands.MatchInfoContext
+
+Path       : C:\Users\mavmu\Desktop\Traffic Sim\LMS\import-question-bank-cse2017-before-mediatype-fix-20261121-235819.js
+LineNumber : 601
+Line       :     console.log("Question review statuses:", db.prepare("SELECT review_status,COUNT(*) AS n FROM questions WHERE id IN (SELECT
+             question_id FROM question_import_items WHERE batch_id=?) GROUP BY review_status").all(batchId));
+Context    : Microsoft.PowerShell.Commands.MatchInfoContext
+
+Path       : C:\Users\mavmu\Desktop\Traffic Sim\LMS\import-question-bank-cse2017-before-universal-resolver-20261121-233737.js
+LineNumber : 81
+Line       :     const batch = db.prepare("INSERT INTO question_import_batches (original_filename,status,total_rows,uploaded_by) VALUES
+             (?,'validating',?,3)")
+Context    : Microsoft.PowerShell.Commands.MatchInfoContext
+
+Path       : C:\Users\mavmu\Desktop\Traffic Sim\LMS\import-question-bank-cse2017-before-universal-resolver-20261121-233737.js
+LineNumber : 128
+Line       :       "INSERT INTO question_import_items (batch_id,row_number,question_id,status) VALUES (?,?,?,'imported')"
+Context    : Microsoft.PowerShell.Commands.MatchInfoContext
+
+Path       : C:\Users\mavmu\Desktop\Traffic Sim\LMS\import-question-bank-cse2017-before-universal-resolver-20261121-233737.js
+LineNumber : 362
+Line       :       UPDATE question_import_batches
+Context    : Microsoft.PowerShell.Commands.MatchInfoContext
+
+Path       : C:\Users\mavmu\Desktop\Traffic Sim\LMS\import-question-bank-cse2017-before-universal-resolver-20261121-233737.js
+LineNumber : 379
+Line       :     console.log("Passage links created:", db.prepare("SELECT COUNT(*) AS n FROM question_passage_links qpl JOIN
+             question_import_items i ON i.question_id=qpl.question_id WHERE i.batch_id=?").get(batchId).n);
+Context    : Microsoft.PowerShell.Commands.MatchInfoContext
+
+Path       : C:\Users\mavmu\Desktop\Traffic Sim\LMS\import-question-bank-cse2017-before-universal-resolver-20261121-233737.js
+LineNumber : 380
+Line       :     console.log("Question review statuses:", db.prepare("SELECT review_status,COUNT(*) AS n FROM questions WHERE id IN (SELECT
+             question_id FROM question_import_items WHERE batch_id=?) GROUP BY review_status").all(batchId));
+Context    : Microsoft.PowerShell.Commands.MatchInfoContext
+
+Path       : C:\Users\mavmu\Desktop\Traffic Sim\LMS\import-question-bank-cse2017.js
+LineNumber : 84
+Line       :     const batch = db.prepare("INSERT INTO question_import_batches (original_filename,status,total_rows,uploaded_by) VALUES
+             (?,'validating',?,?)")
+Context    : Microsoft.PowerShell.Commands.MatchInfoContext
+
+Path       : C:\Users\mavmu\Desktop\Traffic Sim\LMS\import-question-bank-cse2017.js
+LineNumber : 132
+Line       :       "INSERT INTO question_import_items (batch_id,row_number,question_id,status) VALUES (?,?,?,'imported')"
+Context    : Microsoft.PowerShell.Commands.MatchInfoContext
+
+Path       : C:\Users\mavmu\Desktop\Traffic Sim\LMS\import-question-bank-cse2017.js
+LineNumber : 586
+Line       :       UPDATE question_import_batches
+Context    : Microsoft.PowerShell.Commands.MatchInfoContext
+
+Path       : C:\Users\mavmu\Desktop\Traffic Sim\LMS\import-question-bank-cse2017.js
+LineNumber : 603
+Line       :     console.log("Passage links created:", db.prepare("SELECT COUNT(*) AS n FROM question_passage_links qpl JOIN
+             question_import_items i ON i.question_id=qpl.question_id WHERE i.batch_id=?").get(batchId).n);
+Context    : Microsoft.PowerShell.Commands.MatchInfoContext
+
+Path       : C:\Users\mavmu\Desktop\Traffic Sim\LMS\import-question-bank-cse2017.js
+LineNumber : 604
+Line       :     console.log("Question review statuses:", db.prepare("SELECT review_status,COUNT(*) AS n FROM questions WHERE id IN (SELECT
+             question_id FROM question_import_items WHERE batch_id=?) GROUP BY review_status").all(batchId));
+Context    : Microsoft.PowerShell.Commands.MatchInfoContext
+
+Path       : C:\Users\mavmu\Desktop\Traffic Sim\LMS\import-question-bank-live.js
+LineNumber : 79
+Line       :     const batch = db.prepare("INSERT INTO question_import_batches (original_filename,status,total_rows,uploaded_by) VALUES
+             (?,'validating',?,3)")
+Context    : Microsoft.PowerShell.Commands.MatchInfoContext
+
+Path       : C:\Users\mavmu\Desktop\Traffic Sim\LMS\import-question-bank-live.js
+LineNumber : 126
+Line       :       "INSERT INTO question_import_items (batch_id,row_number,question_id,status) VALUES (?,?,?,'imported')"
+Context    : Microsoft.PowerShell.Commands.MatchInfoContext
+
+Path       : C:\Users\mavmu\Desktop\Traffic Sim\LMS\import-question-bank-live.js
+LineNumber : 263
+Line       :       UPDATE question_import_batches
+Context    : Microsoft.PowerShell.Commands.MatchInfoContext
+
+Path       : C:\Users\mavmu\Desktop\Traffic Sim\LMS\import-question-bank-live.js
+LineNumber : 280
+Line       :     console.log("Passage links created:", db.prepare("SELECT COUNT(*) AS n FROM question_passage_links qpl JOIN
+             question_import_items i ON i.question_id=qpl.question_id WHERE i.batch_id=?").get(batchId).n);
+Context    : Microsoft.PowerShell.Commands.MatchInfoContext
+
+Path       : C:\Users\mavmu\Desktop\Traffic Sim\LMS\import-question-bank-live.js
+LineNumber : 281
+Line       :     console.log("Question review statuses:", db.prepare("SELECT review_status,COUNT(*) AS n FROM questions WHERE id IN (SELECT
+             question_id FROM question_import_items WHERE batch_id=?) GROUP BY review_status").all(batchId));
+Context    : Microsoft.PowerShell.Commands.MatchInfoContext
+
+Path       : C:\Users\mavmu\Desktop\Traffic Sim\LMS\import-question-bank-test.js
+LineNumber : 79
+Line       :     const batch = db.prepare("INSERT INTO question_import_batches (original_filename,status,total_rows,uploaded_by) VALUES
+             (?,'validating',?,3)")
+Context    : Microsoft.PowerShell.Commands.MatchInfoContext
+
+Path       : C:\Users\mavmu\Desktop\Traffic Sim\LMS\import-question-bank-test.js
+LineNumber : 126
+Line       :       "INSERT INTO question_import_items (batch_id,row_number,question_id,status) VALUES (?,?,?,'imported')"
+Context    : Microsoft.PowerShell.Commands.MatchInfoContext
+
+Path       : C:\Users\mavmu\Desktop\Traffic Sim\LMS\import-question-bank-test.js
+LineNumber : 263
+Line       :       UPDATE question_import_batches
+Context    : Microsoft.PowerShell.Commands.MatchInfoContext
+
+Path       : C:\Users\mavmu\Desktop\Traffic Sim\LMS\import-question-bank-test.js
+LineNumber : 280
+Line       :     console.log("Passage links created:", db.prepare("SELECT COUNT(*) AS n FROM question_passage_links qpl JOIN
+             question_import_items i ON i.question_id=qpl.question_id WHERE i.batch_id=?").get(batchId).n);
+Context    : Microsoft.PowerShell.Commands.MatchInfoContext
+
+Path       : C:\Users\mavmu\Desktop\Traffic Sim\LMS\import-question-bank-test.js
+LineNumber : 281
+Line       :     console.log("Question review statuses:", db.prepare("SELECT review_status,COUNT(*) AS n FROM questions WHERE id IN (SELECT
+             question_id FROM question_import_items WHERE batch_id=?) GROUP BY review_status").all(batchId));
+Context    : Microsoft.PowerShell.Commands.MatchInfoContext
+
+Path       : C:\Users\mavmu\Desktop\Traffic Sim\LMS\inspect-exam-counts.js
+LineNumber : 3
+Line       : for (const table of ['exams', 'questions', 'exam_questions', 'attempts', 'answers']) {
+Context    : Microsoft.PowerShell.Commands.MatchInfoContext
+
+Path       : C:\Users\mavmu\Desktop\Traffic Sim\LMS\inspect-reset-dependencies.js
+LineNumber : 6
+Line       :     .filter(x => ['users','exams','questions','question_passages','question_import_batches'].includes(x.table));
+Context    : Microsoft.PowerShell.Commands.MatchInfoContext
+
+Path       : C:\Users\mavmu\Desktop\Traffic Sim\LMS\preview-reset.js
+LineNumber : 3
+Line       : for (const t of ['questions','answers','question_passages','question_passage_links','question_media','question_media_links','pass
+             age_media_links','question_import_batches','question_import_items','question_import_errors','question_review_history','question_c
+             urrent_versions','exam_questions','exams','attempts','attempt_questions','attempt_answers']) {
+Context    : Microsoft.PowerShell.Commands.MatchInfoContext
+
+Path       : C:\Users\mavmu\Desktop\Traffic Sim\LMS\question-bank-schema-before-constraints.js
+LineNumber : 155
+Line       :     CREATE TABLE IF NOT EXISTS question_import_batches (
+Context    : Microsoft.PowerShell.Commands.MatchInfoContext
+
+Path       : C:\Users\mavmu\Desktop\Traffic Sim\LMS\question-bank-schema-before-constraints.js
+LineNumber : 169
+Line       :     CREATE TABLE IF NOT EXISTS question_import_items (
+Context    : Microsoft.PowerShell.Commands.MatchInfoContext
+
+Path       : C:\Users\mavmu\Desktop\Traffic Sim\LMS\question-bank-schema-before-constraints.js
+LineNumber : 176
+Line       :       FOREIGN KEY (batch_id) REFERENCES question_import_batches(id),
+Context    : Microsoft.PowerShell.Commands.MatchInfoContext
+
+Path       : C:\Users\mavmu\Desktop\Traffic Sim\LMS\question-bank-schema-before-constraints.js
+LineNumber : 189
+Line       :       FOREIGN KEY (batch_id) REFERENCES question_import_batches(id)
+Context    : Microsoft.PowerShell.Commands.MatchInfoContext
+
+Path       : C:\Users\mavmu\Desktop\Traffic Sim\LMS\question-bank-schema-before-constraints.js
+LineNumber : 192
+Line       :     CREATE INDEX IF NOT EXISTS idx_question_import_items_batch
+Context    : Microsoft.PowerShell.Commands.MatchInfoContext
+
+Path       : C:\Users\mavmu\Desktop\Traffic Sim\LMS\question-bank-schema-before-constraints.js
+LineNumber : 193
+Line       :       ON question_import_items(batch_id, status);
+Context    : Microsoft.PowerShell.Commands.MatchInfoContext
+
+Path       : C:\Users\mavmu\Desktop\Traffic Sim\LMS\question-bank-schema-before-immutability-hardening.js
+LineNumber : 155
+Line       :     CREATE TABLE IF NOT EXISTS question_import_batches (
+Context    : Microsoft.PowerShell.Commands.MatchInfoContext
+
+Path       : C:\Users\mavmu\Desktop\Traffic Sim\LMS\question-bank-schema-before-immutability-hardening.js
+LineNumber : 169
+Line       :     CREATE TABLE IF NOT EXISTS question_import_items (
+Context    : Microsoft.PowerShell.Commands.MatchInfoContext
+
+Path       : C:\Users\mavmu\Desktop\Traffic Sim\LMS\question-bank-schema-before-immutability-hardening.js
+LineNumber : 176
+Line       :       FOREIGN KEY (batch_id) REFERENCES question_import_batches(id),
+Context    : Microsoft.PowerShell.Commands.MatchInfoContext
+
+Path       : C:\Users\mavmu\Desktop\Traffic Sim\LMS\question-bank-schema-before-immutability-hardening.js
+LineNumber : 189
+Line       :       FOREIGN KEY (batch_id) REFERENCES question_import_batches(id)
+Context    : Microsoft.PowerShell.Commands.MatchInfoContext
+
+Path       : C:\Users\mavmu\Desktop\Traffic Sim\LMS\question-bank-schema-before-immutability-hardening.js
+LineNumber : 192
+Line       :     CREATE INDEX IF NOT EXISTS idx_question_import_items_batch
+Context    : Microsoft.PowerShell.Commands.MatchInfoContext
+
+Path       : C:\Users\mavmu\Desktop\Traffic Sim\LMS\question-bank-schema-before-immutability-hardening.js
+LineNumber : 193
+Line       :       ON question_import_items(batch_id, status);
+Context    : Microsoft.PowerShell.Commands.MatchInfoContext
+
+Path       : C:\Users\mavmu\Desktop\Traffic Sim\LMS\question-bank-schema-before-immutability.js
+LineNumber : 155
+Line       :     CREATE TABLE IF NOT EXISTS question_import_batches (
+Context    : Microsoft.PowerShell.Commands.MatchInfoContext
+
+Path       : C:\Users\mavmu\Desktop\Traffic Sim\LMS\question-bank-schema-before-immutability.js
+LineNumber : 169
+Line       :     CREATE TABLE IF NOT EXISTS question_import_items (
+Context    : Microsoft.PowerShell.Commands.MatchInfoContext
+
+Path       : C:\Users\mavmu\Desktop\Traffic Sim\LMS\question-bank-schema-before-immutability.js
+LineNumber : 176
+Line       :       FOREIGN KEY (batch_id) REFERENCES question_import_batches(id),
+Context    : Microsoft.PowerShell.Commands.MatchInfoContext
+
+Path       : C:\Users\mavmu\Desktop\Traffic Sim\LMS\question-bank-schema-before-immutability.js
+LineNumber : 189
+Line       :       FOREIGN KEY (batch_id) REFERENCES question_import_batches(id)
+Context    : Microsoft.PowerShell.Commands.MatchInfoContext
+
+Path       : C:\Users\mavmu\Desktop\Traffic Sim\LMS\question-bank-schema-before-immutability.js
+LineNumber : 192
+Line       :     CREATE INDEX IF NOT EXISTS idx_question_import_items_batch
+Context    : Microsoft.PowerShell.Commands.MatchInfoContext
+
+Path       : C:\Users\mavmu\Desktop\Traffic Sim\LMS\question-bank-schema-before-immutability.js
+LineNumber : 193
+Line       :       ON question_import_items(batch_id, status);
+Context    : Microsoft.PowerShell.Commands.MatchInfoContext
+
+Path       : C:\Users\mavmu\Desktop\Traffic Sim\LMS\question-bank-schema.js
+LineNumber : 155
+Line       :     CREATE TABLE IF NOT EXISTS question_import_batches (
+Context    : Microsoft.PowerShell.Commands.MatchInfoContext
+
+Path       : C:\Users\mavmu\Desktop\Traffic Sim\LMS\question-bank-schema.js
+LineNumber : 169
+Line       :     CREATE TABLE IF NOT EXISTS question_import_items (
+Context    : Microsoft.PowerShell.Commands.MatchInfoContext
+
+Path       : C:\Users\mavmu\Desktop\Traffic Sim\LMS\question-bank-schema.js
+LineNumber : 176
+Line       :       FOREIGN KEY (batch_id) REFERENCES question_import_batches(id),
+Context    : Microsoft.PowerShell.Commands.MatchInfoContext
+
+Path       : C:\Users\mavmu\Desktop\Traffic Sim\LMS\question-bank-schema.js
+LineNumber : 189
+Line       :       FOREIGN KEY (batch_id) REFERENCES question_import_batches(id)
+Context    : Microsoft.PowerShell.Commands.MatchInfoContext
+
+Path       : C:\Users\mavmu\Desktop\Traffic Sim\LMS\question-bank-schema.js
+LineNumber : 192
+Line       :     CREATE INDEX IF NOT EXISTS idx_question_import_items_batch
+Context    : Microsoft.PowerShell.Commands.MatchInfoContext
+
+Path       : C:\Users\mavmu\Desktop\Traffic Sim\LMS\question-bank-schema.js
+LineNumber : 193
+Line       :       ON question_import_items(batch_id, status);
+Context    : Microsoft.PowerShell.Commands.MatchInfoContext
+
+Path       : C:\Users\mavmu\Desktop\Traffic Sim\LMS\reset-question-bank.js
+LineNumber : 29
+Line       :     'exam_questions',
+Context    : Microsoft.PowerShell.Commands.MatchInfoContext
+
+Path       : C:\Users\mavmu\Desktop\Traffic Sim\LMS\reset-question-bank.js
+LineNumber : 34
+Line       :     'question_import_items',
+Context    : Microsoft.PowerShell.Commands.MatchInfoContext
+
+Path       : C:\Users\mavmu\Desktop\Traffic Sim\LMS\reset-question-bank.js
+LineNumber : 35
+Line       :     'question_import_batches',
+Context    : Microsoft.PowerShell.Commands.MatchInfoContext
+
+
+
+PS C:\Users\mavmu\Desktop\Traffic Sim\LMS>
