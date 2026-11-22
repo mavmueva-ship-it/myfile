@@ -1,0 +1,267 @@
+
+===== OWNER API ROUTES =====
+
+  server.js:158:}
+  server.js:159:
+  server.js:160:// Protect the Owner page before static files are served.
+> server.js:161:app.get('/owner.html', requirePageAuth, (req, res) => {
+  server.js:162:  if (req.user.role !== 'owner') {
+  server.js:163:    return res.redirect(
+  server.js:164:      req.user.role === 'admin' ? '/admin.html' : '/dashboard.html'
+  server.js:165:    );
+  server.js:166:  }
+  server.js:169:});
+  server.js:170:
+  server.js:171:// Protect the administrator page before static files are served.
+> server.js:172:app.get('/admin.html', requirePageAuth, (req, res) => {
+  server.js:173:  if (!['admin', 'owner'].includes(req.user.role)) {
+  server.js:174:    return res.redirect('/dashboard.html');
+  server.js:175:  }
+  server.js:176:
+  server.js:177:  if (req.user.role === 'owner') {
+  server.js:182:});
+  server.js:183:
+  server.js:184:// Protect the learner dashboard before static files are served.
+> server.js:185:app.get('/dashboard.html', requirePageAuth, (req, res) => {
+  server.js:186:  if (!['student', 'admin', 'owner'].includes(req.user.role)) {
+  server.js:187:    return res.redirect('/');
+  server.js:188:  }
+  server.js:189:
+  server.js:190:  res.sendFile(path.join(__dirname, 'public', 'dashboard.html'));
+  server.js:191:});
+  server.js:192:
+> server.js:193:app.get('/api/question-media/:mediaId', requireAuth, (req, res) => {
+  server.js:194:  if (!/^\d+$/.test(req.params.mediaId)) {
+  server.js:195:    return res.status(404).json({ error: 'Media not found.' });
+  server.js:196:  }
+  server.js:197:
+  server.js:198:  try {
+  server.js:225:});
+  server.js:226:app.use(express.static(path.join(__dirname, 'public')));
+  server.js:227:
+> server.js:228:app.get('/api/health', (req, res) => {
+  server.js:229:  res.json({ status: 'ok', message: 'LMS backend is running.' });
+  server.js:230:});
+  server.js:231:
+> server.js:232:app.post('/api/register', async (req, res) => {
+  server.js:233:  const firstName = typeof req.body.firstName === 'string'
+  server.js:234:    ? req.body.firstName.trim()
+  server.js:235:    : '';
+  server.js:236:  const lastName = typeof req.body.lastName === 'string'
+  server.js:237:    ? req.body.lastName.trim()
+  server.js:332:  }
+  server.js:333:});
+  server.js:334:
+> server.js:335:app.post('/api/login', async (req, res) => {
+  server.js:336:  const username = typeof req.body.username === 'string'
+  server.js:337:    ? req.body.username.trim()
+  server.js:338:    : '';
+  server.js:339:  const password = req.body.password;
+  server.js:340:
+  server.js:370:  }
+  server.js:371:});
+  server.js:372:
+> server.js:373:app.post('/api/password/change', requireAuth, async (req, res) => {
+  server.js:374:  const currentPassword = req.body.currentPassword;
+  server.js:375:  const newPassword = req.body.newPassword;
+  server.js:376:
+  server.js:377:  if (
+  server.js:378:    typeof currentPassword !== 'string' ||
+  server.js:448:  }
+  server.js:449:});
+  server.js:450:
+> server.js:451:app.post('/api/logout', (req, res) => {
+  server.js:452:  const token = parseCookies(req.headers.cookie)[COOKIE_NAME];
+  server.js:453:
+  server.js:454:  if (token && /^[a-f0-9]{64}$/i.test(token)) {
+  server.js:455:    deleteSession.run(auth.hashSessionToken(token));
+  server.js:456:  }
+  server.js:459:  res.json({ message: 'Logged out successfully.' });
+  server.js:460:});
+  server.js:461:
+> server.js:462:app.get('/api/me', requireAuth, (req, res) => {
+  server.js:463:  res.json({
+  server.js:464:    user: req.user,
+  server.js:465:    accessStatus: accessControl.getAccessStatus(req.user)
+  server.js:466:  });
+  server.js:467:});
+  server.js:468:
+> server.js:469:app.get('/api/exams', requireAuth, (req, res) => {
+  server.js:470:  try {
+  server.js:471:    if (!['owner', 'admin', 'student'].includes(req.user.role)) {
+  server.js:472:      return res.status(403).json({ error: 'Access denied.' });
+  server.js:473:    }
+  server.js:474:
+  server.js:511:}));
+  server.js:512:
+  server.js:513:// Administrator-only dashboard statistics.
+> server.js:514:app.get('/api/admin/stats', requireAuth, requireAdmin, (req, res) => {
+  server.js:515:  const totalExams = db.prepare(
+  server.js:516:    'SELECT COUNT(*) AS count FROM exams'
+  server.js:517:  ).get().count;
+  server.js:518:
+  server.js:519:  const totalQuestions = db.prepare(
+  server.js:532:});
+  server.js:533:
+  server.js:534:// Administrator-only student account list.
+> server.js:535:app.get('/api/admin/students', requireAuth, requireAdmin, (req, res) => {
+  server.js:536:  const students = db.prepare(`
+  server.js:537:    SELECT id, username, created_at
+  server.js:538:    FROM users
+  server.js:539:    WHERE role = 'student'
+  server.js:540:    ORDER BY created_at DESC
+  server.js:543:  res.json({ students });
+  server.js:544:});
+  server.js:545:
+> server.js:546:function requireOwner(req, res, next) {
+  server.js:547:  if (req.user.role !== 'owner') {
+  server.js:548:    return res.status(403).json({ error: 'Owner privileges required.' });
+  server.js:549:  }
+  server.js:550:  next();
+  server.js:551:}
+  server.js:561:  }
+  server.js:562:});
+  server.js:563:
+> server.js:564:app.post('/api/owner/question-bank/upload', requireAuth, requireOwner, (req, res, next) => {
+  server.js:565:  questionBankUpload.single('workbook')(req, res, error => {
+  server.js:566:    if (error) return res.status(400).json({ error: error.message });
+  server.js:567:    next();
+  server.js:568:  });
+  server.js:569:}, async (req, res) => {
+  server.js:605:});
+  server.js:606:
+  server.js:607:// Owner-only account list for account management.
+> server.js:608:app.get('/api/owner/accounts', requireAuth, requireOwner, (req, res) => {
+  server.js:609:  const accounts = db.prepare(`
+  server.js:610:    SELECT id, username, role, created_at
+  server.js:611:    FROM users
+  server.js:612:    WHERE role IN ('student', 'admin')
+  server.js:613:    ORDER BY role, created_at DESC
+  server.js:621:  auth,
+  server.js:622:  requireAuth,
+  server.js:623:  requireAdmin,
+> server.js:624:  requireOwner,
+  server.js:625:  config: passwordResetConfig
+  server.js:626:});
+  server.js:627:
+  server.js:628:app.use('/api/password-reset', passwordResetRouter);
+  server.js:629:
+  server.js:657:}
+  server.js:658:
+  server.js:659:// Owner-only CSV exports. Authentication secrets and payment settings are excluded.
+> server.js:660:app.get('/api/owner/export/:dataset', requireAuth, requireOwner, (req, res) => {
+  server.js:661:  const exports = {
+  server.js:662:    students: {
+  server.js:663:      filename: 'learnspace-students',
+  server.js:664:      sql: "SELECT id, username, first_name, last_name, email, phone, registration_started_at, registration_expires_at,
+enrollment_expires_at, created_at FROM users WHERE role = 'student' ORDER BY id",
+  server.js:665:      columns: [
+
+===== OWNER DASHBOARD UPLOAD SECTION =====
+  public\owner.html:117:              <h2>Learning content</h2>
+  public\owner.html:118:              <p>Manage courses, examinations, and questions.</p>
+  public\owner.html:119:            </div>
+  public\owner.html:120:            <span class="panel-icon">▤</span>
+  public\owner.html:121:          </div>
+> public\owner.html:122:          <div class="question-bank-upload">
+  public\owner.html:123:            <h3>Question bank workbook</h3>
+> public\owner.html:124:            <p>Upload the LearnSpace question bank in Excel (.xlsx) format. Imported questions remain drafts until
+reviewed and approved.</p>
+> public\owner.html:125:            <form id="questionBankUploadForm">
+  public\owner.html:126:              <label for="questionBankFile">Select Excel workbook (.xlsx)</label>
+  public\owner.html:127:              <input id="questionBankFile" name="workbook" type="file"
+accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" required>
+> public\owner.html:128:              <button id="questionBankUploadButton" type="submit">Upload question bank</button>
+  public\owner.html:129:            </form>
+> public\owner.html:130:            <p id="questionBankUploadStatus" role="status" aria-live="polite"></p>
+> public\owner.html:131:            <pre id="questionBankUploadReport" hidden></pre>
+  public\owner.html:132:          </div>
+  public\owner.html:133:        </section>
+  public\owner.html:134:
+  public\owner.html:135:        <section class="panel" id="finance">
+  public\owner.html:136:          <div class="panel-heading">
+  public\owner.html:137:            <div>
+  public\owner.html:138:              <h2>Payments & refunds</h2>
+  public\owner.html:139:              <p>Review transactions and manage refunds.</p>
+  public\owner.html:140:            </div>
+  public\owner.html:141:            <span class="panel-icon">₱</span>
+  public\owner.html:142:          </div>
+  public\owner.html:143:          <div class="admin-placeholder">
+
+===== OWNER JAVASCRIPT UPLOAD HANDLER =====
+  public\js\owner.js:3:const logoutButton = document.getElementById('logoutButton');
+  public\js\owner.js:4:const menuButton = document.getElementById('menuButton');
+  public\js\owner.js:5:const sidebar = document.getElementById('sidebar');
+  public\js\owner.js:6:const exportMessage = document.getElementById('exportMessage');
+  public\js\owner.js:7:
+> public\js\owner.js:8:async function loadOwner() {
+  public\js\owner.js:9:  try {
+  public\js\owner.js:10:    const response = await fetch('/api/me', {
+  public\js\owner.js:11:      credentials: 'same-origin'
+  public\js\owner.js:12:    });
+  public\js\owner.js:13:
+  public\js\owner.js:14:    if (!response.ok) {
+  public\js\owner.js:15:      window.location.href = '/';
+  public\js\owner.js:16:      return;
+  public\js\owner.js:17:    }
+  public\js\owner.js:18:
+  public\js\owner.js:19:    const data = await response.json();
+  public\js\owner.js:20:
+  public\js\owner.js:179:    sidebar.classList.remove('open');
+  public\js\owner.js:180:  });
+  public\js\owner.js:181:});
+  public\js\owner.js:182:
+  public\js\owner.js:183:
+> public\js\owner.js:184:const questionBankForm = document.getElementById('questionBankUploadForm');
+  public\js\owner.js:185:if (questionBankForm) {
+  public\js\owner.js:186:  const fileInput = document.getElementById('questionBankFile');
+> public\js\owner.js:187:  const uploadButton = document.getElementById('questionBankUploadButton');
+> public\js\owner.js:188:  const status = document.getElementById('questionBankUploadStatus');
+> public\js\owner.js:189:  const report = document.getElementById('questionBankUploadReport');
+  public\js\owner.js:190:
+  public\js\owner.js:191:  questionBankForm.addEventListener('submit', async event => {
+  public\js\owner.js:192:    event.preventDefault();
+  public\js\owner.js:193:    const file = fileInput.files[0];
+  public\js\owner.js:194:
+  public\js\owner.js:195:    if (!file || !file.name.toLowerCase().endsWith('.xlsx')) {
+  public\js\owner.js:196:      status.textContent = 'Choose a valid .xlsx workbook.';
+  public\js\owner.js:197:      return;
+  public\js\owner.js:198:    }
+  public\js\owner.js:199:
+> public\js\owner.js:200:    uploadButton.disabled = true;
+> public\js\owner.js:201:    status.textContent = 'Uploading and validating workbook. Please wait...';
+  public\js\owner.js:202:    report.hidden = true;
+  public\js\owner.js:203:    report.textContent = '';
+  public\js\owner.js:204:
+  public\js\owner.js:205:    try {
+  public\js\owner.js:206:      const data = new FormData();
+  public\js\owner.js:207:      data.append('workbook', file);
+> public\js\owner.js:208:      const response = await fetch('/api/owner/question-bank/upload', {
+  public\js\owner.js:209:        method: 'POST',
+  public\js\owner.js:210:        credentials: 'same-origin',
+  public\js\owner.js:211:        body: data
+  public\js\owner.js:212:      });
+  public\js\owner.js:213:      const result = await response.json();
+  public\js\owner.js:214:
+  public\js\owner.js:215:      if (!response.ok) {
+  public\js\owner.js:216:        throw new Error([result.error, result.details].filter(Boolean).join('\n\n'));
+  public\js\owner.js:217:      }
+  public\js\owner.js:218:
+  public\js\owner.js:219:      status.textContent = 'Workbook import completed successfully.';
+  public\js\owner.js:220:      report.textContent = [result.output, result.warnings].filter(Boolean).join('\n');
+  public\js\owner.js:221:      report.hidden = false;
+  public\js\owner.js:222:      questionBankForm.reset();
+  public\js\owner.js:223:    } catch (error) {
+> public\js\owner.js:224:      status.textContent = 'Workbook upload/import failed.';
+  public\js\owner.js:225:      report.textContent = error.message;
+  public\js\owner.js:226:      report.hidden = false;
+  public\js\owner.js:227:    } finally {
+> public\js\owner.js:228:      uploadButton.disabled = false;
+  public\js\owner.js:229:    }
+  public\js\owner.js:230:  });
+  public\js\owner.js:231:}
+  public\js\owner.js:232:
+> public\js\owner.js:233:loadOwner();
+
+
+PS C:\Users\mavmu\Desktop\Traffic Sim\LMS>
