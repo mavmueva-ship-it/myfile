@@ -1,0 +1,137 @@
+
+import-question-bank-2020-test.js:85:
+(title,passage_text,content_json,source_title,source_page,source_url,rights_status,review_status,created_by,created_at,updated_at)
+import-question-bank-2020-test.js:120:       version_number,review_status,question_type,content_json,topic,exam_level,
+import-question-bank-2020-test.js:281:    console.log("Question review statuses:", db.prepare("SELECT review_status,COUNT(*) AS n FROM
+questions WHERE id IN (SELECT question_id FROM question_import_items WHERE batch_id=?) GROUP BY review_status").all(batchId));
+import-question-bank-cse2017-before-media-integration-20261122-072337.js:85:
+(title,passage_text,content_json,source_title,source_page,source_url,rights_status,review_status,created_by,created_at,updated_at)
+import-question-bank-cse2017-before-media-integration-20261122-072337.js:120:
+version_number,review_status,question_type,content_json,topic,exam_level,
+import-question-bank-cse2017-before-media-integration-20261122-072337.js:281:    console.log("Question review statuses:", db.prepare("SELECT
+review_status,COUNT(*) AS n FROM questions WHERE id IN (SELECT question_id FROM question_import_items WHERE batch_id=?) GROUP BY
+review_status").all(batchId));
+import-question-bank-cse2017-before-media.js:85:
+(title,passage_text,content_json,source_title,source_page,source_url,rights_status,review_status,created_by,created_at,updated_at)
+import-question-bank-cse2017-before-media.js:120:       version_number,review_status,question_type,content_json,topic,exam_level,
+import-question-bank-cse2017-before-media.js:281:    console.log("Question review statuses:", db.prepare("SELECT review_status,COUNT(*) AS n
+FROM questions WHERE id IN (SELECT question_id FROM question_import_items WHERE batch_id=?) GROUP BY review_status").all(batchId));
+import-question-bank-cse2017-before-mediatype-fix-20261121-235819.js:88:
+(title,passage_text,content_json,source_title,source_page,source_url,rights_status,review_status,created_by,created_at,updated_at)
+import-question-bank-cse2017-before-mediatype-fix-20261121-235819.js:123:
+version_number,review_status,question_type,content_json,topic,exam_level,
+import-question-bank-cse2017-before-mediatype-fix-20261121-235819.js:601:    console.log("Question review statuses:", db.prepare("SELECT
+review_status,COUNT(*) AS n FROM questions WHERE id IN (SELECT question_id FROM question_import_items WHERE batch_id=?) GROUP BY
+review_status").all(batchId));
+import-question-bank-cse2017-before-universal-resolver-20261121-233737.js:87:
+(title,passage_text,content_json,source_title,source_page,source_url,rights_status,review_status,created_by,created_at,updated_at)
+import-question-bank-cse2017-before-universal-resolver-20261121-233737.js:122:
+version_number,review_status,question_type,content_json,topic,exam_level,
+import-question-bank-cse2017-before-universal-resolver-20261121-233737.js:380:    console.log("Question review statuses:", db.prepare("SELECT
+review_status,COUNT(*) AS n FROM questions WHERE id IN (SELECT question_id FROM question_import_items WHERE batch_id=?) GROUP BY
+review_status").all(batchId));
+import-question-bank-cse2017.js:90:
+(title,passage_text,content_json,source_title,source_page,source_url,rights_status,review_status,created_by,created_at,updated_at)
+import-question-bank-cse2017.js:126:       version_number,review_status,question_type,content_json,topic,exam_level,
+import-question-bank-cse2017.js:616:    console.log("Question review statuses:", db.prepare("SELECT review_status,COUNT(*) AS n FROM
+questions WHERE id IN (SELECT question_id FROM question_import_items WHERE batch_id=?) GROUP BY review_status").all(batchId));
+import-question-bank-live.js:85:
+(title,passage_text,content_json,source_title,source_page,source_url,rights_status,review_status,created_by,created_at,updated_at)
+import-question-bank-live.js:120:       version_number,review_status,question_type,content_json,topic,exam_level,
+import-question-bank-live.js:281:    console.log("Question review statuses:", db.prepare("SELECT review_status,COUNT(*) AS n FROM questions
+WHERE id IN (SELECT question_id FROM question_import_items WHERE batch_id=?) GROUP BY review_status").all(batchId));
+import-question-bank-test.js:85:
+(title,passage_text,content_json,source_title,source_page,source_url,rights_status,review_status,created_by,created_at,updated_at)
+import-question-bank-test.js:120:       version_number,review_status,question_type,content_json,topic,exam_level,
+import-question-bank-test.js:281:    console.log("Question review statuses:", db.prepare("SELECT review_status,COUNT(*) AS n FROM questions
+WHERE id IN (SELECT question_id FROM question_import_items WHERE batch_id=?) GROUP BY review_status").all(batchId));
+preview-reset.js:3:for (const t of ['questions','answers','question_passages','question_passage_links','question_media','question_media_links'
+,'passage_media_links','question_import_batches','question_import_items','question_import_errors','question_review_history','question_current_
+versions','exam_questions','exams','attempts','attempt_questions','attempt_answers']) {
+question-bank-schema-before-constraints.js:26:  addColumn('questions', 'review_status',
+question-bank-schema-before-constraints.js:27:    "TEXT NOT NULL DEFAULT 'draft' CHECK(review_status IN
+('draft','pending_review','approved','rejected','withdrawn'))");
+question-bank-schema-before-constraints.js:45:        review_status = CASE WHEN active = 1 THEN 'approved' ELSE 'draft' END,
+question-bank-schema-before-constraints.js:63:    WHERE active = 1 AND review_status = 'approved';
+question-bank-schema-before-constraints.js:65:    CREATE TABLE IF NOT EXISTS question_review_history (
+question-bank-schema-before-constraints.js:93:      review_status TEXT NOT NULL DEFAULT 'draft'
+question-bank-schema-before-constraints.js:94:        CHECK(review_status IN ('draft','pending_review','approved','rejected','withdrawn')),
+question-bank-schema-before-constraints.js:197:    CREATE INDEX IF NOT EXISTS idx_questions_review_status
+question-bank-schema-before-constraints.js:198:      ON questions(review_status, active);
+question-bank-schema-before-constraints.js:203:    CREATE INDEX IF NOT EXISTS idx_question_review_history_question
+question-bank-schema-before-constraints.js:204:      ON question_review_history(question_id, created_at);
+question-bank-schema-before-constraints.js:214:           SUM(CASE WHEN review_status = 'approved' THEN 1 ELSE 0 END) AS approved,
+question-bank-schema-before-constraints.js:215:           SUM(CASE WHEN review_status = 'draft' THEN 1 ELSE 0 END) AS drafts
+question-bank-schema-before-immutability-hardening.js:26:  addColumn('questions', 'review_status',
+question-bank-schema-before-immutability-hardening.js:27:    "TEXT NOT NULL DEFAULT 'draft' CHECK(review_status IN
+('draft','pending_review','approved','rejected','withdrawn'))");
+question-bank-schema-before-immutability-hardening.js:45:        review_status = CASE WHEN active = 1 THEN 'approved' ELSE 'draft' END,
+question-bank-schema-before-immutability-hardening.js:63:    WHERE active = 1 AND review_status = 'approved';
+question-bank-schema-before-immutability-hardening.js:65:    CREATE TABLE IF NOT EXISTS question_review_history (
+question-bank-schema-before-immutability-hardening.js:93:      review_status TEXT NOT NULL DEFAULT 'draft'
+question-bank-schema-before-immutability-hardening.js:94:        CHECK(review_status IN
+('draft','pending_review','approved','rejected','withdrawn')),
+question-bank-schema-before-immutability-hardening.js:197:    CREATE INDEX IF NOT EXISTS idx_questions_review_status
+question-bank-schema-before-immutability-hardening.js:198:      ON questions(review_status, active);
+question-bank-schema-before-immutability-hardening.js:203:    CREATE INDEX IF NOT EXISTS idx_question_review_history_question
+question-bank-schema-before-immutability-hardening.js:204:      ON question_review_history(question_id, created_at);
+question-bank-schema-before-immutability-hardening.js:257:        AND review_status = 'approved'
+question-bank-schema-before-immutability-hardening.js:270:        AND review_status = 'approved'
+question-bank-schema-before-immutability-hardening.js:277:    BEFORE UPDATE OF review_status ON questions
+question-bank-schema-before-immutability-hardening.js:278:    WHEN NEW.review_status <> 'approved'
+question-bank-schema-before-immutability-hardening.js:291:    WHEN NEW.review_status <> 'draft' OR NEW.active <> 0
+question-bank-schema-before-immutability-hardening.js:302:    WHEN OLD.review_status = 'approved'
+question-bank-schema-before-immutability-hardening.js:307:    CREATE TRIGGER IF NOT EXISTS approved_questions_cannot_be_deleted
+question-bank-schema-before-immutability-hardening.js:309:    WHEN OLD.review_status = 'approved'
+question-bank-schema-before-immutability-hardening.js:321:           SUM(CASE WHEN review_status = 'approved' THEN 1 ELSE 0 END) AS approved,
+question-bank-schema-before-immutability-hardening.js:322:           SUM(CASE WHEN review_status = 'draft' THEN 1 ELSE 0 END) AS drafts
+question-bank-schema-before-immutability.js:26:  addColumn('questions', 'review_status',
+question-bank-schema-before-immutability.js:27:    "TEXT NOT NULL DEFAULT 'draft' CHECK(review_status IN
+('draft','pending_review','approved','rejected','withdrawn'))");
+question-bank-schema-before-immutability.js:45:        review_status = CASE WHEN active = 1 THEN 'approved' ELSE 'draft' END,
+question-bank-schema-before-immutability.js:63:    WHERE active = 1 AND review_status = 'approved';
+question-bank-schema-before-immutability.js:65:    CREATE TABLE IF NOT EXISTS question_review_history (
+question-bank-schema-before-immutability.js:93:      review_status TEXT NOT NULL DEFAULT 'draft'
+question-bank-schema-before-immutability.js:94:        CHECK(review_status IN ('draft','pending_review','approved','rejected','withdrawn')),
+question-bank-schema-before-immutability.js:197:    CREATE INDEX IF NOT EXISTS idx_questions_review_status
+question-bank-schema-before-immutability.js:198:      ON questions(review_status, active);
+question-bank-schema-before-immutability.js:203:    CREATE INDEX IF NOT EXISTS idx_question_review_history_question
+question-bank-schema-before-immutability.js:204:      ON question_review_history(question_id, created_at);
+question-bank-schema-before-immutability.js:257:        AND review_status = 'approved'
+question-bank-schema-before-immutability.js:270:        AND review_status = 'approved'
+question-bank-schema-before-immutability.js:277:    BEFORE UPDATE OF review_status ON questions
+question-bank-schema-before-immutability.js:278:    WHEN NEW.review_status <> 'approved'
+question-bank-schema-before-immutability.js:295:           SUM(CASE WHEN review_status = 'approved' THEN 1 ELSE 0 END) AS approved,
+question-bank-schema-before-immutability.js:296:           SUM(CASE WHEN review_status = 'draft' THEN 1 ELSE 0 END) AS drafts
+question-bank-schema.js:26:  addColumn('questions', 'review_status',
+question-bank-schema.js:27:    "TEXT NOT NULL DEFAULT 'draft' CHECK(review_status IN
+('draft','pending_review','approved','rejected','withdrawn'))");
+question-bank-schema.js:45:        review_status = CASE WHEN active = 1 THEN 'approved' ELSE 'draft' END,
+question-bank-schema.js:63:    WHERE active = 1 AND review_status = 'approved';
+question-bank-schema.js:65:    CREATE TABLE IF NOT EXISTS question_review_history (
+question-bank-schema.js:93:      review_status TEXT NOT NULL DEFAULT 'draft'
+question-bank-schema.js:94:        CHECK(review_status IN ('draft','pending_review','approved','rejected','withdrawn')),
+question-bank-schema.js:197:    CREATE INDEX IF NOT EXISTS idx_questions_review_status
+question-bank-schema.js:198:      ON questions(review_status, active);
+question-bank-schema.js:203:    CREATE INDEX IF NOT EXISTS idx_question_review_history_question
+question-bank-schema.js:204:      ON question_review_history(question_id, created_at);
+question-bank-schema.js:257:        AND review_status = 'approved'
+question-bank-schema.js:270:        AND review_status = 'approved'
+question-bank-schema.js:277:    BEFORE UPDATE OF review_status ON questions
+question-bank-schema.js:278:    WHEN NEW.review_status <> 'approved'
+question-bank-schema.js:291:    WHEN NEW.review_status <> 'draft' OR NEW.active <> 0
+question-bank-schema.js:302:    WHEN OLD.review_status = 'approved'
+question-bank-schema.js:308:    BEFORE UPDATE OF review_status ON questions
+question-bank-schema.js:309:    WHEN OLD.review_status = 'approved'
+question-bank-schema.js:310:      AND NEW.review_status NOT IN ('approved', 'withdrawn')
+question-bank-schema.js:315:    CREATE TRIGGER IF NOT EXISTS approved_questions_cannot_be_deleted
+question-bank-schema.js:317:    WHEN OLD.review_status = 'approved'
+question-bank-schema.js:329:           SUM(CASE WHEN review_status = 'approved' THEN 1 ELSE 0 END) AS approved,
+question-bank-schema.js:330:           SUM(CASE WHEN review_status = 'draft' THEN 1 ELSE 0 END) AS drafts
+reset-question-bank.js:30:    'question_review_history',
+server.js:703:    'SELECT COUNT(*) AS n FROM questions WHERE id IN (' + placeholders + ") AND review_status='approved'"
+server.js:709:  for (const table of ['question_current_versions', 'question_review_history']) {
+server.js:716:          error: 'Deletion blocked: this batch has protected question version or review-history records.'
+
+
+PS C:\Users\mavmu\Desktop\Traffic Sim\LMS>
