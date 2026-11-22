@@ -1,0 +1,259 @@
+  const students = db.prepare(`
+    SELECT id, username, created_at
+    FROM users
+    WHERE role = 'student'
+    ORDER BY created_at DESC
+  `).all();
+
+  res.json({ students });
+});
+
+function requireOwner(req, res, next) {
+  if (req.user.role !== 'owner') {
+    return res.status(403).json({ error: 'Owner privileges required.' });
+  }
+  next();
+}
+
+const questionBankUpload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 25 * 1024 * 1024, files: 1, fields: 0 },
+  fileFilter: (req, file, callback) => {
+    if (path.extname(file.originalname || '').toLowerCase() !== '.xlsx') {
+      return callback(new Error('Only .xlsx workbooks are accepted.'));
+    }
+    callback(null, true);
+  }
+});
+
+app.post('/api/owner/question-bank/upload', requireAuth, requireOwner, (req, res, next) => {
+  questionBankUpload.single('workbook')(req, res, error => {
+    if (error) return res.status(400).json({ error: error.message });
+    next();
+  });
+}, async (req, res) => {
+  if (!req.file) return res.status(400).json({ error: 'Choose an .xlsx workbook.' });
+
+  const existingQuestions = db.prepare('SELECT COUNT(*) AS count FROM questions').get().count;
+  if (existingQuestions > 0) {
+    return res.status(409).json({ error: 'The question bank is not empty. Upload cancelled to prevent duplicate questions.' });
+  }
+
+  let tempDir;
+  try {
+    tempDir = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'learnspace-question-upload-'));
+    const workbookPath = path.join(tempDir, 'question-bank.xlsx');
+    await fs.promises.writeFile(workbookPath, req.file.buffer);
+
+    const result = await execFileAsync(process.execPath, [
+      path.join(__dirname, 'import-question-bank-cse2017.js'),
+      workbookPath,
+      String(req.user.id)
+    ], {
+      cwd: __dirname,
+      timeout: 180000,
+      maxBuffer: 5 * 1024 * 1024
+    });
+
+    res.json({ success: true, output: result.stdout, warnings: result.stderr });
+  } catch (error) {
+    const details = error.stderr || error.stdout || error.message;
+    res.status(422).json({
+      error: 'Workbook import failed. Check the details before trying again.',
+      details
+    });
+  } finally {
+    if (tempDir) {
+      await fs.promises.rm(tempDir, { recursive: true, force: true }).catch(() => {});
+    }
+  }
+});
+
+// Owner-only account list for account management.
+app.get('/api/owner/accounts', requireAuth, requireOwner, (req, res) => {
+  const accounts = db.prepare(`
+    SELECT id, username, role, created_at
+    FROM users
+    WHERE role IN ('student', 'admin')
+    ORDER BY role, created_at DESC
+  `).all();
+
+  res.json({ accounts });
+});
+
+const passwordResetRouter = createPasswordResetRouter({
+  db,
+
+===== DATABASE MODULE =====
+const { DatabaseSync } = require('node:sqlite');
+const path = require('node:path');
+const fs = require('node:fs');
+
+const databaseDirectory = path.join(__dirname, 'database');
+
+if (!fs.existsSync(databaseDirectory)) {
+  fs.mkdirSync(databaseDirectory, { recursive: true });
+}
+
+const databasePath = process.env.LMS_DATABASE_PATH ? path.resolve(process.env.LMS_DATABASE_PATH) : path.join(databaseDirectory, 'lms.db');
+const db = new DatabaseSync(databasePath);
+
+function addColumn(table, name, definition) {
+  const columns = db.prepare(`PRAGMA table_info(${table})`).all();
+
+  if (!columns.some(column => column.name === name)) {
+    db.exec(`ALTER TABLE ${table} ADD COLUMN ${name} ${definition}`);
+    console.log(`Added ${table}.${name}`);
+  }
+}
+
+try {
+  db.exec(`
+    PRAGMA foreign_keys = ON;
+    PRAGMA journal_mode = WAL;
+    BEGIN IMMEDIATE;
+
+    CREATE TABLE IF NOT EXISTS users (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      username TEXT NOT NULL COLLATE NOCASE UNIQUE,
+      password_hash TEXT NOT NULL,
+      role TEXT NOT NULL DEFAULT 'student'
+        CHECK(role IN ('student', 'admin', 'owner')),
+      created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      first_name TEXT,
+      last_name TEXT,
+      email TEXT,
+      phone TEXT,
+      registration_started_at TEXT,
+      registration_expires_at TEXT,
+      enrollment_expires_at TEXT,
+      must_change_password INTEGER NOT NULL DEFAULT 0
+    );
+
+    CREATE TABLE IF NOT EXISTS questions (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      text TEXT NOT NULL,
+      options TEXT NOT NULL,
+      correct_answer TEXT NOT NULL,
+      explanation TEXT NOT NULL DEFAULT '',
+      category TEXT NOT NULL DEFAULT 'General',
+      difficulty TEXT NOT NULL DEFAULT 'medium',
+      active INTEGER NOT NULL DEFAULT 1,
+      created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+    );
+
+    CREATE TABLE IF NOT EXISTS exams (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      title TEXT NOT NULL,
+      description TEXT NOT NULL DEFAULT '',
+      duration_minutes INTEGER NOT NULL DEFAULT 30,
+      passing_score INTEGER NOT NULL DEFAULT 50,
+      active INTEGER NOT NULL DEFAULT 0,
+      created_by INTEGER,
+      created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      price_cents INTEGER NOT NULL DEFAULT 0,
+      currency TEXT NOT NULL DEFAULT 'PHP',
+      FOREIGN KEY (created_by) REFERENCES users(id),
+      CHECK(duration_minutes BETWEEN 1 AND 600),
+      CHECK(passing_score BETWEEN 0 AND 100)
+    );
+
+    CREATE TABLE IF NOT EXISTS exam_questions (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      exam_id INTEGER NOT NULL,
+      question_id INTEGER NOT NULL,
+      position INTEGER NOT NULL DEFAULT 0,
+      FOREIGN KEY (exam_id) REFERENCES exams(id) ON DELETE CASCADE,
+      FOREIGN KEY (question_id) REFERENCES questions(id),
+      UNIQUE(exam_id, question_id)
+    );
+
+    CREATE TABLE IF NOT EXISTS attempts (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER NOT NULL,
+      score INTEGER NOT NULL DEFAULT 0,
+      total_questions INTEGER NOT NULL DEFAULT 0,
+      status TEXT NOT NULL DEFAULT 'in_progress',
+      started_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      completed_at TEXT,
+      exam_id INTEGER,
+      FOREIGN KEY (user_id) REFERENCES users(id),
+      FOREIGN KEY (exam_id) REFERENCES exams(id)
+    );
+
+    CREATE TABLE IF NOT EXISTS answers (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      attempt_id INTEGER NOT NULL,
+
+===== MEDIA STORAGE PATH =====
+
+  server.js:191:});
+  server.js:192:
+> server.js:193:app.get('/api/question-media/:mediaId', requireAuth, (req, res) => {
+  server.js:194:  if (!/^\d+$/.test(req.params.mediaId)) {
+  server.js:195:    return res.status(404).json({ error: 'Media not found.' });
+  server.js:196:  }
+  server.js:198:  try {
+  server.js:199:    const media = db.prepare(
+> server.js:200:      'SELECT storage_key, mime_type FROM question_media WHERE id = ?'
+  server.js:201:    ).get(Number(req.params.mediaId));
+  server.js:202:
+  server.js:203:    if (!media ||
+> server.js:204:        !/^[a-f0-9]{64}\.(png|jpg|jpeg|gif|webp)$/i.test(media.storage_key) ||
+  server.js:205:        !['image/png', 'image/jpeg', 'image/gif', 'image/webp'].includes(media.mime_type)) {
+  server.js:206:      return res.status(404).json({ error: 'Media not found.' });
+  server.js:207:    }
+  server.js:208:
+> server.js:209:    const mediaPath = path.resolve(__dirname, 'storage', 'question-media', media.storage_key);
+  server.js:210:    res.setHeader('Content-Type', media.mime_type);
+  server.js:211:    res.setHeader('Cache-Control', 'private, no-store');
+  server.js:212:    res.setHeader('X-Content-Type-Options', 'nosniff');
+  server.js:552:
+  server.js:553:const questionBankUpload = multer({
+> server.js:554:  storage: multer.memoryStorage(),
+  server.js:555:  limits: { fileSize: 25 * 1024 * 1024, files: 1, fields: 0 },
+  server.js:556:  fileFilter: (req, file, callback) => {
+  server.js:557:    if (path.extname(file.originalname || '').toLowerCase() !== '.xlsx') {
+  import-question-bank-cse2017.js:250:
+  import-question-bank-cse2017.js:251:    const insertMedia = db.prepare(
+> import-question-bank-cse2017.js:252:      "INSERT INTO question_media
+(storage_key,original_filename,mime_type,byte_size,sha256,alt_text,uploaded_by) VALUES (?,?,?,?,?,?,?)"
+  import-question-bank-cse2017.js:253:    );
+  import-question-bank-cse2017.js:254:    const insertQuestionMediaLink = db.prepare(
+  import-question-bank-cse2017.js:255:      "INSERT INTO question_media_links (question_id,media_id,usage_type,position) VALUES (?,?,?,?)"
+  import-question-bank-cse2017.js:439:
+  import-question-bank-cse2017.js:440:    const usedBinaryIds = new Set();
+> import-question-bank-cse2017.js:441:    const storageDir = path.resolve("storage", "question-media");
+> import-question-bank-cse2017.js:442:    fs.mkdirSync(storageDir, { recursive: true });
+  import-question-bank-cse2017.js:443:
+  import-question-bank-cse2017.js:444:    const mimeByExtension = {
+  import-question-bank-cse2017.js:445:      png: "image/png", jpg: "image/jpeg", jpeg: "image/jpeg",
+  import-question-bank-cse2017.js:499:
+  import-question-bank-cse2017.js:500:      const hash = crypto.createHash("sha256").update(buffer).digest("hex");
+> import-question-bank-cse2017.js:501:      const storageKey = hash + "." + extension;
+> import-question-bank-cse2017.js:502:      const storagePath = path.join(storageDir, storageKey);
+  import-question-bank-cse2017.js:503:
+> import-question-bank-cse2017.js:504:      if (fs.existsSync(storagePath)) {
+  import-question-bank-cse2017.js:505:        const existingHash = crypto.createHash("sha256")
+> import-question-bank-cse2017.js:506:          .update(fs.readFileSync(storagePath)).digest("hex");
+> import-question-bank-cse2017.js:507:        if (existingHash !== hash) throw new Error("Storage hash collision: " + storageKey);
+  import-question-bank-cse2017.js:508:      } else {
+> import-question-bank-cse2017.js:509:        fs.writeFileSync(storagePath, buffer, { flag: "wx" });
+> import-question-bank-cse2017.js:510:        createdMediaFiles.push(storagePath);
+  import-question-bank-cse2017.js:511:      }
+  import-question-bank-cse2017.js:512:
+  import-question-bank-cse2017.js:513:      const result = insertMedia.run(
+> import-question-bank-cse2017.js:514:        storageKey, originalName, mimeType, buffer.length, hash, m.AltText || "", uploaderId
+  import-question-bank-cse2017.js:515:      );
+  import-question-bank-cse2017.js:516:      const mediaId = Number(result.lastInsertRowid);
+  import-question-bank-cse2017.js:517:      const recordType = item.group.recordType;
+  import-question-bank-cse2017.js:527:        id: mediaId,
+  import-question-bank-cse2017.js:528:        mediaID: m.MediaID,
+> import-question-bank-cse2017.js:529:        url: "/api/question-media/" + mediaId,
+  import-question-bank-cse2017.js:530:        filename: originalName,
+  import-question-bank-cse2017.js:531:        mimeType,
+  import-question-bank-cse2017.js:532:        byteSize: buffer.length,
+
+
+PS C:\Users\mavmu\Desktop\Traffic Sim\LMS>
