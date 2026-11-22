@@ -1,0 +1,281 @@
+const ExcelJS = require("exceljs");
+const { DatabaseSync } = require("node:sqlite");
+const path = require("node:path");
+const fs = require("node:fs");
+const crypto = require("node:crypto");
+
+const workbookPath = "C:/Users/mavmu/Desktop/Traffic Sim/LMS/LearnSpace_Questions_Import_CSE2017_exceljs.xlsx";
+const dbPath = path.resolve("database/lms.db");
+const filename = "LearnSpace_Questions_Import_CSE2017.xlsx";
+const now = new Date().toISOString();
+
+function value(v) {
+  if (v === null || v === undefined) return "";
+  if (typeof v === "object") {
+    if (Array.isArray(v.richText)) return v.richText.map(x => x.text || "").join("");
+    if (v.text !== undefined) return String(v.text);
+    if (v.result !== undefined) return String(v.result);
+    return JSON.stringify(v);
+  }
+  return String(v).trim();
+}
+
+function cell(row, name, headers) {
+  const index = headers.indexOf(name);
+  return index < 0 ? "" : value(row.getCell(index + 1).value);
+}
+
+function addError(db, batchId, rowNumber, field, code, message) {
+  db.prepare("INSERT INTO question_import_errors (batch_id,row_number,field_name,error_code,message) VALUES (?,?,?,?,?)")
+    .run(batchId, rowNumber, field, code, message);
+}
+
+async function main() {
+  const workbook = new ExcelJS.Workbook();
+  await workbook.xlsx.readFile(workbookPath);
+
+  const sheet = workbook.getWorksheet("Questions");
+  const passageSheet = workbook.getWorksheet("Passages");
+  const mediaSheet = workbook.getWorksheet("Media");
+  if (!sheet || !passageSheet || !mediaSheet) throw new Error("Required worksheet missing.");
+
+  const qHeaders = sheet.getRow(1).values.slice(1).map(value);
+  const pHeaders = passageSheet.getRow(1).values.slice(1).map(value);
+  const mHeaders = mediaSheet.getRow(1).values.slice(1).map(value);
+
+    ];
+    for (const [id, message] of passageWarnings) {
+      if (passageMap.has(id)) addError(db, batchId, null, "Passage:" + id, "PASSAGE_CONTENT_REVIEW", message);
+    }
+
+    db.prepare(`
+      UPDATE question_import_batches
+      SET status='imported', imported_rows=?, error_rows=?, completed_at=?
+      WHERE id=?
+    `).run(imported, errorRows.size, now, batchId);
+
+    db.exec("COMMIT");
+
+    console.log("IMPORT TEST COMPLETED");
+    console.log("Workbook:", filename);
+    console.log("Database:", dbPath);
+    console.log("Batch ID:", batchId);
+    console.log("Question rows found:", questions.length);
+    console.log("Questions imported as drafts:", imported);
+    console.log("Passages imported as drafts:", passages.length);
+    console.log("Media metadata records retained as references:", media.length);
+    console.log("Question rows with validation errors:", errorRows.size);
+    console.log("Total recorded errors/warnings:", db.prepare("SELECT COUNT(*) AS n FROM question_import_errors WHERE batch_id=?").get(batchId).n);
+    console.log("Passage links created:", db.prepare("SELECT COUNT(*) AS n FROM question_passage_links qpl JOIN question_import_items i ON i.question_id=qpl.question_id WHERE i.batch_id=?").get(batchId).n);
+    console.log("Question review statuses:", db.prepare("SELECT review_status,COUNT(*) AS n FROM questions WHERE id IN (SELECT question_id FROM question_import_items WHERE batch_id=?) GROUP BY review_status").all(batchId));
+    console.log("Database integrity:", db.prepare("PRAGMA integrity_check").get());
+    console.log("Foreign key issues:", db.prepare("PRAGMA foreign_key_check").all().length);
+  } catch (error) {
+    try { db.exec("ROLLBACK"); } catch (_) {}
+    for (const mediaPath of createdMediaFiles) {
+      try { fs.unlinkSync(mediaPath); } catch (_) {}
+    }
+    console.error("IMPORT FAILED; transaction rolled back.");
+    console.error(error.stack || error.message);
+    process.exitCode = 1;
+  } finally {
+    db.close();
+  }
+}
+
+main().catch(error => {
+  console.error(error.stack || error.message);
+  process.exitCode = 1;
+});
+
+    FROM users
+    WHERE role IN ('student', 'admin')
+    ORDER BY role, created_at DESC
+  `).all();
+
+  res.json({ accounts });
+});
+
+const passwordResetRouter = createPasswordResetRouter({
+  db,
+  auth,
+  requireAuth,
+  requireAdmin,
+  requireOwner,
+  config: passwordResetConfig
+});
+
+app.use('/api/password-reset', passwordResetRouter);
+
+function csvEscape(value) {
+  if (value === null || value === undefined) return '';
+
+  let text = String(value);
+
+  // Prevent spreadsheet formula injection.
+  if (/^[\s]*[=+\-@]/.test(text)) {
+    text = "'" + text;
+  }
+
+  return '"' + text.replace(/"/g, '""') + '"';
+}
+
+function sendCsv(res, filename, columns, rows) {
+  const lines = [
+    columns.map(column => csvEscape(column.label)).join(','),
+    ...rows.map(row =>
+      columns.map(column => csvEscape(row[column.key])).join(',')
+    )
+  ];
+
+  res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+  res.setHeader(
+    'Content-Disposition',
+    `attachment; filename="${filename}.csv"`
+  );
+  res.send('\uFEFF' + lines.join('\r\n'));
+}
+
+// Owner-only CSV exports. Authentication secrets and payment settings are excluded.
+app.get('/api/owner/export/:dataset', requireAuth, requireOwner, (req, res) => {
+  const exports = {
+    students: {
+      filename: 'learnspace-students',
+      sql: "SELECT id, username, first_name, last_name, email, phone, registration_started_at, registration_expires_at, enrollment_expires_at, created_at FROM users WHERE role = 'student' ORDER BY id",
+      columns: [
+        { key: 'id', label: 'Student ID' },
+        { key: 'username', label: 'Username' },
+        { key: 'first_name', label: 'First name' },
+        { key: 'last_name', label: 'Last name' },
+        { key: 'email', label: 'Email' },
+        { key: 'phone', label: 'Phone' },
+        { key: 'registration_started_at', label: 'Registration started' },
+        { key: 'registration_expires_at', label: 'Registration expires' },
+        { key: 'enrollment_expires_at', label: 'Enrollment expires' },
+        { key: 'created_at', label: 'Account created' }
+      ]
+    },
+    admins: {
+      filename: 'learnspace-administrators',
+      sql: "SELECT id, username, created_at FROM users WHERE role = 'admin' ORDER BY id",
+      columns: [
+        { key: 'id', label: 'Administrator ID' },
+        { key: 'username', label: 'Username' },
+        { key: 'created_at', label: 'Account created' }
+      ]
+    },
+    courses: {
+      filename: 'learnspace-courses',
+      sql: 'SELECT id, title, description, price_cents, currency, active, created_at, updated_at FROM courses ORDER BY id',
+      columns: [
+        { key: 'id', label: 'Course ID' },
+        { key: 'title', label: 'Title' },
+        { key: 'description', label: 'Description' },
+        { key: 'price_cents', label: 'Price in minor units' },
+        { key: 'currency', label: 'Currency' },
+        { key: 'active', label: 'Active' },
+        { key: 'created_at', label: 'Created' },
+        { key: 'updated_at', label: 'Updated' }
+      ]
+    },
+    enrollments: {
+      filename: 'learnspace-enrollments',
+      sql: `SELECT ce.id, ce.user_id, u.username, ce.course_id, c.title AS course_title, ce.enrolled_at, ce.expires_at, ce.status, ce.payment_id FROM course_enrollments ce JOIN users u ON u.id = ce.user_id JOIN courses c ON c.id = ce.course_id ORDER BY ce.id`,
+      columns: [
+        { key: 'id', label: 'Enrollment ID' },
+        { key: 'user_id', label: 'Student ID' },
+        { key: 'username', label: 'Username' },
+        { key: 'course_id', label: 'Course ID' },
+        { key: 'course_title', label: 'Course' },
+        { key: 'enrolled_at', label: 'Enrolled' },
+        { key: 'expires_at', label: 'Expires' },
+        { key: 'status', label: 'Status' },
+        { key: 'payment_id', label: 'Payment ID' }
+      ]
+    },
+    exams: {
+      filename: 'learnspace-examinations',
+      sql: 'SELECT id, title, description, duration_minutes, passing_score, active, price_cents, currency, created_by, created_at, updated_at FROM exams ORDER BY id',
+      columns: [
+        { key: 'id', label: 'Exam ID' },
+        { key: 'title', label: 'Title' },
+        { key: 'description', label: 'Description' },
+        { key: 'duration_minutes', label: 'Duration minutes' },
+        { key: 'passing_score', label: 'Passing score' },
+        { key: 'active', label: 'Active' },
+        { key: 'price_cents', label: 'Price in minor units' },
+        { key: 'currency', label: 'Currency' },
+        { key: 'created_by', label: 'Created by user ID' },
+        { key: 'created_at', label: 'Created' },
+        { key: 'updated_at', label: 'Updated' }
+      ]
+    },
+    questions: {
+      filename: 'learnspace-questions',
+      sql: 'SELECT id, text, options, correct_answer, explanation, category, difficulty, active, created_at FROM questions ORDER BY id',
+      columns: [
+        { key: 'id', label: 'Question ID' },
+        { key: 'text', label: 'Question' },
+        { key: 'options', label: 'Options JSON' },
+        { key: 'correct_answer', label: 'Correct answer' },
+        { key: 'explanation', label: 'Explanation' },
+        { key: 'category', label: 'Category' },
+        { key: 'difficulty', label: 'Difficulty' },
+        { key: 'active', label: 'Active' },
+        { key: 'created_at', label: 'Created' }
+      ]
+    },
+    payments: {
+      filename: 'learnspace-payments',
+      sql: 'SELECT id, user_id, course_id, exam_id, provider, payment_method, provider_reference, receipt_number, purpose, amount_cents, currency, status, paid_at, refunded_at, created_at FROM payments ORDER BY id',
+      columns: [
+        { key: 'id', label: 'Payment ID' },
+        { key: 'user_id', label: 'User ID' },
+        { key: 'course_id', label: 'Course ID' },
+        { key: 'exam_id', label: 'Exam ID' },
+        { key: 'provider', label: 'Provider' },
+        { key: 'payment_method', label: 'Payment method' },
+        { key: 'provider_reference', label: 'Provider reference' },
+        { key: 'receipt_number', label: 'Receipt number' },
+        { key: 'purpose', label: 'Purpose' },
+        { key: 'amount_cents', label: 'Amount in minor units' },
+        { key: 'currency', label: 'Currency' },
+        { key: 'status', label: 'Status' },
+        { key: 'paid_at', label: 'Paid at' },
+        { key: 'refunded_at', label: 'Refunded at' },
+        { key: 'created_at', label: 'Created' }
+      ]
+    },
+    audit: {
+      filename: 'learnspace-audit-logs',
+      sql: 'SELECT id, actor_id, action, target_type, target_id, details, created_at FROM audit_logs ORDER BY id',
+      columns: [
+        { key: 'id', label: 'Log ID' },
+        { key: 'actor_id', label: 'Actor ID' },
+        { key: 'action', label: 'Action' },
+        { key: 'target_type', label: 'Target type' },
+        { key: 'target_id', label: 'Target ID' },
+        { key: 'details', label: 'Details' },
+        { key: 'created_at', label: 'Created' }
+      ]
+    }
+  };
+
+  const dataset = exports[req.params.dataset];
+
+  if (!dataset) {
+    return res.status(404).json({ error: 'Unknown export dataset.' });
+  }
+
+  try {
+    const rows = db.prepare(dataset.sql).all();
+    sendCsv(res, dataset.filename, dataset.columns, rows);
+  } catch (error) {
+    console.error('CSV export error:', error);
+    res.status(500).json({ error: 'Unable to export this dataset.' });
+  }
+});
+app.use('/api', (req, res) => {
+  res.status(404).json({ error: 'API endpoint not found.' });
+});
+PS C:\Users\mavmu\Desktop\Traffic Sim\LMS>
