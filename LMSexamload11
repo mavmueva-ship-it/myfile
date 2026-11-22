@@ -1,0 +1,154 @@
+
+  import-question-bank-cse2017.js:28:function addError(db, batchId, rowNumber, field, code, message) {
+> import-question-bank-cse2017.js:29:  db.prepare("INSERT INTO question_import_errors (batch_id,row_number,field_name,error_code,message)
+VALUES (?,?,?,?,?)")
+  import-question-bank-cse2017.js:30:    .run(batchId, rowNumber, field, code, message);
+  import-question-bank-cse2017.js:31:}
+  import-question-bank-cse2017.js:75:  const createdMediaFiles = [];
+> import-question-bank-cse2017.js:76:  const passageMap = new Map();
+> import-question-bank-cse2017.js:77:  const questionMap = new Map();
+  import-question-bank-cse2017.js:78:
+  import-question-bank-cse2017.js:79:  try {
+  import-question-bank-cse2017.js:81:
+> import-question-bank-cse2017.js:82:    const batch = db.prepare("INSERT INTO question_import_batches
+(original_filename,status,total_rows,uploaded_by) VALUES (?,'validating',?,3)")
+  import-question-bank-cse2017.js:83:      .run(filename, questions.length);
+  import-question-bank-cse2017.js:84:    batchId = Number(batch.lastInsertRowid);
+  import-question-bank-cse2017.js:87:      INSERT INTO question_passages
+> import-question-bank-cse2017.js:88:
+(title,passage_text,content_json,source_title,source_page,source_url,rights_status,review_status,created_by,created_at,updated_at)
+  import-question-bank-cse2017.js:89:      VALUES (?,?,?,?,?,?,?,'draft',3,?,?)
+  import-question-bank-cse2017.js:90:    `);
+  import-question-bank-cse2017.js:99:        adminNotes: p.AdminNotes,
+> import-question-bank-cse2017.js:100:        originalReviewStatus: p.ReviewStatus
+  import-question-bank-cse2017.js:101:      };
+  import-question-bank-cse2017.js:102:      const result = insertPassage.run(
+  import-question-bank-cse2017.js:108:        p.SourceURL || null,
+> import-question-bank-cse2017.js:109:        p.RightsStatus || null,
+  import-question-bank-cse2017.js:110:        now,
+  import-question-bank-cse2017.js:111:        now
+  import-question-bank-cse2017.js:112:      );
+> import-question-bank-cse2017.js:113:      passageMap.set(originalId, Number(result.lastInsertRowid));
+  import-question-bank-cse2017.js:114:      if (!p.PassageText) addError(db, batchId, null, "PassageText", "MISSING_PASSAGE_TEXT", "Passage "
++ originalId + " has no passage text.");
+> import-question-bank-cse2017.js:115:      if ((p.ReviewStatus || "").toLowerCase() !== "approved") {
+> import-question-bank-cse2017.js:116:        addError(db, batchId, null, "ReviewStatus", "PASSAGE_NOT_APPROVED", "Passage " + originalId + "
+is retained as a draft and requires review.");
+  import-question-bank-cse2017.js:117:      }
+  import-question-bank-cse2017.js:118:    }
+  import-question-bank-cse2017.js:121:      INSERT INTO questions
+> import-question-bank-cse2017.js:122:      (text,options,correct_answer,explanation,category,difficulty,active,created_at,
+> import-question-bank-cse2017.js:123:       version_number,review_status,question_type,content_json,topic,exam_level,
+> import-question-bank-cse2017.js:124:       source_title,source_page,source_url,rights_status,permission_notes,updated_at,created_by)
+  import-question-bank-cse2017.js:125:      VALUES (?,?,?,?,?,?,0,?,1,'draft',?,?,?,?,?,?,?,?,?,?,3)
+  import-question-bank-cse2017.js:126:    `);
+  import-question-bank-cse2017.js:128:    const insertItem = db.prepare(
+> import-question-bank-cse2017.js:129:      "INSERT INTO question_import_items (batch_id,row_number,question_id,status) VALUES
+(?,?,?,'imported')"
+  import-question-bank-cse2017.js:130:    );
+  import-question-bank-cse2017.js:131:
+  import-question-bank-cse2017.js:159:        sourceURL: q.SourceURL || "",
+> import-question-bank-cse2017.js:160:        rightsStatus: q.RightsStatus || "",
+> import-question-bank-cse2017.js:161:        originalReviewStatus: q.ReviewStatus || "",
+  import-question-bank-cse2017.js:162:        adminNotes: q.AdminNotes || "",
+  import-question-bank-cse2017.js:163:        difficulty: q.Difficulty || "",
+  import-question-bank-cse2017.js:166:
+> import-question-bank-cse2017.js:167:      const rowErrors = [];
+  import-question-bank-cse2017.js:168:      function issue(field, code, message) {
+> import-question-bank-cse2017.js:169:        rowErrors.push({ field, code, message });
+  import-question-bank-cse2017.js:170:      }
+  import-question-bank-cse2017.js:171:
+  import-question-bank-cse2017.js:174:      if (!correct || !["A","B","C","D","E"].includes(correct)) {
+> import-question-bank-cse2017.js:175:        issue("CorrectOption", "MISSING_OR_INVALID_ANSWER", "Correct answer is missing or is not A, B,
+C, D, or E.");
+  import-question-bank-cse2017.js:176:      }
+  import-question-bank-cse2017.js:177:      for (const letter of ["A","B","C","D"]) {
+  import-question-bank-cse2017.js:179:      }
+> import-question-bank-cse2017.js:180:      if (q.PassageID && !passageMap.has(q.PassageID)) {
+  import-question-bank-cse2017.js:181:        issue("PassageID", "PASSAGE_NOT_FOUND", "Referenced passage " + q.PassageID + " was not found
+in the Passages sheet.");
+  import-question-bank-cse2017.js:182:      }
+> import-question-bank-cse2017.js:183:      if ((q.ReviewStatus || "").toLowerCase() !== "approved") {
+> import-question-bank-cse2017.js:184:        issue("ReviewStatus", "QUESTION_NOT_APPROVED", "Source record is not approved; imported as a
+draft.");
+  import-question-bank-cse2017.js:185:      }
+  import-question-bank-cse2017.js:186:
+  import-question-bank-cse2017.js:215:        q.SourceURL || null,
+> import-question-bank-cse2017.js:216:        q.RightsStatus || null,
+  import-question-bank-cse2017.js:217:        q.PermissionNotes || null,
+  import-question-bank-cse2017.js:218:        now
+  import-question-bank-cse2017.js:223:      insertItem.run(batchId, rowNumber, questionId);
+> import-question-bank-cse2017.js:224:      questionMap.set(originalId, questionId);
+  import-question-bank-cse2017.js:225:      imported++;
+  import-question-bank-cse2017.js:226:
+> import-question-bank-cse2017.js:227:      for (const e of rowErrors) {
+  import-question-bank-cse2017.js:228:        addError(db, batchId, rowNumber, e.field, e.code, e.message);
+  import-question-bank-cse2017.js:229:        errorRows.add(rowNumber);
+  import-question-bank-cse2017.js:239:      const q = item.data;
+> import-question-bank-cse2017.js:240:      if (!q.PassageID || !passageMap.has(q.PassageID) || !questionMap.has(q.QuestionID)) continue;
+  import-question-bank-cse2017.js:241:      const key = q.PassageID;
+  import-question-bank-cse2017.js:242:      const position = (groupPositions.get(key) || 0) + 1;
+  import-question-bank-cse2017.js:243:      groupPositions.set(key, position);
+> import-question-bank-cse2017.js:244:      insertLink.run(questionMap.get(q.QuestionID), passageMap.get(key), position);
+  import-question-bank-cse2017.js:245:    }
+  import-question-bank-cse2017.js:246:
+  import-question-bank-cse2017.js:278:      optione: "option_e", optionetext: "option_e", optioneimage: "option_e", optionemedia: "option_e",
+> import-question-bank-cse2017.js:279:      answerkey: "answer_key", answerkeyimage: "answer_key", answerkeymedia: "answer_key",
+> import-question-bank-cse2017.js:280:      correctanswer: "answer_key", correctoption: "answer_key",
+  import-question-bank-cse2017.js:281:      explanation: "explanation", explanationimage: "explanation", explanationmedia: "explanation",
+  import-question-bank-cse2017.js:282:      passage: "passage", passagetext: "passage", passageimage: "passage",
+  import-question-bank-cse2017.js:291:      option_e: ["OptionE_Text", "OptionE_MediaID"],
+> import-question-bank-cse2017.js:292:      answer_key: ["CorrectOption", "AnswerKey", "AnswerKeyText", "AnswerKeyMediaID"],
+  import-question-bank-cse2017.js:293:      explanation: ["Explanation"]
+  import-question-bank-cse2017.js:294:    };
+  import-question-bank-cse2017.js:344:
+> import-question-bank-cse2017.js:345:      const targetMap = recordType === "Question" ? questionMap : passageMap;
+  import-question-bank-cse2017.js:346:      const rowMap = recordType === "Question" ? questionSourceRows : passageSourceRows;
+  import-question-bank-cse2017.js:347:      if (!targetMap.has(m.UsedInRecordID) || !rowMap.has(m.UsedInRecordID)) {
+  import-question-bank-cse2017.js:372:      if (group.recordType === "Question" &&
+> import-question-bank-cse2017.js:373:
+["prompt","option_a","option_b","option_c","option_d","option_e","answer_key"].includes(group.usageType)) {
+  import-question-bank-cse2017.js:374:        const sourceQuestion = questions.find(x => x.data.QuestionID === group.recordId)?.data;
+  import-question-bank-cse2017.js:375:        if (!sourceQuestion) throw new Error("Source question row missing: " + group.recordId);
+  import-question-bank-cse2017.js:383:          option_e: ["OptionE_MediaID"],
+> import-question-bank-cse2017.js:384:          answer_key: ["AnswerKeyMediaID","CorrectOptionMediaID"]
+  import-question-bank-cse2017.js:385:        }[group.usageType];
+  import-question-bank-cse2017.js:386:
+  import-question-bank-cse2017.js:515:      const usageType = item.group.usageType;
+> import-question-bank-cse2017.js:516:      const targetId = (recordType === "Question" ? questionMap : passageMap).get(m.UsedInRecordID);
+  import-question-bank-cse2017.js:517:      const positionMap = recordType === "Question" ? questionPositions : passagePositions;
+  import-question-bank-cse2017.js:518:      const positionKey = recordType === "Question"
+  import-question-bank-cse2017.js:536:        sourceURL: m.SourceURL || "",
+> import-question-bank-cse2017.js:537:        rightsStatus: m.RightsStatus || "",
+> import-question-bank-cse2017.js:538:        reviewStatus: m.ReviewStatus || "",
+  import-question-bank-cse2017.js:539:        adminNotes: m.AdminNotes || ""
+  import-question-bank-cse2017.js:540:      };
+  import-question-bank-cse2017.js:571:    }
+> import-question-bank-cse2017.js:572:    const passageWarnings = [
+  import-question-bank-cse2017.js:573:      ["S3-P05-G1","Passage content appears unrelated to its linked question group; requires source
+verification."],
+  import-question-bank-cse2017.js:574:      ["S3-P06-G1","Passage text appears to contain question content and chart instructions; requires
+correction."],
+  import-question-bank-cse2017.js:577:    ];
+> import-question-bank-cse2017.js:578:    for (const [id, message] of passageWarnings) {
+> import-question-bank-cse2017.js:579:      if (passageMap.has(id)) addError(db, batchId, null, "Passage:" + id, "PASSAGE_CONTENT_REVIEW",
+message);
+  import-question-bank-cse2017.js:580:    }
+  import-question-bank-cse2017.js:581:
+  import-question-bank-cse2017.js:583:      UPDATE question_import_batches
+> import-question-bank-cse2017.js:584:      SET status='imported', imported_rows=?, error_rows=?, completed_at=?
+  import-question-bank-cse2017.js:585:      WHERE id=?
+  import-question-bank-cse2017.js:586:    `).run(imported, errorRows.size, now, batchId);
+  import-question-bank-cse2017.js:597:    console.log("Media metadata records retained as references:", media.length);
+> import-question-bank-cse2017.js:598:    console.log("Question rows with validation errors:", errorRows.size);
+> import-question-bank-cse2017.js:599:    console.log("Total recorded errors/warnings:", db.prepare("SELECT COUNT(*) AS n FROM
+question_import_errors WHERE batch_id=?").get(batchId).n);
+  import-question-bank-cse2017.js:600:    console.log("Passage links created:", db.prepare("SELECT COUNT(*) AS n FROM question_passage_links
+qpl JOIN question_import_items i ON i.question_id=qpl.question_id WHERE i.batch_id=?").get(batchId).n);
+> import-question-bank-cse2017.js:601:    console.log("Question review statuses:", db.prepare("SELECT review_status,COUNT(*) AS n FROM
+questions WHERE id IN (SELECT question_id FROM question_import_items WHERE batch_id=?) GROUP BY review_status").all(batchId));
+  import-question-bank-cse2017.js:602:    console.log("Database integrity:", db.prepare("PRAGMA integrity_check").get());
+  import-question-bank-cse2017.js:603:    console.log("Foreign key issues:", db.prepare("PRAGMA foreign_key_check").all().length);
+
+
+PS C:\Users\mavmu\Desktop\Traffic Sim\LMS>
