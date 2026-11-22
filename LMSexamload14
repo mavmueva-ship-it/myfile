@@ -1,0 +1,202 @@
+
+  public\js\dashboard.js:103:}
+  public\js\dashboard.js:104:
+> public\js\dashboard.js:105:function renderAccessNotice(access) {
+  public\js\dashboard.js:106:  if (!access) return;
+  public\js\dashboard.js:107:
+  public\js\dashboard.js:108:  if (access.accessMode === 'preview') {
+  public\js\dashboard.js:109:    const expiry = formatDate(access.previewExpiresAt);
+  public\js\dashboard.js:110:    setNotice(
+  public\js\dashboard.js:130:}
+  public\js\dashboard.js:131:
+> public\js\dashboard.js:132:function renderStatistics(statistics) {
+  public\js\dashboard.js:133:  $('totalExams').textContent = statistics?.totalExams ?? 0;
+  public\js\dashboard.js:134:  $('averageScore').textContent = formatPercent(statistics?.averageScore);
+  public\js\dashboard.js:135:  $('bestScore').textContent = formatPercent(statistics?.bestScore);
+  public\js\dashboard.js:136:}
+  public\js\dashboard.js:137:
+> public\js\dashboard.js:138:function renderReadiness(readiness, recentMocks) {
+  public\js\dashboard.js:139:  const container = $('readinessContent');
+  public\js\dashboard.js:140:
+  public\js\dashboard.js:141:  if (!readiness?.eligible) {
+> public\js\dashboard.js:142:    container.innerHTML = '<p class="muted-text">Readiness tracking is available on student accounts. Staff
+testing attempts are excluded.</p>';
+  public\js\dashboard.js:143:    return;
+  public\js\dashboard.js:144:  }
+  public\js\dashboard.js:145:
+  public\js\dashboard.js:146:  const results = recentMocks || [];
+  public\js\dashboard.js:147:  const completed = readiness.completedMockCount || 0;
+  public\js\dashboard.js:188:  }
+  public\js\dashboard.js:189:
+> public\js\dashboard.js:190:  container.innerHTML = html;
+  public\js\dashboard.js:191:}
+  public\js\dashboard.js:192:
+  public\js\dashboard.js:193:function getCategoryProgress(category) {
+  public\js\dashboard.js:194:  return state.dashboard?.categoryProgress?.find(item => item.category === category);
+  public\js\dashboard.js:195:}
+  public\js\dashboard.js:206:}
+  public\js\dashboard.js:207:
+> public\js\dashboard.js:208:function renderCategoryExams() {
+  public\js\dashboard.js:209:  const container = $('categoryExamList');
+  public\js\dashboard.js:210:  const access = state.accessStatus;
+  public\js\dashboard.js:211:  const preview = access?.accessMode === 'preview';
+  public\js\dashboard.js:212:  const enrolled = access?.accessMode === 'enrolled';
+  public\js\dashboard.js:213:  const staff = access?.accessMode === 'staff';
+  public\js\dashboard.js:214:
+> public\js\dashboard.js:215:  container.innerHTML = REQUIRED_CATEGORIES.map(category => {
+  public\js\dashboard.js:216:    const exam = getExamForCategory(category);
+  public\js\dashboard.js:217:    const progress = getCategoryProgress(category);
+  public\js\dashboard.js:218:
+  public\js\dashboard.js:219:    if (!exam || !progress?.examAvailable) {
+  public\js\dashboard.js:220:      return `
+  public\js\dashboard.js:263:}
+  public\js\dashboard.js:264:
+> public\js\dashboard.js:265:function renderMockExams() {
+  public\js\dashboard.js:266:  const container = $('mockExamContent');
+  public\js\dashboard.js:267:  const status = $('mockLockStatus');
+  public\js\dashboard.js:268:  const mockExams = state.exams.filter(exam => exam.exam_type === 'mock');
+  public\js\dashboard.js:269:  const progress = state.dashboard?.categoryProgress || [];
+  public\js\dashboard.js:270:  const allPassed = progress.length === 4 && progress.every(item => item.passed === true);
+  public\js\dashboard.js:278:  if (preview && !unfinished) {
+  public\js\dashboard.js:279:    status.textContent = 'Preview only';
+> public\js\dashboard.js:280:    container.innerHTML = `
+  public\js\dashboard.js:281:      <div class="mock-preview-notice">
+  public\js\dashboard.js:282:        <p><strong>Mock examination preview</strong></p>
+  public\js\dashboard.js:283:        <p>Each mock exam contains 150 scored questions: 38 Verbal, 38 Numerical, 37 General Information, and 37
+Analytical Ability questions.</p>
+  public\js\dashboard.js:284:        <p>Time limit: 3 hours 30 minutes. Passing score: 80% (120/150).</p>
+  public\js\dashboard.js:285:        <p>This preview is informational only. It does not start an attempt or reveal a complete examination.</p>
+  public\js\dashboard.js:292:    const missing = progress.filter(item => item.passed !== true).map(item => item.category);
+  public\js\dashboard.js:293:
+> public\js\dashboard.js:294:    container.innerHTML = `
+  public\js\dashboard.js:295:      <div class="mock-preview-notice">
+  public\js\dashboard.js:296:        <p><strong>Prerequisites not yet completed</strong></p>
+  public\js\dashboard.js:297:        <p>Your enrollment is active. To unlock mock examinations, first pass each of the four category
+assessments with at least 80%. You may take them in any order.</p>
+  public\js\dashboard.js:298:        <p><strong>Still required:</strong> ${escapeHtml(missing.join(', ') || 'Category examinations')}</p>
+  public\js\dashboard.js:299:      </div>`;
+  public\js\dashboard.js:303:  if (!mockExams.length) {
+  public\js\dashboard.js:304:    status.textContent = 'Not available';
+> public\js\dashboard.js:305:    container.innerHTML = '<p class="muted-text">Mock examinations have not been published yet.</p>';
+  public\js\dashboard.js:306:    return;
+  public\js\dashboard.js:307:  }
+  public\js\dashboard.js:308:
+  public\js\dashboard.js:309:  status.textContent = 'Unlocked';
+  public\js\dashboard.js:310:
+  public\js\dashboard.js:312:  const canStart = unfinished || (allowed && remaining > 0);
+  public\js\dashboard.js:313:
+> public\js\dashboard.js:314:  container.innerHTML = `
+  public\js\dashboard.js:315:    <p class="mock-attempt-info">${staff ? 'Staff testing access' : `${remaining} of 2 mock attempts remaining
+today`}</p>
+  public\js\dashboard.js:316:    ${mockExams.map(exam => `
+  public\js\dashboard.js:317:      <article class="mock-exam-card">
+  public\js\dashboard.js:318:        <div>
+  public\js\dashboard.js:319:          <h4>${escapeHtml(exam.title)}</h4>
+  public\js\dashboard.js:332:}
+  public\js\dashboard.js:333:
+> public\js\dashboard.js:334:function renderActivity(activity) {
+  public\js\dashboard.js:335:  const container = $('activityList');
+  public\js\dashboard.js:336:
+  public\js\dashboard.js:337:  if (!activity?.length) {
+> public\js\dashboard.js:338:    container.innerHTML = '<div class="empty-activity">No completed examinations yet. Your examination history
+will appear here.</div>';
+  public\js\dashboard.js:339:    return;
+  public\js\dashboard.js:340:  }
+  public\js\dashboard.js:341:
+> public\js\dashboard.js:342:  container.innerHTML = activity.map(item => `
+  public\js\dashboard.js:343:    <article class="activity-item">
+  public\js\dashboard.js:344:      <div class="activity-item-main">
+  public\js\dashboard.js:345:        <strong>${escapeHtml(item.examTitle)}</strong>
+  public\js\dashboard.js:346:        <span>${escapeHtml(item.category || (item.examType === 'mock' ? 'Mock examination' : 'Category
+examination'))}</span>
+  public\js\dashboard.js:347:        <small>${escapeHtml(formatDate(item.completedAt))}</small>
+  public\js\dashboard.js:397:}
+  public\js\dashboard.js:398:
+> public\js\dashboard.js:399:function renderQuestion() {
+  public\js\dashboard.js:400:  const attempt = state.attempt;
+  public\js\dashboard.js:401:  if (!attempt) return;
+  public\js\dashboard.js:402:
+> public\js\dashboard.js:403:  const question = attempt.questions[state.currentQuestion];
+  public\js\dashboard.js:404:  if (!question) return;
+  public\js\dashboard.js:405:
+  public\js\dashboard.js:406:  const index = state.currentQuestion;
+> public\js\dashboard.js:407:  const total = attempt.questions.length;
+> public\js\dashboard.js:408:  const answered = attempt.questions.filter(item => item.selectedAnswer).length;
+  public\js\dashboard.js:409:
+  public\js\dashboard.js:410:  $('examTypeLabel').textContent =
+  public\js\dashboard.js:411:    attempt.exam.exam_type === 'mock' ? 'MOCK EXAMINATION' : 'CATEGORY EXAMINATION';
+  public\js\dashboard.js:412:  $('examTitle').textContent = attempt.exam.title;
+  public\js\dashboard.js:413:  $('examProgress').textContent = `Question ${index + 1} of ${total}`;
+  public\js\dashboard.js:421:
+  public\js\dashboard.js:422:  const options = $('answerOptions');
+> public\js\dashboard.js:423:  options.innerHTML = '';
+  public\js\dashboard.js:424:
+  public\js\dashboard.js:425:  const letters = Object.keys(question.options || {}).filter((k) => String(question.options[k] ?? '').trim() !==
+'').sort(); for (const letter of (letters.length ? letters : ['A', 'B', 'C', 'D'])) {
+  public\js\dashboard.js:426:    const label = document.createElement('label');
+  public\js\dashboard.js:427:    label.className = 'answer-option';
+  public\js\dashboard.js:428:    if (question.selectedAnswer === letter) label.classList.add('selected');
+  public\js\dashboard.js:450:
+  public\js\dashboard.js:451:  const navigation = $('questionNavigation');
+> public\js\dashboard.js:452:  navigation.innerHTML = '';
+  public\js\dashboard.js:453:
+> public\js\dashboard.js:454:  attempt.questions.forEach((item, questionIndex) => {
+  public\js\dashboard.js:455:    const button = document.createElement('button');
+  public\js\dashboard.js:456:    button.type = 'button';
+  public\js\dashboard.js:457:    button.className = 'question-nav-button';
+  public\js\dashboard.js:458:    button.textContent = String(questionIndex + 1);
+  public\js\dashboard.js:459:
+  public\js\dashboard.js:474:  if (!attempt || attempt.status !== 'in_progress' || state.submitting) return;
+  public\js\dashboard.js:475:
+> public\js\dashboard.js:476:  const question = attempt.questions[state.currentQuestion];
+  public\js\dashboard.js:477:  if (!question) return;
+  public\js\dashboard.js:478:
+  public\js\dashboard.js:479:  const previousAnswer = question.selectedAnswer;
+  public\js\dashboard.js:480:  question.selectedAnswer = letter;
+  public\js\dashboard.js:481:  question.latestSaveVersion = (question.latestSaveVersion || 0) + 1;
+  public\js\dashboard.js:617:
+  public\js\dashboard.js:618:  if (!automatic) {
+> public\js\dashboard.js:619:    const unanswered = state.attempt.questions.filter(item => !item.selectedAnswer).length;
+  public\js\dashboard.js:620:    const message = unanswered
+  public\js\dashboard.js:621:      ? `You have ${unanswered} unanswered question(s). They will be marked incorrect. Submit anyway?`
+  public\js\dashboard.js:622:      : 'Are you sure you want to submit your examination?';
+  public\js\dashboard.js:623:
+  public\js\dashboard.js:624:    if (!window.confirm(message)) return;
+  public\js\dashboard.js:686:}
+  public\js\dashboard.js:687:
+> public\js\dashboard.js:688:async function loadReview(attemptId = null) {
+  public\js\dashboard.js:689:  const reviewAttemptId = attemptId || state.attempt?.attemptId;
+  public\js\dashboard.js:690:  if (!reviewAttemptId) return;
+  public\js\dashboard.js:691:
+  public\js\dashboard.js:692:  $('reviewAnswersButton').disabled = true;
+  public\js\dashboard.js:693:
+  public\js\dashboard.js:704:
+  public\js\dashboard.js:705:    if (!result.questions?.length) {
+> public\js\dashboard.js:706:      container.innerHTML = '<p class="muted-text">Excellent work! There are no incorrect or unanswered
+questions to review.</p>';
+  public\js\dashboard.js:707:    } else {
+> public\js\dashboard.js:708:      container.innerHTML = result.questions.map((item, index) => `
+  public\js\dashboard.js:709:        <article class="review-question">
+  public\js\dashboard.js:710:          <span class="question-number">QUESTION ${escapeHtml(item.position || index + 1)}</span>
+  public\js\dashboard.js:711:          <h3>${escapeHtml(item.text)}</h3>
+  public\js\dashboard.js:712:          <div class="review-answer-line">
+  public\js\dashboard.js:713:            <strong>Your answer:</strong>
+  public\js\dashboard.js:718:          <div class="review-correct-answer">
+  public\js\dashboard.js:719:            <strong>Correct answer:</strong>
+> public\js\dashboard.js:720:            ${escapeHtml(item.correctAnswer)} — ${escapeHtml(item.options?.[item.correctAnswer] || '')}
+  public\js\dashboard.js:721:          </div>
+  public\js\dashboard.js:722:          ${item.explanation
+  public\js\dashboard.js:723:            ? `<p class="review-explanation">${escapeHtml(item.explanation)}</p>`
+  public\js\dashboard.js:724:            : ''}
+  public\js\dashboard.js:725:        </article>
+  public\js\dashboard.js:761:
+  public\js\dashboard.js:762:$('nextQuestionButton').addEventListener('click', () => {
+> public\js\dashboard.js:763:  if (state.currentQuestion < state.attempt.questions.length - 1) {
+  public\js\dashboard.js:764:    state.currentQuestion++;
+  public\js\dashboard.js:765:    renderQuestion();
+  public\js\dashboard.js:766:  }
+  public\js\dashboard.js:767:});
+  public\js\dashboard.js:768:
+
+
+PS C:\Users\mavmu\Desktop\Traffic Sim\LMS>
