@@ -1,0 +1,369 @@
+ACTUAL DATABASE TABLES:
+
+answers
+CREATE TABLE answers (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    attempt_id INTEGER NOT NULL,
+    question_id INTEGER NOT NULL,
+    selected_answer TEXT,
+    is_correct INTEGER NOT NULL DEFAULT 0,
+    FOREIGN KEY (attempt_id) REFERENCES attempts(id),
+    FOREIGN KEY (question_id) REFERENCES questions(id),
+    UNIQUE(attempt_id, question_id)
+  )
+
+attempt_answers
+CREATE TABLE attempt_answers (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      attempt_id INTEGER NOT NULL,
+      question_id INTEGER NOT NULL,
+      selected_answer TEXT,
+      saved_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      UNIQUE(attempt_id, question_id),
+      FOREIGN KEY (attempt_id) REFERENCES attempts(id) ON DELETE CASCADE,
+      FOREIGN KEY (question_id) REFERENCES questions(id)
+    )
+
+attempt_questions
+CREATE TABLE attempt_questions (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      attempt_id INTEGER NOT NULL,
+      question_id INTEGER NOT NULL,
+      position INTEGER NOT NULL,
+      question_snapshot TEXT NOT NULL,
+      answer_key_snapshot TEXT NOT NULL,
+      explanation_snapshot TEXT,
+      UNIQUE(attempt_id, position),
+      UNIQUE(attempt_id, question_id),
+      FOREIGN KEY (attempt_id) REFERENCES attempts(id) ON DELETE CASCADE,
+      FOREIGN KEY (question_id) REFERENCES questions(id)
+    )
+
+attempts
+CREATE TABLE attempts (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    score INTEGER NOT NULL DEFAULT 0,
+    total_questions INTEGER NOT NULL DEFAULT 0,
+    status TEXT NOT NULL DEFAULT 'in_progress',
+    started_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    completed_at TEXT, exam_id INTEGER REFERENCES exams(id), access_mode TEXT NOT NULL DEFAULT 'enrolled' CHECK(access_mode IN ('preview', 'enrolled')), is_staff_test INTEGER NOT NULL DEFAULT 0
+      CHECK(is_staff_test IN (0, 1)), deadline_at TEXT,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+  )
+
+audit_logs
+CREATE TABLE audit_logs (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      actor_id INTEGER,
+      action TEXT NOT NULL,
+      target_type TEXT,
+      target_id INTEGER,
+      details TEXT NOT NULL DEFAULT '',
+      created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (actor_id) REFERENCES users(id)
+    )
+
+course_enrollments
+CREATE TABLE course_enrollments (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER NOT NULL,
+      course_id INTEGER NOT NULL,
+      enrolled_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      expires_at TEXT,
+      status TEXT NOT NULL DEFAULT 'active'
+        CHECK(status IN ('active', 'expired', 'cancelled')),
+      payment_id INTEGER,
+      FOREIGN KEY (user_id) REFERENCES users(id),
+      FOREIGN KEY (course_id) REFERENCES courses(id),
+      UNIQUE(user_id, course_id)
+    )
+
+courses
+CREATE TABLE courses (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      title TEXT NOT NULL,
+      description TEXT NOT NULL DEFAULT '',
+      price_cents INTEGER NOT NULL DEFAULT 0 CHECK(price_cents >= 0),
+      currency TEXT NOT NULL DEFAULT 'PHP',
+      active INTEGER NOT NULL DEFAULT 0,
+      created_by INTEGER,
+      created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (created_by) REFERENCES users(id)
+    )
+
+exam_questions
+CREATE TABLE exam_questions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    exam_id INTEGER NOT NULL,
+    question_id INTEGER NOT NULL,
+    position INTEGER NOT NULL DEFAULT 0,
+    FOREIGN KEY (exam_id) REFERENCES exams(id) ON DELETE CASCADE,
+    FOREIGN KEY (question_id) REFERENCES questions(id),
+    UNIQUE(exam_id, question_id)
+  )
+
+exams
+CREATE TABLE exams (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    title TEXT NOT NULL,
+    description TEXT NOT NULL DEFAULT '',
+    duration_minutes INTEGER NOT NULL DEFAULT 30,
+    passing_score INTEGER NOT NULL DEFAULT 50,
+    active INTEGER NOT NULL DEFAULT 0,
+    created_by INTEGER,
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP, price_cents INTEGER NOT NULL DEFAULT 0, currency TEXT NOT NULL DEFAULT 'PHP', exam_type TEXT NOT NULL DEFAULT 'category' CHECK(exam_type IN ('category', 'mock')), category TEXT,
+    FOREIGN KEY (created_by) REFERENCES users(id),
+    CHECK(duration_minutes BETWEEN 1 AND 600),
+    CHECK(passing_score BETWEEN 0 AND 100)
+  )
+
+passage_media_links
+CREATE TABLE passage_media_links (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      passage_id INTEGER NOT NULL,
+      media_id INTEGER NOT NULL,
+      position INTEGER NOT NULL DEFAULT 0,
+      FOREIGN KEY (passage_id) REFERENCES question_passages(id),
+      FOREIGN KEY (media_id) REFERENCES question_media(id),
+      UNIQUE(passage_id, media_id)
+    )
+
+password_reset_tokens
+CREATE TABLE password_reset_tokens (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER NOT NULL,
+      token_hash TEXT NOT NULL UNIQUE,
+      expires_at INTEGER NOT NULL,
+      used_at INTEGER,
+      created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    )
+
+payment_settings
+CREATE TABLE payment_settings (
+      setting_key TEXT PRIMARY KEY,
+      setting_value TEXT NOT NULL,
+      updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      updated_by INTEGER,
+      FOREIGN KEY (updated_by) REFERENCES users(id)
+    )
+
+payments
+CREATE TABLE payments (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER NOT NULL,
+      course_id INTEGER,
+      exam_id INTEGER,
+      provider TEXT NOT NULL DEFAULT 'manual',
+      payment_method TEXT,
+      provider_reference TEXT UNIQUE,
+      receipt_number TEXT UNIQUE,
+      purpose TEXT NOT NULL
+        CHECK(purpose IN ('enrollment', 'course', 'exam')),
+      amount_cents INTEGER NOT NULL CHECK(amount_cents >= 0),
+      currency TEXT NOT NULL DEFAULT 'PHP',
+      status TEXT NOT NULL DEFAULT 'pending'
+        CHECK(status IN ('pending', 'paid', 'failed', 'refunded', 'cancelled')),
+      paid_at TEXT,
+      refunded_at TEXT,
+      created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (user_id) REFERENCES users(id),
+      FOREIGN KEY (course_id) REFERENCES courses(id),
+      FOREIGN KEY (exam_id) REFERENCES exams(id)
+    )
+
+question_current_versions
+CREATE TABLE "question_current_versions" (
+      question_group_id INTEGER PRIMARY KEY,
+      question_id INTEGER NOT NULL UNIQUE,
+      updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (question_group_id, question_id)
+        REFERENCES questions(question_group_id, id)
+    )
+
+question_import_batches
+CREATE TABLE question_import_batches (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      original_filename TEXT NOT NULL,
+      status TEXT NOT NULL DEFAULT 'uploaded'
+        CHECK(status IN ('uploaded','validating','validated','imported','failed')),
+      total_rows INTEGER NOT NULL DEFAULT 0,
+      imported_rows INTEGER NOT NULL DEFAULT 0,
+      error_rows INTEGER NOT NULL DEFAULT 0,
+      uploaded_by INTEGER,
+      created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      completed_at TEXT,
+      FOREIGN KEY (uploaded_by) REFERENCES users(id)
+    )
+
+question_import_errors
+CREATE TABLE question_import_errors (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      batch_id INTEGER NOT NULL,
+      row_number INTEGER,
+      field_name TEXT,
+      error_code TEXT NOT NULL,
+      message TEXT NOT NULL,
+      created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (batch_id) REFERENCES question_import_batches(id)
+    )
+
+question_import_items
+CREATE TABLE question_import_items (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      batch_id INTEGER NOT NULL,
+      row_number INTEGER NOT NULL,
+      question_id INTEGER,
+      status TEXT NOT NULL DEFAULT 'pending'
+        CHECK(status IN ('pending','imported','rejected')),
+      FOREIGN KEY (batch_id) REFERENCES question_import_batches(id),
+      FOREIGN KEY (question_id) REFERENCES questions(id),
+      UNIQUE(batch_id, row_number)
+    )
+
+question_media
+CREATE TABLE question_media (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      storage_key TEXT NOT NULL UNIQUE,
+      original_filename TEXT NOT NULL,
+      mime_type TEXT NOT NULL,
+      byte_size INTEGER NOT NULL CHECK(byte_size > 0),
+      sha256 TEXT,
+      alt_text TEXT NOT NULL DEFAULT '',
+      uploaded_by INTEGER,
+      created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (uploaded_by) REFERENCES users(id)
+    )
+
+question_media_links
+CREATE TABLE "question_media_links" (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      question_id INTEGER NOT NULL,
+      media_id INTEGER NOT NULL,
+      usage_type TEXT NOT NULL CHECK(usage_type IN (
+        'prompt','option_a','option_b','option_c','option_d',
+        'option_e','answer_key','explanation'
+      )),
+      position INTEGER NOT NULL DEFAULT 0,
+      FOREIGN KEY (question_id) REFERENCES questions(id),
+      FOREIGN KEY (media_id) REFERENCES question_media(id),
+      UNIQUE(question_id, media_id, usage_type)
+    )
+
+question_passage_links
+CREATE TABLE question_passage_links (
+      question_id INTEGER PRIMARY KEY,
+      passage_id INTEGER NOT NULL,
+      group_position INTEGER NOT NULL DEFAULT 0,
+      FOREIGN KEY (question_id) REFERENCES questions(id),
+      FOREIGN KEY (passage_id) REFERENCES question_passages(id)
+    )
+
+question_passages
+CREATE TABLE question_passages (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      title TEXT NOT NULL DEFAULT '',
+      passage_text TEXT NOT NULL,
+      content_json TEXT,
+      source_title TEXT,
+      source_page TEXT,
+      source_url TEXT,
+      rights_status TEXT,
+      permission_notes TEXT,
+      review_status TEXT NOT NULL DEFAULT 'draft'
+        CHECK(review_status IN ('draft','pending_review','approved','rejected','withdrawn')),
+      created_by INTEGER,
+      created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      updated_at TEXT,
+      FOREIGN KEY (created_by) REFERENCES users(id)
+    )
+
+question_review_history
+CREATE TABLE question_review_history (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      question_id INTEGER NOT NULL,
+      actor_id INTEGER NOT NULL,
+      action TEXT NOT NULL CHECK(action IN (
+        'submitted','approved','rejected','returned_for_changes',
+        'resubmitted','withdrawn'
+      )),
+      previous_status TEXT,
+      new_status TEXT NOT NULL,
+      notes TEXT NOT NULL DEFAULT '',
+      created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (question_id) REFERENCES questions(id),
+      FOREIGN KEY (actor_id) REFERENCES users(id)
+    )
+
+questions
+CREATE TABLE questions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    text TEXT NOT NULL,
+    options TEXT NOT NULL,
+    correct_answer TEXT NOT NULL,
+    explanation TEXT NOT NULL DEFAULT '',
+    category TEXT NOT NULL DEFAULT 'General',
+    difficulty TEXT NOT NULL DEFAULT 'medium',
+    active INTEGER NOT NULL DEFAULT 1,
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+  , question_group_id INTEGER, version_number INTEGER NOT NULL DEFAULT 1, review_status TEXT NOT NULL DEFAULT 'draft' CHECK(review_status IN ('draft','pending_review','approved','rejected','withdrawn')), question_type TEXT NOT NULL DEFAULT 'multiple_choice', content_json TEXT, topic TEXT, exam_level TEXT, source_title TEXT, source_page TEXT, source_url TEXT, rights_status TEXT, permission_notes TEXT, updated_at TEXT, created_by INTEGER REFERENCES users(id), reviewed_by INTEGER REFERENCES users(id), reviewed_at TEXT)
+
+registration_extensions
+CREATE TABLE registration_extensions (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER NOT NULL,
+      extended_by INTEGER NOT NULL,
+      previous_expiry TEXT,
+      new_expiry TEXT NOT NULL,
+      reason TEXT NOT NULL DEFAULT '',
+      created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (user_id) REFERENCES users(id),
+      FOREIGN KEY (extended_by) REFERENCES users(id)
+    )
+
+sessions
+CREATE TABLE sessions (
+    id TEXT PRIMARY KEY,
+    user_id INTEGER NOT NULL,
+    expires_at INTEGER NOT NULL,
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+  )
+
+sqlite_sequence
+CREATE TABLE sqlite_sequence(name,seq)
+
+users
+CREATE TABLE "users" (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      username TEXT NOT NULL COLLATE NOCASE UNIQUE,
+      password_hash TEXT NOT NULL,
+      role TEXT NOT NULL DEFAULT 'student'
+        CHECK(role IN ('student', 'admin', 'owner')),
+      created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+    , first_name TEXT, last_name TEXT, email TEXT, phone TEXT, registration_started_at TEXT, registration_expires_at TEXT, enrollment_expires_at TEXT, must_change_password INTEGER NOT NULL DEFAULT 0)
+
+IMPORTER TABLE REFERENCES:
+INSERT INTO question_import_errors
+INSERT INTO question_import_batches
+INSERT INTO question_passages
+INSERT INTO questions
+INSERT INTO question_import_items
+UPDATE questions
+INSERT INTO question_passage_links
+INSERT INTO question_media
+INSERT INTO question_media_links
+INSERT INTO passage_media_links
+FROM questions
+FROM question_passages
+UPDATE question_passages
+from the
+UPDATE question_import_batches
+FROM question_import_errors
+FROM question_passage_links
+JOIN question_import_items
+FROM question_import_items
+PS C:\Users\mavmu\Desktop\Traffic Sim\LMS>
