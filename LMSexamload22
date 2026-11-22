@@ -1,0 +1,960 @@
+
+===== ALL QUESTION SELECTION / EXAM GENERATION FILES =====
+
+  backup-exam-foundation-2026-11-20T00-51-24-265Z\server.js:420:
+  backup-exam-foundation-2026-11-20T00-51-24-265Z\server.js:421:  const totalQuestions = db.prepare(
+> backup-exam-foundation-2026-11-20T00-51-24-265Z\server.js:422:    'SELECT COUNT(*) AS count FROM questions'
+  backup-exam-foundation-2026-11-20T00-51-24-265Z\server.js:423:  ).get().count;
+  backup-exam-foundation-2026-11-20T00-51-24-265Z\server.js:424:
+  backup-exam-foundation-2026-11-20T00-51-24-265Z\server.js:425:  const totalStudents = db.prepare(
+  backup-exam-foundation-2026-11-20T00-51-24-265Z\server.js:426:    "SELECT COUNT(*) AS count FROM users WHERE role = 'student'"
+  backup-exam-foundation-2026-11-20T00-51-24-265Z\server.js:581:    questions: {
+  backup-exam-foundation-2026-11-20T00-51-24-265Z\server.js:582:      filename: 'learnspace-questions',
+> backup-exam-foundation-2026-11-20T00-51-24-265Z\server.js:583:      sql: 'SELECT id, text, options, correct_answer, explanation, category,
+difficulty, active, created_at FROM questions ORDER BY id',
+  backup-exam-foundation-2026-11-20T00-51-24-265Z\server.js:584:      columns: [
+  backup-exam-foundation-2026-11-20T00-51-24-265Z\server.js:585:        { key: 'id', label: 'Question ID' },
+  backup-exam-foundation-2026-11-20T00-51-24-265Z\server.js:586:        { key: 'text', label: 'Question' },
+  backup-exam-foundation-2026-11-20T00-51-24-265Z\server.js:587:        { key: 'options', label: 'Options JSON' },
+  backup-question-bank-2026-11-21T01-28-19-811Z\exam-routes.js:60:                 passing_score, exam_type, category
+  backup-question-bank-2026-11-21T01-28-19-811Z\exam-routes.js:61:          FROM exams
+> backup-question-bank-2026-11-21T01-28-19-811Z\exam-routes.js:62:          WHERE id = ? AND active = 1
+  backup-question-bank-2026-11-21T01-28-19-811Z\exam-routes.js:63:        `).get(examId);
+  backup-question-bank-2026-11-21T01-28-19-811Z\exam-routes.js:64:
+  backup-question-bank-2026-11-21T01-28-19-811Z\exam-routes.js:65:        if (!exam) {
+  backup-question-bank-2026-11-21T01-28-19-811Z\exam-routes.js:66:          db.exec('ROLLBACK');
+  backup-question-bank-2026-11-21T01-28-19-811Z\exam-routes.js:255:                 q.explanation, q.category
+  backup-question-bank-2026-11-21T01-28-19-811Z\exam-routes.js:256:          FROM exam_questions eq
+> backup-question-bank-2026-11-21T01-28-19-811Z\exam-routes.js:257:          JOIN questions q ON q.id = eq.question_id
+  backup-question-bank-2026-11-21T01-28-19-811Z\exam-routes.js:258:          WHERE eq.exam_id = ?
+> backup-question-bank-2026-11-21T01-28-19-811Z\exam-routes.js:259:            AND q.active = 1
+  backup-question-bank-2026-11-21T01-28-19-811Z\exam-routes.js:260:          ORDER BY eq.position, eq.id
+  backup-question-bank-2026-11-21T01-28-19-811Z\exam-routes.js:261:        `).all(exam.id);
+  backup-question-bank-2026-11-21T01-28-19-811Z\exam-routes.js:262:
+  backup-question-bank-2026-11-21T01-28-19-811Z\exam-routes.js:263:        if (assignedQuestions.length !== requiredCount) {
+  backup-question-bank-2026-11-21T01-28-19-811Z\exam-routes.js:887:          WHERE exam_type = 'category'
+  backup-question-bank-2026-11-21T01-28-19-811Z\exam-routes.js:888:            AND category = ?
+> backup-question-bank-2026-11-21T01-28-19-811Z\exam-routes.js:889:            AND active = 1
+  backup-question-bank-2026-11-21T01-28-19-811Z\exam-routes.js:890:          ORDER BY id
+  backup-question-bank-2026-11-21T01-28-19-811Z\exam-routes.js:891:          LIMIT 1
+  backup-question-bank-2026-11-21T01-28-19-811Z\exam-routes.js:892:        `).get(category);
+  backup-question-bank-2026-11-21T01-28-19-811Z\exam-routes.js:893:
+  backup-question-bank-2026-11-21T01-28-19-811Z\server.js:446:        category
+  backup-question-bank-2026-11-21T01-28-19-811Z\server.js:447:      FROM exams
+> backup-question-bank-2026-11-21T01-28-19-811Z\server.js:448:      WHERE active = 1
+  backup-question-bank-2026-11-21T01-28-19-811Z\server.js:449:      ORDER BY
+  backup-question-bank-2026-11-21T01-28-19-811Z\server.js:450:        CASE exam_type WHEN 'category' THEN 0 ELSE 1 END,
+  backup-question-bank-2026-11-21T01-28-19-811Z\server.js:451:        category,
+  backup-question-bank-2026-11-21T01-28-19-811Z\server.js:452:        id
+  backup-question-bank-2026-11-21T01-28-19-811Z\server.js:479:
+  backup-question-bank-2026-11-21T01-28-19-811Z\server.js:480:  const totalQuestions = db.prepare(
+> backup-question-bank-2026-11-21T01-28-19-811Z\server.js:481:    'SELECT COUNT(*) AS count FROM questions'
+  backup-question-bank-2026-11-21T01-28-19-811Z\server.js:482:  ).get().count;
+  backup-question-bank-2026-11-21T01-28-19-811Z\server.js:483:
+  backup-question-bank-2026-11-21T01-28-19-811Z\server.js:484:  const totalStudents = db.prepare(
+  backup-question-bank-2026-11-21T01-28-19-811Z\server.js:485:    "SELECT COUNT(*) AS count FROM users WHERE role = 'student'"
+  backup-question-bank-2026-11-21T01-28-19-811Z\server.js:640:    questions: {
+  backup-question-bank-2026-11-21T01-28-19-811Z\server.js:641:      filename: 'learnspace-questions',
+> backup-question-bank-2026-11-21T01-28-19-811Z\server.js:642:      sql: 'SELECT id, text, options, correct_answer, explanation, category,
+difficulty, active, created_at FROM questions ORDER BY id',
+  backup-question-bank-2026-11-21T01-28-19-811Z\server.js:643:      columns: [
+  backup-question-bank-2026-11-21T01-28-19-811Z\server.js:644:        { key: 'id', label: 'Question ID' },
+  backup-question-bank-2026-11-21T01-28-19-811Z\server.js:645:        { key: 'text', label: 'Question' },
+  backup-question-bank-2026-11-21T01-28-19-811Z\server.js:646:        { key: 'options', label: 'Options JSON' },
+  clear-question-bank.js:14:  for(const t of deps){ db.exec('DELETE FROM "'+t+'"'); }
+  clear-question-bank.js:15:  if(tables.includes('question_passages')) db.exec('DELETE FROM question_passages');
+> clear-question-bank.js:16:  db.exec('DELETE FROM questions');
+  clear-question-bank.js:17:  db.exec('COMMIT');
+  clear-question-bank.js:18:}catch(e){
+  clear-question-bank.js:19:  try{db.exec('ROLLBACK')}catch{}
+  clear-question-bank.js:20:  console.error('FAILED, nothing was changed:',e.message);
+  exam-routes-before-answer-validation-fix.js:60:                 passing_score, exam_type, category
+  exam-routes-before-answer-validation-fix.js:61:          FROM exams
+> exam-routes-before-answer-validation-fix.js:62:          WHERE id = ? AND active = 1
+  exam-routes-before-answer-validation-fix.js:63:        `).get(examId);
+  exam-routes-before-answer-validation-fix.js:64:
+  exam-routes-before-answer-validation-fix.js:65:        if (!exam) {
+  exam-routes-before-answer-validation-fix.js:66:          db.exec('ROLLBACK');
+  exam-routes-before-answer-validation-fix.js:255:                 q.explanation, q.category
+  exam-routes-before-answer-validation-fix.js:256:          FROM exam_questions eq
+> exam-routes-before-answer-validation-fix.js:257:          JOIN questions q ON q.id = eq.question_id
+  exam-routes-before-answer-validation-fix.js:258:          WHERE eq.exam_id = ?
+> exam-routes-before-answer-validation-fix.js:259:            AND q.active = 1
+  exam-routes-before-answer-validation-fix.js:260:          ORDER BY eq.position, eq.id
+  exam-routes-before-answer-validation-fix.js:261:        `).all(exam.id);
+  exam-routes-before-answer-validation-fix.js:262:
+  exam-routes-before-answer-validation-fix.js:263:        if ((exam.exam_type === 'mock' && assignedQuestions.length !== requiredCount) ||
+assignedQuestions.length === 0) {
+  exam-routes-before-answer-validation-fix.js:887:          WHERE exam_type = 'category'
+  exam-routes-before-answer-validation-fix.js:888:            AND category = ?
+> exam-routes-before-answer-validation-fix.js:889:            AND active = 1
+  exam-routes-before-answer-validation-fix.js:890:          ORDER BY id
+  exam-routes-before-answer-validation-fix.js:891:          LIMIT 1
+  exam-routes-before-answer-validation-fix.js:892:        `).get(category);
+  exam-routes-before-answer-validation-fix.js:893:
+  exam-routes-before-category-count-fix.js:60:                 passing_score, exam_type, category
+  exam-routes-before-category-count-fix.js:61:          FROM exams
+> exam-routes-before-category-count-fix.js:62:          WHERE id = ? AND active = 1
+  exam-routes-before-category-count-fix.js:63:        `).get(examId);
+  exam-routes-before-category-count-fix.js:64:
+  exam-routes-before-category-count-fix.js:65:        if (!exam) {
+  exam-routes-before-category-count-fix.js:66:          db.exec('ROLLBACK');
+  exam-routes-before-category-count-fix.js:255:                 q.explanation, q.category
+  exam-routes-before-category-count-fix.js:256:          FROM exam_questions eq
+> exam-routes-before-category-count-fix.js:257:          JOIN questions q ON q.id = eq.question_id
+  exam-routes-before-category-count-fix.js:258:          WHERE eq.exam_id = ?
+> exam-routes-before-category-count-fix.js:259:            AND q.active = 1
+  exam-routes-before-category-count-fix.js:260:          ORDER BY eq.position, eq.id
+  exam-routes-before-category-count-fix.js:261:        `).all(exam.id);
+  exam-routes-before-category-count-fix.js:262:
+  exam-routes-before-category-count-fix.js:263:        if (assignedQuestions.length !== requiredCount) {
+  exam-routes-before-category-count-fix.js:887:          WHERE exam_type = 'category'
+  exam-routes-before-category-count-fix.js:888:            AND category = ?
+> exam-routes-before-category-count-fix.js:889:            AND active = 1
+  exam-routes-before-category-count-fix.js:890:          ORDER BY id
+  exam-routes-before-category-count-fix.js:891:          LIMIT 1
+  exam-routes-before-category-count-fix.js:892:        `).get(category);
+  exam-routes-before-category-count-fix.js:893:
+  exam-routes-before-dynamic-options.js:60:                 passing_score, exam_type, category
+  exam-routes-before-dynamic-options.js:61:          FROM exams
+> exam-routes-before-dynamic-options.js:62:          WHERE id = ? AND active = 1
+  exam-routes-before-dynamic-options.js:63:        `).get(examId);
+  exam-routes-before-dynamic-options.js:64:
+  exam-routes-before-dynamic-options.js:65:        if (!exam) {
+  exam-routes-before-dynamic-options.js:66:          db.exec('ROLLBACK');
+  exam-routes-before-dynamic-options.js:255:                 q.explanation, q.category
+  exam-routes-before-dynamic-options.js:256:          FROM exam_questions eq
+> exam-routes-before-dynamic-options.js:257:          JOIN questions q ON q.id = eq.question_id
+  exam-routes-before-dynamic-options.js:258:          WHERE eq.exam_id = ?
+> exam-routes-before-dynamic-options.js:259:            AND q.active = 1
+  exam-routes-before-dynamic-options.js:260:          ORDER BY eq.position, eq.id
+  exam-routes-before-dynamic-options.js:261:        `).all(exam.id);
+  exam-routes-before-dynamic-options.js:262:
+  exam-routes-before-dynamic-options.js:263:        if (assignedQuestions.length !== requiredCount) {
+  exam-routes-before-dynamic-options.js:887:          WHERE exam_type = 'category'
+  exam-routes-before-dynamic-options.js:888:            AND category = ?
+> exam-routes-before-dynamic-options.js:889:            AND active = 1
+  exam-routes-before-dynamic-options.js:890:          ORDER BY id
+  exam-routes-before-dynamic-options.js:891:          LIMIT 1
+  exam-routes-before-dynamic-options.js:892:        `).get(category);
+  exam-routes-before-dynamic-options.js:893:
+  exam-routes-before-empty-slot-fix-20261121-075412.js:60:                 passing_score, exam_type, category
+  exam-routes-before-empty-slot-fix-20261121-075412.js:61:          FROM exams
+> exam-routes-before-empty-slot-fix-20261121-075412.js:62:          WHERE id = ? AND active = 1
+  exam-routes-before-empty-slot-fix-20261121-075412.js:63:        `).get(examId);
+  exam-routes-before-empty-slot-fix-20261121-075412.js:64:
+  exam-routes-before-empty-slot-fix-20261121-075412.js:65:        if (!exam) {
+  exam-routes-before-empty-slot-fix-20261121-075412.js:66:          db.exec('ROLLBACK');
+  exam-routes-before-empty-slot-fix-20261121-075412.js:255:                 q.explanation, q.category
+  exam-routes-before-empty-slot-fix-20261121-075412.js:256:          FROM exam_questions eq
+> exam-routes-before-empty-slot-fix-20261121-075412.js:257:          JOIN questions q ON q.id = eq.question_id
+  exam-routes-before-empty-slot-fix-20261121-075412.js:258:          WHERE eq.exam_id = ?
+> exam-routes-before-empty-slot-fix-20261121-075412.js:259:            AND q.active = 1
+  exam-routes-before-empty-slot-fix-20261121-075412.js:260:          ORDER BY eq.position, eq.id
+  exam-routes-before-empty-slot-fix-20261121-075412.js:261:        `).all(exam.id);
+  exam-routes-before-empty-slot-fix-20261121-075412.js:262:
+  exam-routes-before-empty-slot-fix-20261121-075412.js:263:        if ((exam.exam_type === 'mock' && assignedQuestions.length !==
+requiredCount) || assignedQuestions.length === 0) {
+  exam-routes-before-empty-slot-fix-20261121-075412.js:889:          WHERE exam_type = 'category'
+  exam-routes-before-empty-slot-fix-20261121-075412.js:890:            AND category = ?
+> exam-routes-before-empty-slot-fix-20261121-075412.js:891:            AND active = 1
+  exam-routes-before-empty-slot-fix-20261121-075412.js:892:          ORDER BY id
+  exam-routes-before-empty-slot-fix-20261121-075412.js:893:          LIMIT 1
+  exam-routes-before-empty-slot-fix-20261121-075412.js:894:        `).get(category);
+  exam-routes-before-empty-slot-fix-20261121-075412.js:895:
+  exam-routes-before-empty-slot-fix2-20261121-075829.js:60:                 passing_score, exam_type, category
+  exam-routes-before-empty-slot-fix2-20261121-075829.js:61:          FROM exams
+> exam-routes-before-empty-slot-fix2-20261121-075829.js:62:          WHERE id = ? AND active = 1
+  exam-routes-before-empty-slot-fix2-20261121-075829.js:63:        `).get(examId);
+  exam-routes-before-empty-slot-fix2-20261121-075829.js:64:
+  exam-routes-before-empty-slot-fix2-20261121-075829.js:65:        if (!exam) {
+  exam-routes-before-empty-slot-fix2-20261121-075829.js:66:          db.exec('ROLLBACK');
+  exam-routes-before-empty-slot-fix2-20261121-075829.js:255:                 q.explanation, q.category
+  exam-routes-before-empty-slot-fix2-20261121-075829.js:256:          FROM exam_questions eq
+> exam-routes-before-empty-slot-fix2-20261121-075829.js:257:          JOIN questions q ON q.id = eq.question_id
+  exam-routes-before-empty-slot-fix2-20261121-075829.js:258:          WHERE eq.exam_id = ?
+> exam-routes-before-empty-slot-fix2-20261121-075829.js:259:            AND q.active = 1
+  exam-routes-before-empty-slot-fix2-20261121-075829.js:260:          ORDER BY eq.position, eq.id
+  exam-routes-before-empty-slot-fix2-20261121-075829.js:261:        `).all(exam.id);
+  exam-routes-before-empty-slot-fix2-20261121-075829.js:262:
+  exam-routes-before-empty-slot-fix2-20261121-075829.js:263:        if ((exam.exam_type === 'mock' && assignedQuestions.length !==
+requiredCount) || assignedQuestions.length === 0) {
+  exam-routes-before-empty-slot-fix2-20261121-075829.js:889:          WHERE exam_type = 'category'
+  exam-routes-before-empty-slot-fix2-20261121-075829.js:890:            AND category = ?
+> exam-routes-before-empty-slot-fix2-20261121-075829.js:891:            AND active = 1
+  exam-routes-before-empty-slot-fix2-20261121-075829.js:892:          ORDER BY id
+  exam-routes-before-empty-slot-fix2-20261121-075829.js:893:          LIMIT 1
+  exam-routes-before-empty-slot-fix2-20261121-075829.js:894:        `).get(category);
+  exam-routes-before-empty-slot-fix2-20261121-075829.js:895:
+  exam-routes-before-history-20261120.js:60:                 passing_score, exam_type, category
+  exam-routes-before-history-20261120.js:61:          FROM exams
+> exam-routes-before-history-20261120.js:62:          WHERE id = ? AND active = 1
+  exam-routes-before-history-20261120.js:63:        `).get(examId);
+  exam-routes-before-history-20261120.js:64:
+  exam-routes-before-history-20261120.js:65:        if (!exam) {
+  exam-routes-before-history-20261120.js:66:          db.exec('ROLLBACK');
+  exam-routes-before-history-20261120.js:255:                 q.explanation, q.category
+  exam-routes-before-history-20261120.js:256:          FROM exam_questions eq
+> exam-routes-before-history-20261120.js:257:          JOIN questions q ON q.id = eq.question_id
+  exam-routes-before-history-20261120.js:258:          WHERE eq.exam_id = ?
+> exam-routes-before-history-20261120.js:259:            AND q.active = 1
+  exam-routes-before-history-20261120.js:260:          ORDER BY eq.position, eq.id
+  exam-routes-before-history-20261120.js:261:        `).all(exam.id);
+  exam-routes-before-history-20261120.js:262:
+  exam-routes-before-history-20261120.js:263:        if (assignedQuestions.length !== requiredCount) {
+  exam-routes-before-history-20261120.js:887:          WHERE exam_type = 'category'
+  exam-routes-before-history-20261120.js:888:            AND category = ?
+> exam-routes-before-history-20261120.js:889:            AND active = 1
+  exam-routes-before-history-20261120.js:890:          ORDER BY id
+  exam-routes-before-history-20261120.js:891:          LIMIT 1
+  exam-routes-before-history-20261120.js:892:        `).get(category);
+  exam-routes-before-history-20261120.js:893:
+  exam-routes-before-integrity-fix-20261120-010622.js:60:                 passing_score, exam_type, category
+  exam-routes-before-integrity-fix-20261120-010622.js:61:          FROM exams
+> exam-routes-before-integrity-fix-20261120-010622.js:62:          WHERE id = ? AND active = 1
+  exam-routes-before-integrity-fix-20261120-010622.js:63:        `).get(examId);
+  exam-routes-before-integrity-fix-20261120-010622.js:64:
+  exam-routes-before-integrity-fix-20261120-010622.js:65:        if (!exam) {
+  exam-routes-before-integrity-fix-20261120-010622.js:66:          db.exec('ROLLBACK');
+  exam-routes-before-integrity-fix-20261120-010622.js:255:                 q.explanation, q.category
+  exam-routes-before-integrity-fix-20261120-010622.js:256:          FROM exam_questions eq
+> exam-routes-before-integrity-fix-20261120-010622.js:257:          JOIN questions q ON q.id = eq.question_id
+  exam-routes-before-integrity-fix-20261120-010622.js:258:          WHERE eq.exam_id = ?
+> exam-routes-before-integrity-fix-20261120-010622.js:259:            AND q.active = 1
+  exam-routes-before-integrity-fix-20261120-010622.js:260:          ORDER BY eq.position, eq.id
+  exam-routes-before-integrity-fix-20261120-010622.js:261:        `).all(exam.id);
+  exam-routes-before-integrity-fix-20261120-010622.js:262:
+  exam-routes-before-integrity-fix-20261120-010622.js:263:        if (assignedQuestions.length !== requiredCount) {
+  exam-routes-before-integrity-fix-20261120-010622.js:865:          WHERE exam_type = 'category'
+  exam-routes-before-integrity-fix-20261120-010622.js:866:            AND category = ?
+> exam-routes-before-integrity-fix-20261120-010622.js:867:            AND active = 1
+  exam-routes-before-integrity-fix-20261120-010622.js:868:          ORDER BY id
+  exam-routes-before-integrity-fix-20261120-010622.js:869:          LIMIT 1
+  exam-routes-before-integrity-fix-20261120-010622.js:870:        `).get(category);
+  exam-routes-before-integrity-fix-20261120-010622.js:871:
+  exam-routes-before-media-rendering-20261122081846.js:60:                 passing_score, exam_type, category
+  exam-routes-before-media-rendering-20261122081846.js:61:          FROM exams
+> exam-routes-before-media-rendering-20261122081846.js:62:          WHERE id = ? AND active = 1
+  exam-routes-before-media-rendering-20261122081846.js:63:        `).get(examId);
+  exam-routes-before-media-rendering-20261122081846.js:64:
+  exam-routes-before-media-rendering-20261122081846.js:65:        if (!exam) {
+  exam-routes-before-media-rendering-20261122081846.js:66:          db.exec('ROLLBACK');
+  exam-routes-before-media-rendering-20261122081846.js:255:                 q.explanation, q.category
+  exam-routes-before-media-rendering-20261122081846.js:256:          FROM exam_questions eq
+> exam-routes-before-media-rendering-20261122081846.js:257:          JOIN questions q ON q.id = eq.question_id
+  exam-routes-before-media-rendering-20261122081846.js:258:          WHERE eq.exam_id = ?
+> exam-routes-before-media-rendering-20261122081846.js:259:            AND q.active = 1
+  exam-routes-before-media-rendering-20261122081846.js:260:          ORDER BY eq.position, eq.id
+  exam-routes-before-media-rendering-20261122081846.js:261:        `).all(exam.id);
+  exam-routes-before-media-rendering-20261122081846.js:262:
+  exam-routes-before-media-rendering-20261122081846.js:263:        if (exam.exam_type === 'category' && assignedQuestions.length >
+requiredCount) {
+  exam-routes-before-media-rendering-20261122081846.js:893:          WHERE exam_type = 'category'
+  exam-routes-before-media-rendering-20261122081846.js:894:            AND category = ?
+> exam-routes-before-media-rendering-20261122081846.js:895:            AND active = 1
+  exam-routes-before-media-rendering-20261122081846.js:896:          ORDER BY id
+  exam-routes-before-media-rendering-20261122081846.js:897:          LIMIT 1
+  exam-routes-before-media-rendering-20261122081846.js:898:        `).get(category);
+  exam-routes-before-media-rendering-20261122081846.js:899:
+  exam-routes-before-mock-flex-20261121-082422.js:60:                 passing_score, exam_type, category
+  exam-routes-before-mock-flex-20261121-082422.js:61:          FROM exams
+> exam-routes-before-mock-flex-20261121-082422.js:62:          WHERE id = ? AND active = 1
+  exam-routes-before-mock-flex-20261121-082422.js:63:        `).get(examId);
+  exam-routes-before-mock-flex-20261121-082422.js:64:
+  exam-routes-before-mock-flex-20261121-082422.js:65:        if (!exam) {
+  exam-routes-before-mock-flex-20261121-082422.js:66:          db.exec('ROLLBACK');
+  exam-routes-before-mock-flex-20261121-082422.js:255:                 q.explanation, q.category
+  exam-routes-before-mock-flex-20261121-082422.js:256:          FROM exam_questions eq
+> exam-routes-before-mock-flex-20261121-082422.js:257:          JOIN questions q ON q.id = eq.question_id
+  exam-routes-before-mock-flex-20261121-082422.js:258:          WHERE eq.exam_id = ?
+> exam-routes-before-mock-flex-20261121-082422.js:259:            AND q.active = 1
+  exam-routes-before-mock-flex-20261121-082422.js:260:          ORDER BY eq.position, eq.id
+  exam-routes-before-mock-flex-20261121-082422.js:261:        `).all(exam.id);
+  exam-routes-before-mock-flex-20261121-082422.js:262:
+  exam-routes-before-mock-flex-20261121-082422.js:263:        if (exam.exam_type === 'category' && assignedQuestions.length > requiredCount) {
+  exam-routes-before-mock-flex-20261121-082422.js:893:          WHERE exam_type = 'category'
+  exam-routes-before-mock-flex-20261121-082422.js:894:            AND category = ?
+> exam-routes-before-mock-flex-20261121-082422.js:895:            AND active = 1
+  exam-routes-before-mock-flex-20261121-082422.js:896:          ORDER BY id
+  exam-routes-before-mock-flex-20261121-082422.js:897:          LIMIT 1
+  exam-routes-before-mock-flex-20261121-082422.js:898:        `).get(category);
+  exam-routes-before-mock-flex-20261121-082422.js:899:
+  exam-routes-before-random-30-20261121-080544.js:60:                 passing_score, exam_type, category
+  exam-routes-before-random-30-20261121-080544.js:61:          FROM exams
+> exam-routes-before-random-30-20261121-080544.js:62:          WHERE id = ? AND active = 1
+  exam-routes-before-random-30-20261121-080544.js:63:        `).get(examId);
+  exam-routes-before-random-30-20261121-080544.js:64:
+  exam-routes-before-random-30-20261121-080544.js:65:        if (!exam) {
+  exam-routes-before-random-30-20261121-080544.js:66:          db.exec('ROLLBACK');
+  exam-routes-before-random-30-20261121-080544.js:255:                 q.explanation, q.category
+  exam-routes-before-random-30-20261121-080544.js:256:          FROM exam_questions eq
+> exam-routes-before-random-30-20261121-080544.js:257:          JOIN questions q ON q.id = eq.question_id
+  exam-routes-before-random-30-20261121-080544.js:258:          WHERE eq.exam_id = ?
+> exam-routes-before-random-30-20261121-080544.js:259:            AND q.active = 1
+  exam-routes-before-random-30-20261121-080544.js:260:          ORDER BY eq.position, eq.id
+  exam-routes-before-random-30-20261121-080544.js:261:        `).all(exam.id);
+  exam-routes-before-random-30-20261121-080544.js:262:
+  exam-routes-before-random-30-20261121-080544.js:263:        if ((exam.exam_type === 'mock' && assignedQuestions.length !== requiredCount)
+|| assignedQuestions.length === 0) {
+  exam-routes-before-random-30-20261121-080544.js:885:          WHERE exam_type = 'category'
+  exam-routes-before-random-30-20261121-080544.js:886:            AND category = ?
+> exam-routes-before-random-30-20261121-080544.js:887:            AND active = 1
+  exam-routes-before-random-30-20261121-080544.js:888:          ORDER BY id
+  exam-routes-before-random-30-20261121-080544.js:889:          LIMIT 1
+  exam-routes-before-random-30-20261121-080544.js:890:        `).get(category);
+  exam-routes-before-random-30-20261121-080544.js:891:
+  exam-routes-before-resume-dashboard-20261120-021643.js:60:                 passing_score, exam_type, category
+  exam-routes-before-resume-dashboard-20261120-021643.js:61:          FROM exams
+> exam-routes-before-resume-dashboard-20261120-021643.js:62:          WHERE id = ? AND active = 1
+  exam-routes-before-resume-dashboard-20261120-021643.js:63:        `).get(examId);
+  exam-routes-before-resume-dashboard-20261120-021643.js:64:
+  exam-routes-before-resume-dashboard-20261120-021643.js:65:        if (!exam) {
+  exam-routes-before-resume-dashboard-20261120-021643.js:66:          db.exec('ROLLBACK');
+  exam-routes-before-resume-dashboard-20261120-021643.js:255:                 q.explanation, q.category
+  exam-routes-before-resume-dashboard-20261120-021643.js:256:          FROM exam_questions eq
+> exam-routes-before-resume-dashboard-20261120-021643.js:257:          JOIN questions q ON q.id = eq.question_id
+  exam-routes-before-resume-dashboard-20261120-021643.js:258:          WHERE eq.exam_id = ?
+> exam-routes-before-resume-dashboard-20261120-021643.js:259:            AND q.active = 1
+  exam-routes-before-resume-dashboard-20261120-021643.js:260:          ORDER BY eq.position, eq.id
+  exam-routes-before-resume-dashboard-20261120-021643.js:261:        `).all(exam.id);
+  exam-routes-before-resume-dashboard-20261120-021643.js:262:
+  exam-routes-before-resume-dashboard-20261120-021643.js:263:        if (assignedQuestions.length !== requiredCount) {
+  exam-routes-before-resume-dashboard-20261120-021643.js:887:          WHERE exam_type = 'category'
+  exam-routes-before-resume-dashboard-20261120-021643.js:888:            AND category = ?
+> exam-routes-before-resume-dashboard-20261120-021643.js:889:            AND active = 1
+  exam-routes-before-resume-dashboard-20261120-021643.js:890:          ORDER BY id
+  exam-routes-before-resume-dashboard-20261120-021643.js:891:          LIMIT 1
+  exam-routes-before-resume-dashboard-20261120-021643.js:892:        `).get(category);
+  exam-routes-before-resume-dashboard-20261120-021643.js:893:
+  exam-routes-before-start-validation-fix.js:60:                 passing_score, exam_type, category
+  exam-routes-before-start-validation-fix.js:61:          FROM exams
+> exam-routes-before-start-validation-fix.js:62:          WHERE id = ? AND active = 1
+  exam-routes-before-start-validation-fix.js:63:        `).get(examId);
+  exam-routes-before-start-validation-fix.js:64:
+  exam-routes-before-start-validation-fix.js:65:        if (!exam) {
+  exam-routes-before-start-validation-fix.js:66:          db.exec('ROLLBACK');
+  exam-routes-before-start-validation-fix.js:255:                 q.explanation, q.category
+  exam-routes-before-start-validation-fix.js:256:          FROM exam_questions eq
+> exam-routes-before-start-validation-fix.js:257:          JOIN questions q ON q.id = eq.question_id
+  exam-routes-before-start-validation-fix.js:258:          WHERE eq.exam_id = ?
+> exam-routes-before-start-validation-fix.js:259:            AND q.active = 1
+  exam-routes-before-start-validation-fix.js:260:          ORDER BY eq.position, eq.id
+  exam-routes-before-start-validation-fix.js:261:        `).all(exam.id);
+  exam-routes-before-start-validation-fix.js:262:
+  exam-routes-before-start-validation-fix.js:263:        if ((exam.exam_type === 'mock' && assignedQuestions.length !== requiredCount) ||
+assignedQuestions.length === 0) {
+  exam-routes-before-start-validation-fix.js:889:          WHERE exam_type = 'category'
+  exam-routes-before-start-validation-fix.js:890:            AND category = ?
+> exam-routes-before-start-validation-fix.js:891:            AND active = 1
+  exam-routes-before-start-validation-fix.js:892:          ORDER BY id
+  exam-routes-before-start-validation-fix.js:893:          LIMIT 1
+  exam-routes-before-start-validation-fix.js:894:        `).get(category);
+  exam-routes-before-start-validation-fix.js:895:
+  exam-routes.js:90:                 passing_score, exam_type, category
+  exam-routes.js:91:          FROM exams
+> exam-routes.js:92:          WHERE id = ? AND active = 1
+  exam-routes.js:93:        `).get(examId);
+  exam-routes.js:94:
+  exam-routes.js:95:        if (!exam) {
+  exam-routes.js:96:          db.exec('ROLLBACK');
+  exam-routes.js:285:                 q.explanation, q.category
+  exam-routes.js:286:          FROM exam_questions eq
+> exam-routes.js:287:          JOIN questions q ON q.id = eq.question_id
+  exam-routes.js:288:          WHERE eq.exam_id = ?
+> exam-routes.js:289:            AND q.active = 1
+  exam-routes.js:290:          ORDER BY eq.position, eq.id
+  exam-routes.js:291:        `).all(exam.id);
+  exam-routes.js:292:
+  exam-routes.js:293:        if (exam.exam_type === 'category' && assignedQuestions.length > requiredCount) {
+  exam-routes.js:926:          WHERE exam_type = 'category'
+  exam-routes.js:927:            AND category = ?
+> exam-routes.js:928:            AND active = 1
+  exam-routes.js:929:          ORDER BY id
+  exam-routes.js:930:          LIMIT 1
+  exam-routes.js:931:        `).get(category);
+  exam-routes.js:932:
+  import-question-bank-2020-test.js:279:    console.log("Total recorded errors/warnings:", db.prepare("SELECT COUNT(*) AS n FROM
+question_import_errors WHERE batch_id=?").get(batchId).n);
+  import-question-bank-2020-test.js:280:    console.log("Passage links created:", db.prepare("SELECT COUNT(*) AS n FROM
+question_passage_links qpl JOIN question_import_items i ON i.question_id=qpl.question_id WHERE i.batch_id=?").get(batchId).n);
+> import-question-bank-2020-test.js:281:    console.log("Question review statuses:", db.prepare("SELECT review_status,COUNT(*) AS n FROM
+questions WHERE id IN (SELECT question_id FROM question_import_items WHERE batch_id=?) GROUP BY review_status").all(batchId));
+  import-question-bank-2020-test.js:282:    console.log("Database integrity:", db.prepare("PRAGMA integrity_check").get());
+  import-question-bank-2020-test.js:283:    console.log("Foreign key issues:", db.prepare("PRAGMA foreign_key_check").all().length);
+  import-question-bank-2020-test.js:284:  } catch (error) {
+  import-question-bank-2020-test.js:285:    try { db.exec("ROLLBACK"); } catch (_) {}
+  import-question-bank-cse2017-before-media-integration-20261122-072337.js:279:    console.log("Total recorded errors/warnings:",
+db.prepare("SELECT COUNT(*) AS n FROM question_import_errors WHERE batch_id=?").get(batchId).n);
+  import-question-bank-cse2017-before-media-integration-20261122-072337.js:280:    console.log("Passage links created:", db.prepare("SELECT
+COUNT(*) AS n FROM question_passage_links qpl JOIN question_import_items i ON i.question_id=qpl.question_id WHERE
+i.batch_id=?").get(batchId).n);
+> import-question-bank-cse2017-before-media-integration-20261122-072337.js:281:    console.log("Question review statuses:",
+db.prepare("SELECT review_status,COUNT(*) AS n FROM questions WHERE id IN (SELECT question_id FROM question_import_items WHERE batch_id=?)
+GROUP BY review_status").all(batchId));
+  import-question-bank-cse2017-before-media-integration-20261122-072337.js:282:    console.log("Database integrity:", db.prepare("PRAGMA
+integrity_check").get());
+  import-question-bank-cse2017-before-media-integration-20261122-072337.js:283:    console.log("Foreign key issues:", db.prepare("PRAGMA
+foreign_key_check").all().length);
+  import-question-bank-cse2017-before-media-integration-20261122-072337.js:284:  } catch (error) {
+  import-question-bank-cse2017-before-media-integration-20261122-072337.js:285:    try { db.exec("ROLLBACK"); } catch (_) {}
+  import-question-bank-cse2017-before-media.js:279:    console.log("Total recorded errors/warnings:", db.prepare("SELECT COUNT(*) AS n FROM
+question_import_errors WHERE batch_id=?").get(batchId).n);
+  import-question-bank-cse2017-before-media.js:280:    console.log("Passage links created:", db.prepare("SELECT COUNT(*) AS n FROM
+question_passage_links qpl JOIN question_import_items i ON i.question_id=qpl.question_id WHERE i.batch_id=?").get(batchId).n);
+> import-question-bank-cse2017-before-media.js:281:    console.log("Question review statuses:", db.prepare("SELECT review_status,COUNT(*) AS
+n FROM questions WHERE id IN (SELECT question_id FROM question_import_items WHERE batch_id=?) GROUP BY review_status").all(batchId));
+  import-question-bank-cse2017-before-media.js:282:    console.log("Database integrity:", db.prepare("PRAGMA integrity_check").get());
+  import-question-bank-cse2017-before-media.js:283:    console.log("Foreign key issues:", db.prepare("PRAGMA
+foreign_key_check").all().length);
+  import-question-bank-cse2017-before-media.js:284:  } catch (error) {
+  import-question-bank-cse2017-before-media.js:285:    try { db.exec("ROLLBACK"); } catch (_) {}
+  import-question-bank-cse2017-before-mediatype-fix-20261121-235819.js:255:      "INSERT INTO passage_media_links
+(passage_id,media_id,position) VALUES (?,?,?)"
+  import-question-bank-cse2017-before-mediatype-fix-20261121-235819.js:256:    );
+> import-question-bank-cse2017-before-mediatype-fix-20261121-235819.js:257:    const getQuestionContent = db.prepare("SELECT content_json
+FROM questions WHERE id=?");
+  import-question-bank-cse2017-before-mediatype-fix-20261121-235819.js:258:    const updateQuestionContent = db.prepare("UPDATE questions SET
+content_json=? WHERE id=?");
+  import-question-bank-cse2017-before-mediatype-fix-20261121-235819.js:259:    const getPassageContent = db.prepare("SELECT content_json FROM
+question_passages WHERE id=?");
+  import-question-bank-cse2017-before-mediatype-fix-20261121-235819.js:260:    const updatePassageContent = db.prepare("UPDATE
+question_passages SET content_json=? WHERE id=?");
+  import-question-bank-cse2017-before-mediatype-fix-20261121-235819.js:261:
+  import-question-bank-cse2017-before-mediatype-fix-20261121-235819.js:599:    console.log("Total recorded errors/warnings:",
+db.prepare("SELECT COUNT(*) AS n FROM question_import_errors WHERE batch_id=?").get(batchId).n);
+  import-question-bank-cse2017-before-mediatype-fix-20261121-235819.js:600:    console.log("Passage links created:", db.prepare("SELECT
+COUNT(*) AS n FROM question_passage_links qpl JOIN question_import_items i ON i.question_id=qpl.question_id WHERE
+i.batch_id=?").get(batchId).n);
+> import-question-bank-cse2017-before-mediatype-fix-20261121-235819.js:601:    console.log("Question review statuses:", db.prepare("SELECT
+review_status,COUNT(*) AS n FROM questions WHERE id IN (SELECT question_id FROM question_import_items WHERE batch_id=?) GROUP BY
+review_status").all(batchId));
+  import-question-bank-cse2017-before-mediatype-fix-20261121-235819.js:602:    console.log("Database integrity:", db.prepare("PRAGMA
+integrity_check").get());
+  import-question-bank-cse2017-before-mediatype-fix-20261121-235819.js:603:    console.log("Foreign key issues:", db.prepare("PRAGMA
+foreign_key_check").all().length);
+  import-question-bank-cse2017-before-mediatype-fix-20261121-235819.js:604:  } catch (error) {
+  import-question-bank-cse2017-before-mediatype-fix-20261121-235819.js:605:    try { db.exec("ROLLBACK"); } catch (_) {}
+  import-question-bank-cse2017-before-universal-resolver-20261121-233737.js:261:    );
+  import-question-bank-cse2017-before-universal-resolver-20261121-233737.js:262:    const getQuestionContent = db.prepare(
+> import-question-bank-cse2017-before-universal-resolver-20261121-233737.js:263:      "SELECT content_json FROM questions WHERE id=?"
+  import-question-bank-cse2017-before-universal-resolver-20261121-233737.js:264:    );
+  import-question-bank-cse2017-before-universal-resolver-20261121-233737.js:265:    const updateQuestionContent = db.prepare(
+  import-question-bank-cse2017-before-universal-resolver-20261121-233737.js:266:      "UPDATE questions SET content_json=? WHERE id=?"
+  import-question-bank-cse2017-before-universal-resolver-20261121-233737.js:267:    );
+  import-question-bank-cse2017-before-universal-resolver-20261121-233737.js:378:    console.log("Total recorded errors/warnings:",
+db.prepare("SELECT COUNT(*) AS n FROM question_import_errors WHERE batch_id=?").get(batchId).n);
+  import-question-bank-cse2017-before-universal-resolver-20261121-233737.js:379:    console.log("Passage links created:", db.prepare("SELECT
+COUNT(*) AS n FROM question_passage_links qpl JOIN question_import_items i ON i.question_id=qpl.question_id WHERE
+i.batch_id=?").get(batchId).n);
+> import-question-bank-cse2017-before-universal-resolver-20261121-233737.js:380:    console.log("Question review statuses:",
+db.prepare("SELECT review_status,COUNT(*) AS n FROM questions WHERE id IN (SELECT question_id FROM question_import_items WHERE batch_id=?)
+GROUP BY review_status").all(batchId));
+  import-question-bank-cse2017-before-universal-resolver-20261121-233737.js:381:    console.log("Database integrity:", db.prepare("PRAGMA
+integrity_check").get());
+  import-question-bank-cse2017-before-universal-resolver-20261121-233737.js:382:    console.log("Foreign key issues:", db.prepare("PRAGMA
+foreign_key_check").all().length);
+  import-question-bank-cse2017-before-universal-resolver-20261121-233737.js:383:  } catch (error) {
+  import-question-bank-cse2017-before-universal-resolver-20261121-233737.js:384:    try { db.exec("ROLLBACK"); } catch (_) {}
+  import-question-bank-cse2017.js:258:      "INSERT INTO passage_media_links (passage_id,media_id,position) VALUES (?,?,?)"
+  import-question-bank-cse2017.js:259:    );
+> import-question-bank-cse2017.js:260:    const getQuestionContent = db.prepare("SELECT content_json FROM questions WHERE id=?");
+  import-question-bank-cse2017.js:261:    const updateQuestionContent = db.prepare("UPDATE questions SET content_json=? WHERE id=?");
+  import-question-bank-cse2017.js:262:    const getPassageContent = db.prepare("SELECT content_json FROM question_passages WHERE id=?");
+  import-question-bank-cse2017.js:263:    const updatePassageContent = db.prepare("UPDATE question_passages SET content_json=? WHERE id=?");
+  import-question-bank-cse2017.js:264:
+  import-question-bank-cse2017.js:602:    console.log("Total recorded errors/warnings:", db.prepare("SELECT COUNT(*) AS n FROM
+question_import_errors WHERE batch_id=?").get(batchId).n);
+  import-question-bank-cse2017.js:603:    console.log("Passage links created:", db.prepare("SELECT COUNT(*) AS n FROM question_passage_links
+qpl JOIN question_import_items i ON i.question_id=qpl.question_id WHERE i.batch_id=?").get(batchId).n);
+> import-question-bank-cse2017.js:604:    console.log("Question review statuses:", db.prepare("SELECT review_status,COUNT(*) AS n FROM
+questions WHERE id IN (SELECT question_id FROM question_import_items WHERE batch_id=?) GROUP BY review_status").all(batchId));
+  import-question-bank-cse2017.js:605:    console.log("Database integrity:", db.prepare("PRAGMA integrity_check").get());
+  import-question-bank-cse2017.js:606:    console.log("Foreign key issues:", db.prepare("PRAGMA foreign_key_check").all().length);
+  import-question-bank-cse2017.js:607:  } catch (error) {
+  import-question-bank-cse2017.js:608:    try { db.exec("ROLLBACK"); } catch (_) {}
+  import-question-bank-live.js:279:    console.log("Total recorded errors/warnings:", db.prepare("SELECT COUNT(*) AS n FROM
+question_import_errors WHERE batch_id=?").get(batchId).n);
+  import-question-bank-live.js:280:    console.log("Passage links created:", db.prepare("SELECT COUNT(*) AS n FROM question_passage_links qpl
+JOIN question_import_items i ON i.question_id=qpl.question_id WHERE i.batch_id=?").get(batchId).n);
+> import-question-bank-live.js:281:    console.log("Question review statuses:", db.prepare("SELECT review_status,COUNT(*) AS n FROM questions
+WHERE id IN (SELECT question_id FROM question_import_items WHERE batch_id=?) GROUP BY review_status").all(batchId));
+  import-question-bank-live.js:282:    console.log("Database integrity:", db.prepare("PRAGMA integrity_check").get());
+  import-question-bank-live.js:283:    console.log("Foreign key issues:", db.prepare("PRAGMA foreign_key_check").all().length);
+  import-question-bank-live.js:284:  } catch (error) {
+  import-question-bank-live.js:285:    try { db.exec("ROLLBACK"); } catch (_) {}
+  import-question-bank-test.js:279:    console.log("Total recorded errors/warnings:", db.prepare("SELECT COUNT(*) AS n FROM
+question_import_errors WHERE batch_id=?").get(batchId).n);
+  import-question-bank-test.js:280:    console.log("Passage links created:", db.prepare("SELECT COUNT(*) AS n FROM question_passage_links qpl
+JOIN question_import_items i ON i.question_id=qpl.question_id WHERE i.batch_id=?").get(batchId).n);
+> import-question-bank-test.js:281:    console.log("Question review statuses:", db.prepare("SELECT review_status,COUNT(*) AS n FROM questions
+WHERE id IN (SELECT question_id FROM question_import_items WHERE batch_id=?) GROUP BY review_status").all(batchId));
+  import-question-bank-test.js:282:    console.log("Database integrity:", db.prepare("PRAGMA integrity_check").get());
+  import-question-bank-test.js:283:    console.log("Foreign key issues:", db.prepare("PRAGMA foreign_key_check").all().length);
+  import-question-bank-test.js:284:  } catch (error) {
+  import-question-bank-test.js:285:    try { db.exec("ROLLBACK"); } catch (_) {}
+  question-bank-schema-before-constraints.js:25:  addColumn('questions', 'version_number', 'INTEGER NOT NULL DEFAULT 1');
+  question-bank-schema-before-constraints.js:26:  addColumn('questions', 'review_status',
+> question-bank-schema-before-constraints.js:27:    "TEXT NOT NULL DEFAULT 'draft' CHECK(review_status IN
+('draft','pending_review','approved','rejected','withdrawn'))");
+  question-bank-schema-before-constraints.js:28:  addColumn('questions', 'question_type', "TEXT NOT NULL DEFAULT 'multiple_choice'");
+  question-bank-schema-before-constraints.js:29:  addColumn('questions', 'content_json', 'TEXT');
+  question-bank-schema-before-constraints.js:30:  addColumn('questions', 'topic', 'TEXT');
+  question-bank-schema-before-constraints.js:31:  addColumn('questions', 'exam_level', 'TEXT');
+  question-bank-schema-before-constraints.js:43:    UPDATE questions
+  question-bank-schema-before-constraints.js:44:    SET question_group_id = id,
+> question-bank-schema-before-constraints.js:45:        review_status = CASE WHEN active = 1 THEN 'approved' ELSE 'draft' END,
+  question-bank-schema-before-constraints.js:46:        updated_at = COALESCE(updated_at, created_at)
+  question-bank-schema-before-constraints.js:47:    WHERE question_group_id IS NULL;
+  question-bank-schema-before-constraints.js:48:  `);
+  question-bank-schema-before-constraints.js:49:
+  question-bank-schema-before-constraints.js:60:      (question_group_id, question_id)
+  question-bank-schema-before-constraints.js:61:    SELECT id, id
+> question-bank-schema-before-constraints.js:62:    FROM questions
+> question-bank-schema-before-constraints.js:63:    WHERE active = 1 AND review_status = 'approved';
+  question-bank-schema-before-constraints.js:64:
+  question-bank-schema-before-constraints.js:65:    CREATE TABLE IF NOT EXISTS question_review_history (
+  question-bank-schema-before-constraints.js:66:      id INTEGER PRIMARY KEY AUTOINCREMENT,
+  question-bank-schema-before-constraints.js:67:      question_id INTEGER NOT NULL,
+  question-bank-schema-before-constraints.js:92:      permission_notes TEXT,
+  question-bank-schema-before-constraints.js:93:      review_status TEXT NOT NULL DEFAULT 'draft'
+> question-bank-schema-before-constraints.js:94:        CHECK(review_status IN ('draft','pending_review','approved','rejected','withdrawn')),
+  question-bank-schema-before-constraints.js:95:      created_by INTEGER,
+  question-bank-schema-before-constraints.js:96:      created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  question-bank-schema-before-constraints.js:97:      updated_at TEXT,
+  question-bank-schema-before-constraints.js:98:      FOREIGN KEY (created_by) REFERENCES users(id)
+  question-bank-schema-before-constraints.js:212:  const questions = db.prepare(`
+  question-bank-schema-before-constraints.js:213:    SELECT COUNT(*) AS total,
+> question-bank-schema-before-constraints.js:214:           SUM(CASE WHEN review_status = 'approved' THEN 1 ELSE 0 END) AS approved,
+  question-bank-schema-before-constraints.js:215:           SUM(CASE WHEN review_status = 'draft' THEN 1 ELSE 0 END) AS drafts
+> question-bank-schema-before-constraints.js:216:    FROM questions
+  question-bank-schema-before-constraints.js:217:  `).get();
+  question-bank-schema-before-constraints.js:218:
+  question-bank-schema-before-constraints.js:219:  console.log('Question-bank migration completed.');
+  question-bank-schema-before-constraints.js:220:  console.log('Integrity:', integrity);
+  question-bank-schema-before-immutability-hardening.js:25:  addColumn('questions', 'version_number', 'INTEGER NOT NULL DEFAULT 1');
+  question-bank-schema-before-immutability-hardening.js:26:  addColumn('questions', 'review_status',
+> question-bank-schema-before-immutability-hardening.js:27:    "TEXT NOT NULL DEFAULT 'draft' CHECK(review_status IN
+('draft','pending_review','approved','rejected','withdrawn'))");
+  question-bank-schema-before-immutability-hardening.js:28:  addColumn('questions', 'question_type', "TEXT NOT NULL DEFAULT
+'multiple_choice'");
+  question-bank-schema-before-immutability-hardening.js:29:  addColumn('questions', 'content_json', 'TEXT');
+  question-bank-schema-before-immutability-hardening.js:30:  addColumn('questions', 'topic', 'TEXT');
+  question-bank-schema-before-immutability-hardening.js:31:  addColumn('questions', 'exam_level', 'TEXT');
+  question-bank-schema-before-immutability-hardening.js:43:    UPDATE questions
+  question-bank-schema-before-immutability-hardening.js:44:    SET question_group_id = id,
+> question-bank-schema-before-immutability-hardening.js:45:        review_status = CASE WHEN active = 1 THEN 'approved' ELSE 'draft' END,
+  question-bank-schema-before-immutability-hardening.js:46:        updated_at = COALESCE(updated_at, created_at)
+  question-bank-schema-before-immutability-hardening.js:47:    WHERE question_group_id IS NULL;
+  question-bank-schema-before-immutability-hardening.js:48:  `);
+  question-bank-schema-before-immutability-hardening.js:49:
+  question-bank-schema-before-immutability-hardening.js:60:      (question_group_id, question_id)
+  question-bank-schema-before-immutability-hardening.js:61:    SELECT id, id
+> question-bank-schema-before-immutability-hardening.js:62:    FROM questions
+> question-bank-schema-before-immutability-hardening.js:63:    WHERE active = 1 AND review_status = 'approved';
+  question-bank-schema-before-immutability-hardening.js:64:
+  question-bank-schema-before-immutability-hardening.js:65:    CREATE TABLE IF NOT EXISTS question_review_history (
+  question-bank-schema-before-immutability-hardening.js:66:      id INTEGER PRIMARY KEY AUTOINCREMENT,
+  question-bank-schema-before-immutability-hardening.js:67:      question_id INTEGER NOT NULL,
+  question-bank-schema-before-immutability-hardening.js:92:      permission_notes TEXT,
+  question-bank-schema-before-immutability-hardening.js:93:      review_status TEXT NOT NULL DEFAULT 'draft'
+> question-bank-schema-before-immutability-hardening.js:94:        CHECK(review_status IN
+('draft','pending_review','approved','rejected','withdrawn')),
+  question-bank-schema-before-immutability-hardening.js:95:      created_by INTEGER,
+  question-bank-schema-before-immutability-hardening.js:96:      created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  question-bank-schema-before-immutability-hardening.js:97:      updated_at TEXT,
+  question-bank-schema-before-immutability-hardening.js:98:      FOREIGN KEY (created_by) REFERENCES users(id)
+  question-bank-schema-before-immutability-hardening.js:208:  const duplicateVersion = db.prepare(`
+  question-bank-schema-before-immutability-hardening.js:209:    SELECT question_group_id, version_number, COUNT(*) AS count
+> question-bank-schema-before-immutability-hardening.js:210:    FROM questions
+  question-bank-schema-before-immutability-hardening.js:211:    GROUP BY question_group_id, version_number
+  question-bank-schema-before-immutability-hardening.js:212:    HAVING COUNT(*) > 1
+  question-bank-schema-before-immutability-hardening.js:213:    LIMIT 1
+  question-bank-schema-before-immutability-hardening.js:214:  `).get();
+  question-bank-schema-before-immutability-hardening.js:252:    BEFORE INSERT ON question_current_versions
+  question-bank-schema-before-immutability-hardening.js:253:    WHEN NOT EXISTS (
+> question-bank-schema-before-immutability-hardening.js:254:      SELECT 1 FROM questions
+  question-bank-schema-before-immutability-hardening.js:255:      WHERE id = NEW.question_id
+  question-bank-schema-before-immutability-hardening.js:256:        AND question_group_id = NEW.question_group_id
+> question-bank-schema-before-immutability-hardening.js:257:        AND review_status = 'approved'
+  question-bank-schema-before-immutability-hardening.js:258:    )
+  question-bank-schema-before-immutability-hardening.js:259:    BEGIN
+  question-bank-schema-before-immutability-hardening.js:260:      SELECT RAISE(ABORT, 'Current version must be approved and belong to its
+group');
+  question-bank-schema-before-immutability-hardening.js:261:    END;
+  question-bank-schema-before-immutability-hardening.js:265:    ON question_current_versions
+  question-bank-schema-before-immutability-hardening.js:266:    WHEN NOT EXISTS (
+> question-bank-schema-before-immutability-hardening.js:267:      SELECT 1 FROM questions
+  question-bank-schema-before-immutability-hardening.js:268:      WHERE id = NEW.question_id
+  question-bank-schema-before-immutability-hardening.js:269:        AND question_group_id = NEW.question_group_id
+> question-bank-schema-before-immutability-hardening.js:270:        AND review_status = 'approved'
+  question-bank-schema-before-immutability-hardening.js:271:    )
+  question-bank-schema-before-immutability-hardening.js:272:    BEGIN
+  question-bank-schema-before-immutability-hardening.js:273:      SELECT RAISE(ABORT, 'Current version must be approved and belong to its
+group');
+  question-bank-schema-before-immutability-hardening.js:274:    END;
+  question-bank-schema-before-immutability-hardening.js:276:    CREATE TRIGGER IF NOT EXISTS current_question_cannot_lose_approval
+  question-bank-schema-before-immutability-hardening.js:277:    BEFORE UPDATE OF review_status ON questions
+> question-bank-schema-before-immutability-hardening.js:278:    WHEN NEW.review_status <> 'approved'
+  question-bank-schema-before-immutability-hardening.js:279:      AND EXISTS (
+  question-bank-schema-before-immutability-hardening.js:280:        SELECT 1 FROM question_current_versions
+  question-bank-schema-before-immutability-hardening.js:281:        WHERE question_id = OLD.id
+  question-bank-schema-before-immutability-hardening.js:282:      )
+  question-bank-schema-before-immutability-hardening.js:300:      source_url, rights_status, permission_notes
+  question-bank-schema-before-immutability-hardening.js:301:    ON questions
+> question-bank-schema-before-immutability-hardening.js:302:    WHEN OLD.review_status = 'approved'
+  question-bank-schema-before-immutability-hardening.js:303:    BEGIN
+  question-bank-schema-before-immutability-hardening.js:304:      SELECT RAISE(ABORT, 'Approved question content is immutable; create a new
+version');
+  question-bank-schema-before-immutability-hardening.js:305:    END;
+  question-bank-schema-before-immutability-hardening.js:306:
+  question-bank-schema-before-immutability-hardening.js:307:    CREATE TRIGGER IF NOT EXISTS approved_questions_cannot_be_deleted
+  question-bank-schema-before-immutability-hardening.js:308:    BEFORE DELETE ON questions
+> question-bank-schema-before-immutability-hardening.js:309:    WHEN OLD.review_status = 'approved'
+  question-bank-schema-before-immutability-hardening.js:310:    BEGIN
+  question-bank-schema-before-immutability-hardening.js:311:      SELECT RAISE(ABORT, 'Approved questions cannot be deleted');
+  question-bank-schema-before-immutability-hardening.js:312:    END;
+  question-bank-schema-before-immutability-hardening.js:313:  `);
+  question-bank-schema-before-immutability-hardening.js:319:  const questions = db.prepare(`
+  question-bank-schema-before-immutability-hardening.js:320:    SELECT COUNT(*) AS total,
+> question-bank-schema-before-immutability-hardening.js:321:           SUM(CASE WHEN review_status = 'approved' THEN 1 ELSE 0 END) AS
+approved,
+  question-bank-schema-before-immutability-hardening.js:322:           SUM(CASE WHEN review_status = 'draft' THEN 1 ELSE 0 END) AS drafts
+> question-bank-schema-before-immutability-hardening.js:323:    FROM questions
+  question-bank-schema-before-immutability-hardening.js:324:  `).get();
+  question-bank-schema-before-immutability-hardening.js:325:
+  question-bank-schema-before-immutability-hardening.js:326:  console.log('Question-bank migration completed.');
+  question-bank-schema-before-immutability-hardening.js:327:  console.log('Integrity:', integrity);
+  question-bank-schema-before-immutability.js:25:  addColumn('questions', 'version_number', 'INTEGER NOT NULL DEFAULT 1');
+  question-bank-schema-before-immutability.js:26:  addColumn('questions', 'review_status',
+> question-bank-schema-before-immutability.js:27:    "TEXT NOT NULL DEFAULT 'draft' CHECK(review_status IN
+('draft','pending_review','approved','rejected','withdrawn'))");
+  question-bank-schema-before-immutability.js:28:  addColumn('questions', 'question_type', "TEXT NOT NULL DEFAULT 'multiple_choice'");
+  question-bank-schema-before-immutability.js:29:  addColumn('questions', 'content_json', 'TEXT');
+  question-bank-schema-before-immutability.js:30:  addColumn('questions', 'topic', 'TEXT');
+  question-bank-schema-before-immutability.js:31:  addColumn('questions', 'exam_level', 'TEXT');
+  question-bank-schema-before-immutability.js:43:    UPDATE questions
+  question-bank-schema-before-immutability.js:44:    SET question_group_id = id,
+> question-bank-schema-before-immutability.js:45:        review_status = CASE WHEN active = 1 THEN 'approved' ELSE 'draft' END,
+  question-bank-schema-before-immutability.js:46:        updated_at = COALESCE(updated_at, created_at)
+  question-bank-schema-before-immutability.js:47:    WHERE question_group_id IS NULL;
+  question-bank-schema-before-immutability.js:48:  `);
+  question-bank-schema-before-immutability.js:49:
+  question-bank-schema-before-immutability.js:60:      (question_group_id, question_id)
+  question-bank-schema-before-immutability.js:61:    SELECT id, id
+> question-bank-schema-before-immutability.js:62:    FROM questions
+> question-bank-schema-before-immutability.js:63:    WHERE active = 1 AND review_status = 'approved';
+  question-bank-schema-before-immutability.js:64:
+  question-bank-schema-before-immutability.js:65:    CREATE TABLE IF NOT EXISTS question_review_history (
+  question-bank-schema-before-immutability.js:66:      id INTEGER PRIMARY KEY AUTOINCREMENT,
+  question-bank-schema-before-immutability.js:67:      question_id INTEGER NOT NULL,
+  question-bank-schema-before-immutability.js:92:      permission_notes TEXT,
+  question-bank-schema-before-immutability.js:93:      review_status TEXT NOT NULL DEFAULT 'draft'
+> question-bank-schema-before-immutability.js:94:        CHECK(review_status IN ('draft','pending_review','approved','rejected','withdrawn')),
+  question-bank-schema-before-immutability.js:95:      created_by INTEGER,
+  question-bank-schema-before-immutability.js:96:      created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  question-bank-schema-before-immutability.js:97:      updated_at TEXT,
+  question-bank-schema-before-immutability.js:98:      FOREIGN KEY (created_by) REFERENCES users(id)
+  question-bank-schema-before-immutability.js:208:  const duplicateVersion = db.prepare(`
+  question-bank-schema-before-immutability.js:209:    SELECT question_group_id, version_number, COUNT(*) AS count
+> question-bank-schema-before-immutability.js:210:    FROM questions
+  question-bank-schema-before-immutability.js:211:    GROUP BY question_group_id, version_number
+  question-bank-schema-before-immutability.js:212:    HAVING COUNT(*) > 1
+  question-bank-schema-before-immutability.js:213:    LIMIT 1
+  question-bank-schema-before-immutability.js:214:  `).get();
+  question-bank-schema-before-immutability.js:252:    BEFORE INSERT ON question_current_versions
+  question-bank-schema-before-immutability.js:253:    WHEN NOT EXISTS (
+> question-bank-schema-before-immutability.js:254:      SELECT 1 FROM questions
+  question-bank-schema-before-immutability.js:255:      WHERE id = NEW.question_id
+  question-bank-schema-before-immutability.js:256:        AND question_group_id = NEW.question_group_id
+> question-bank-schema-before-immutability.js:257:        AND review_status = 'approved'
+  question-bank-schema-before-immutability.js:258:    )
+  question-bank-schema-before-immutability.js:259:    BEGIN
+  question-bank-schema-before-immutability.js:260:      SELECT RAISE(ABORT, 'Current version must be approved and belong to its group');
+  question-bank-schema-before-immutability.js:261:    END;
+  question-bank-schema-before-immutability.js:265:    ON question_current_versions
+  question-bank-schema-before-immutability.js:266:    WHEN NOT EXISTS (
+> question-bank-schema-before-immutability.js:267:      SELECT 1 FROM questions
+  question-bank-schema-before-immutability.js:268:      WHERE id = NEW.question_id
+  question-bank-schema-before-immutability.js:269:        AND question_group_id = NEW.question_group_id
+> question-bank-schema-before-immutability.js:270:        AND review_status = 'approved'
+  question-bank-schema-before-immutability.js:271:    )
+  question-bank-schema-before-immutability.js:272:    BEGIN
+  question-bank-schema-before-immutability.js:273:      SELECT RAISE(ABORT, 'Current version must be approved and belong to its group');
+  question-bank-schema-before-immutability.js:274:    END;
+  question-bank-schema-before-immutability.js:276:    CREATE TRIGGER IF NOT EXISTS current_question_cannot_lose_approval
+  question-bank-schema-before-immutability.js:277:    BEFORE UPDATE OF review_status ON questions
+> question-bank-schema-before-immutability.js:278:    WHEN NEW.review_status <> 'approved'
+  question-bank-schema-before-immutability.js:279:      AND EXISTS (
+  question-bank-schema-before-immutability.js:280:        SELECT 1 FROM question_current_versions
+  question-bank-schema-before-immutability.js:281:        WHERE question_id = OLD.id
+  question-bank-schema-before-immutability.js:282:      )
+  question-bank-schema-before-immutability.js:293:  const questions = db.prepare(`
+  question-bank-schema-before-immutability.js:294:    SELECT COUNT(*) AS total,
+> question-bank-schema-before-immutability.js:295:           SUM(CASE WHEN review_status = 'approved' THEN 1 ELSE 0 END) AS approved,
+  question-bank-schema-before-immutability.js:296:           SUM(CASE WHEN review_status = 'draft' THEN 1 ELSE 0 END) AS drafts
+> question-bank-schema-before-immutability.js:297:    FROM questions
+  question-bank-schema-before-immutability.js:298:  `).get();
+  question-bank-schema-before-immutability.js:299:
+  question-bank-schema-before-immutability.js:300:  console.log('Question-bank migration completed.');
+  question-bank-schema-before-immutability.js:301:  console.log('Integrity:', integrity);
+  question-bank-schema.js:25:  addColumn('questions', 'version_number', 'INTEGER NOT NULL DEFAULT 1');
+  question-bank-schema.js:26:  addColumn('questions', 'review_status',
+> question-bank-schema.js:27:    "TEXT NOT NULL DEFAULT 'draft' CHECK(review_status IN
+('draft','pending_review','approved','rejected','withdrawn'))");
+  question-bank-schema.js:28:  addColumn('questions', 'question_type', "TEXT NOT NULL DEFAULT 'multiple_choice'");
+  question-bank-schema.js:29:  addColumn('questions', 'content_json', 'TEXT');
+  question-bank-schema.js:30:  addColumn('questions', 'topic', 'TEXT');
+  question-bank-schema.js:31:  addColumn('questions', 'exam_level', 'TEXT');
+  question-bank-schema.js:43:    UPDATE questions
+  question-bank-schema.js:44:    SET question_group_id = id,
+> question-bank-schema.js:45:        review_status = CASE WHEN active = 1 THEN 'approved' ELSE 'draft' END,
+  question-bank-schema.js:46:        updated_at = COALESCE(updated_at, created_at)
+  question-bank-schema.js:47:    WHERE question_group_id IS NULL;
+  question-bank-schema.js:48:  `);
+  question-bank-schema.js:49:
+  question-bank-schema.js:60:      (question_group_id, question_id)
+  question-bank-schema.js:61:    SELECT id, id
+> question-bank-schema.js:62:    FROM questions
+> question-bank-schema.js:63:    WHERE active = 1 AND review_status = 'approved';
+  question-bank-schema.js:64:
+  question-bank-schema.js:65:    CREATE TABLE IF NOT EXISTS question_review_history (
+  question-bank-schema.js:66:      id INTEGER PRIMARY KEY AUTOINCREMENT,
+  question-bank-schema.js:67:      question_id INTEGER NOT NULL,
+  question-bank-schema.js:92:      permission_notes TEXT,
+  question-bank-schema.js:93:      review_status TEXT NOT NULL DEFAULT 'draft'
+> question-bank-schema.js:94:        CHECK(review_status IN ('draft','pending_review','approved','rejected','withdrawn')),
+  question-bank-schema.js:95:      created_by INTEGER,
+  question-bank-schema.js:96:      created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  question-bank-schema.js:97:      updated_at TEXT,
+  question-bank-schema.js:98:      FOREIGN KEY (created_by) REFERENCES users(id)
+  question-bank-schema.js:208:  const duplicateVersion = db.prepare(`
+  question-bank-schema.js:209:    SELECT question_group_id, version_number, COUNT(*) AS count
+> question-bank-schema.js:210:    FROM questions
+  question-bank-schema.js:211:    GROUP BY question_group_id, version_number
+  question-bank-schema.js:212:    HAVING COUNT(*) > 1
+  question-bank-schema.js:213:    LIMIT 1
+  question-bank-schema.js:214:  `).get();
+  question-bank-schema.js:252:    BEFORE INSERT ON question_current_versions
+  question-bank-schema.js:253:    WHEN NOT EXISTS (
+> question-bank-schema.js:254:      SELECT 1 FROM questions
+  question-bank-schema.js:255:      WHERE id = NEW.question_id
+  question-bank-schema.js:256:        AND question_group_id = NEW.question_group_id
+> question-bank-schema.js:257:        AND review_status = 'approved'
+  question-bank-schema.js:258:    )
+  question-bank-schema.js:259:    BEGIN
+  question-bank-schema.js:260:      SELECT RAISE(ABORT, 'Current version must be approved and belong to its group');
+  question-bank-schema.js:261:    END;
+  question-bank-schema.js:265:    ON question_current_versions
+  question-bank-schema.js:266:    WHEN NOT EXISTS (
+> question-bank-schema.js:267:      SELECT 1 FROM questions
+  question-bank-schema.js:268:      WHERE id = NEW.question_id
+  question-bank-schema.js:269:        AND question_group_id = NEW.question_group_id
+> question-bank-schema.js:270:        AND review_status = 'approved'
+  question-bank-schema.js:271:    )
+  question-bank-schema.js:272:    BEGIN
+  question-bank-schema.js:273:      SELECT RAISE(ABORT, 'Current version must be approved and belong to its group');
+  question-bank-schema.js:274:    END;
+  question-bank-schema.js:276:    CREATE TRIGGER IF NOT EXISTS current_question_cannot_lose_approval
+  question-bank-schema.js:277:    BEFORE UPDATE OF review_status ON questions
+> question-bank-schema.js:278:    WHEN NEW.review_status <> 'approved'
+  question-bank-schema.js:279:      AND EXISTS (
+  question-bank-schema.js:280:        SELECT 1 FROM question_current_versions
+  question-bank-schema.js:281:        WHERE question_id = OLD.id
+  question-bank-schema.js:282:      )
+  question-bank-schema.js:300:      source_url, rights_status, permission_notes
+  question-bank-schema.js:301:    ON questions
+> question-bank-schema.js:302:    WHEN OLD.review_status = 'approved'
+  question-bank-schema.js:303:    BEGIN
+  question-bank-schema.js:304:      SELECT RAISE(ABORT, 'Approved question content is immutable; create a new version');
+  question-bank-schema.js:305:    END;
+  question-bank-schema.js:306:
+  question-bank-schema.js:307:    CREATE TRIGGER IF NOT EXISTS approved_question_status_transition_guard
+  question-bank-schema.js:308:    BEFORE UPDATE OF review_status ON questions
+> question-bank-schema.js:309:    WHEN OLD.review_status = 'approved'
+> question-bank-schema.js:310:      AND NEW.review_status NOT IN ('approved', 'withdrawn')
+  question-bank-schema.js:311:    BEGIN
+  question-bank-schema.js:312:      SELECT RAISE(ABORT, 'Approved questions can only remain approved or be withdrawn');
+  question-bank-schema.js:313:    END;
+  question-bank-schema.js:314:
+  question-bank-schema.js:315:    CREATE TRIGGER IF NOT EXISTS approved_questions_cannot_be_deleted
+  question-bank-schema.js:316:    BEFORE DELETE ON questions
+> question-bank-schema.js:317:    WHEN OLD.review_status = 'approved'
+  question-bank-schema.js:318:    BEGIN
+  question-bank-schema.js:319:      SELECT RAISE(ABORT, 'Approved questions cannot be deleted');
+  question-bank-schema.js:320:    END;
+  question-bank-schema.js:321:  `);
+  question-bank-schema.js:327:  const questions = db.prepare(`
+  question-bank-schema.js:328:    SELECT COUNT(*) AS total,
+> question-bank-schema.js:329:           SUM(CASE WHEN review_status = 'approved' THEN 1 ELSE 0 END) AS approved,
+  question-bank-schema.js:330:           SUM(CASE WHEN review_status = 'draft' THEN 1 ELSE 0 END) AS drafts
+> question-bank-schema.js:331:    FROM questions
+  question-bank-schema.js:332:  `).get();
+  question-bank-schema.js:333:
+  question-bank-schema.js:334:  console.log('Question-bank migration completed.');
+  question-bank-schema.js:335:  console.log('Integrity:', integrity);
+  server-before-private-media-route-20261122-000230.js:446:        category
+  server-before-private-media-route-20261122-000230.js:447:      FROM exams
+> server-before-private-media-route-20261122-000230.js:448:      WHERE active = 1
+  server-before-private-media-route-20261122-000230.js:449:      ORDER BY
+  server-before-private-media-route-20261122-000230.js:450:        CASE exam_type WHEN 'category' THEN 0 ELSE 1 END,
+  server-before-private-media-route-20261122-000230.js:451:        category,
+  server-before-private-media-route-20261122-000230.js:452:        id
+  server-before-private-media-route-20261122-000230.js:479:
+  server-before-private-media-route-20261122-000230.js:480:  const totalQuestions = db.prepare(
+> server-before-private-media-route-20261122-000230.js:481:    'SELECT COUNT(*) AS count FROM questions'
+  server-before-private-media-route-20261122-000230.js:482:  ).get().count;
+  server-before-private-media-route-20261122-000230.js:483:
+  server-before-private-media-route-20261122-000230.js:484:  const totalStudents = db.prepare(
+  server-before-private-media-route-20261122-000230.js:485:    "SELECT COUNT(*) AS count FROM users WHERE role = 'student'"
+  server-before-private-media-route-20261122-000230.js:640:    questions: {
+  server-before-private-media-route-20261122-000230.js:641:      filename: 'learnspace-questions',
+> server-before-private-media-route-20261122-000230.js:642:      sql: 'SELECT id, text, options, correct_answer, explanation, category,
+difficulty, active, created_at FROM questions ORDER BY id',
+  server-before-private-media-route-20261122-000230.js:643:      columns: [
+  server-before-private-media-route-20261122-000230.js:644:        { key: 'id', label: 'Question ID' },
+  server-before-private-media-route-20261122-000230.js:645:        { key: 'text', label: 'Question' },
+  server-before-private-media-route-20261122-000230.js:646:        { key: 'options', label: 'Options JSON' },
+  server.js:485:        category
+  server.js:486:      FROM exams
+> server.js:487:      WHERE active = 1
+  server.js:488:      ORDER BY
+  server.js:489:        CASE exam_type WHEN 'category' THEN 0 ELSE 1 END,
+  server.js:490:        category,
+  server.js:491:        id
+  server.js:518:
+  server.js:519:  const totalQuestions = db.prepare(
+> server.js:520:    'SELECT COUNT(*) AS count FROM questions'
+  server.js:521:  ).get().count;
+  server.js:522:
+  server.js:523:  const totalStudents = db.prepare(
+  server.js:524:    "SELECT COUNT(*) AS count FROM users WHERE role = 'student'"
+  server.js:570:  if (!req.file) return res.status(400).json({ error: 'Choose an .xlsx workbook.' });
+  server.js:571:
+> server.js:572:  const existingQuestions = db.prepare('SELECT COUNT(*) AS count FROM questions').get().count;
+  server.js:573:  if (existingQuestions > 0) {
+  server.js:574:    return res.status(409).json({ error: 'The question bank is not empty. Upload cancelled to prevent duplicate questions.'
+});
+  server.js:575:  }
+  server.js:576:
+  server.js:733:    questions: {
+  server.js:734:      filename: 'learnspace-questions',
+> server.js:735:      sql: 'SELECT id, text, options, correct_answer, explanation, category, difficulty, active, created_at FROM questions
+ORDER BY id',
+  server.js:736:      columns: [
+  server.js:737:        { key: 'id', label: 'Question ID' },
+  server.js:738:        { key: 'text', label: 'Question' },
+  server.js:739:        { key: 'options', label: 'Options JSON' },
+
+===== QUESTION BANK SCHEMA INITIALIZATION =====
+const { DatabaseSync } = require('node:sqlite');
+const path = require('node:path');
+
+const databasePath = process.argv[2];
+
+if (!databasePath) {
+  console.error('Usage: node question-bank-schema.js <database-path>');
+  process.exit(1);
+}
+
+const db = new DatabaseSync(path.resolve(databasePath));
+
+function addColumn(table, name, definition) {
+  const columns = db.prepare(`PRAGMA table_info(${table})`).all();
+  if (!columns.some(column => column.name === name)) {
+    db.exec(`ALTER TABLE ${table} ADD COLUMN ${name} ${definition}`);
+  }
+}
+
+try {
+  db.exec('PRAGMA foreign_keys = ON;');
+  db.exec('BEGIN IMMEDIATE;');
+
+  addColumn('questions', 'question_group_id', 'INTEGER');
+  addColumn('questions', 'version_number', 'INTEGER NOT NULL DEFAULT 1');
+  addColumn('questions', 'review_status',
+    "TEXT NOT NULL DEFAULT 'draft' CHECK(review_status IN ('draft','pending_review','approved','rejected','withdrawn'))");
+  addColumn('questions', 'question_type', "TEXT NOT NULL DEFAULT 'multiple_choice'");
+  addColumn('questions', 'content_json', 'TEXT');
+  addColumn('questions', 'topic', 'TEXT');
+  addColumn('questions', 'exam_level', 'TEXT');
+  addColumn('questions', 'source_title', 'TEXT');
+  addColumn('questions', 'source_page', 'TEXT');
+  addColumn('questions', 'source_url', 'TEXT');
+  addColumn('questions', 'rights_status', 'TEXT');
+  addColumn('questions', 'permission_notes', 'TEXT');
+  addColumn('questions', 'updated_at', 'TEXT');
+  addColumn('questions', 'created_by', 'INTEGER REFERENCES users(id)');
+  addColumn('questions', 'reviewed_by', 'INTEGER REFERENCES users(id)');
+  addColumn('questions', 'reviewed_at', 'TEXT');
+
+  db.exec(`
+    UPDATE questions
+    SET question_group_id = id,
+        review_status = CASE WHEN active = 1 THEN 'approved' ELSE 'draft' END,
+        updated_at = COALESCE(updated_at, created_at)
+    WHERE question_group_id IS NULL;
+  `);
+
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS question_current_versions (
+      question_group_id INTEGER PRIMARY KEY,
+      question_id INTEGER NOT NULL UNIQUE,
+      updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (question_group_id) REFERENCES questions(id),
+      FOREIGN KEY (question_id) REFERENCES questions(id)
+    );
+
+    INSERT OR IGNORE INTO question_current_versions
+      (question_group_id, question_id)
+    SELECT id, id
+    FROM questions
+    WHERE active = 1 AND review_status = 'approved';
+
+    CREATE TABLE IF NOT EXISTS question_review_history (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      question_id INTEGER NOT NULL,
+      actor_id INTEGER NOT NULL,
+      action TEXT NOT NULL CHECK(action IN (
+        'submitted','approved','rejected','returned_for_changes',
+        'resubmitted','withdrawn'
+      )),
+      previous_status TEXT,
+      new_status TEXT NOT NULL,
+      notes TEXT NOT NULL DEFAULT '',
+      created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (question_id) REFERENCES questions(id),
+      FOREIGN KEY (actor_id) REFERENCES users(id)
+    );
+  `);
+
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS question_passages (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      title TEXT NOT NULL DEFAULT '',
+      passage_text TEXT NOT NULL,
+      content_json TEXT,
+      source_title TEXT,
+      source_page TEXT,
+      source_url TEXT,
+      rights_status TEXT,
+      permission_notes TEXT,
+      review_status TEXT NOT NULL DEFAULT 'draft'
+        CHECK(review_status IN ('draft','pending_review','approved','rejected','withdrawn')),
+      created_by INTEGER,
+      created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      updated_at TEXT,
+      FOREIGN KEY (created_by) REFERENCES users(id)
+    );
+
+
+===== DATABASE SCHEMA CALL SITE =====
+> database.js:1:const { DatabaseSync } = require('node:sqlite');
+> database.js:2:const path = require('node:path');
+> database.js:3:const fs = require('node:fs');
+  database.js:4:
+  database.js:5:const databaseDirectory = path.join(__dirname, 'database');
+  database.js:6:
+  database.js:7:if (!fs.existsSync(databaseDirectory)) {
+
+
+PS C:\Users\mavmu\Desktop\Traffic Sim\LMS>
