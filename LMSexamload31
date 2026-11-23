@@ -1,0 +1,233 @@
+PS C:\Users\mavmu\Desktop\Traffic Sim\LMS> Select-String -Path .\exam-routes.js -Pattern "FROM questions|JOIN questions|active|question_import_items|attempt_questions|snapshot|safeQuestion" -Context 3,5
+
+  exam-routes.js:55:  );
+  exam-routes.js:56:}
+  exam-routes.js:57:
+> exam-routes.js:58:function safeQuestion(snapshot, selectedAnswer, questionId, position) {
+> exam-routes.js:59:  const question = JSON.parse(snapshot);
+  exam-routes.js:60:  return {
+  exam-routes.js:61:    questionId,
+  exam-routes.js:62:    position,
+  exam-routes.js:63:    text: question.text,
+  exam-routes.js:64:    options: question.options,
+  exam-routes.js:91:          SELECT id, title, description, duration_minutes,
+  exam-routes.js:92:                 passing_score, exam_type, category
+  exam-routes.js:93:          FROM exams
+> exam-routes.js:94:          WHERE id = ? AND active = 1
+  exam-routes.js:95:        `).get(examId);
+  exam-routes.js:96:
+  exam-routes.js:97:        if (!exam) {
+  exam-routes.js:98:          db.exec('ROLLBACK');
+> exam-routes.js:99:          return res.status(404).json({ error: 'Exam not found or inactive.' });
+  exam-routes.js:100:        }
+  exam-routes.js:101:
+  exam-routes.js:102:        if (!['category', 'mock'].includes(exam.exam_type)) {
+  exam-routes.js:103:          db.exec('ROLLBACK');
+  exam-routes.js:104:          return res.status(400).json({ error: 'Invalid exam type.' });
+  exam-routes.js:120:        if (resumable) {
+  exam-routes.js:121:          if (resumable.deadline_at && resumable.deadline_at <= nowIso) {
+  exam-routes.js:122:            const answers = db.prepare(`
+> exam-routes.js:123:              SELECT aq.question_id, aq.answer_key_snapshot,
+  exam-routes.js:124:                     aa.selected_answer
+> exam-routes.js:125:              FROM attempt_questions aq
+  exam-routes.js:126:              LEFT JOIN attempt_answers aa
+  exam-routes.js:127:                ON aa.attempt_id = aq.attempt_id
+  exam-routes.js:128:               AND aa.question_id = aq.question_id
+  exam-routes.js:129:              WHERE aq.attempt_id = ?
+  exam-routes.js:130:            `).all(resumable.id);
+  exam-routes.js:132:            const correct = answers.filter(row =>
+  exam-routes.js:133:              row.selected_answer !== null &&
+  exam-routes.js:134:              String(row.selected_answer).trim().toUpperCase() ===
+> exam-routes.js:135:              String(row.answer_key_snapshot).trim().toUpperCase()
+  exam-routes.js:136:            ).length;
+  exam-routes.js:137:
+  exam-routes.js:138:            db.prepare(`
+  exam-routes.js:139:              UPDATE attempts
+  exam-routes.js:140:              SET score = ?, total_questions = ?,
+  exam-routes.js:166:          }
+  exam-routes.js:167:
+  exam-routes.js:168:          const questions = db.prepare(`
+> exam-routes.js:169:            SELECT aq.question_id, aq.position, aq.question_snapshot,
+  exam-routes.js:170:                   aa.selected_answer
+> exam-routes.js:171:            FROM attempt_questions aq
+  exam-routes.js:172:            LEFT JOIN attempt_answers aa
+  exam-routes.js:173:              ON aa.attempt_id = aq.attempt_id
+  exam-routes.js:174:             AND aa.question_id = aq.question_id
+  exam-routes.js:175:            WHERE aq.attempt_id = ?
+  exam-routes.js:176:            ORDER BY aq.position
+  exam-routes.js:185:            exam,
+  exam-routes.js:186:            deadlineAt: resumable.deadline_at || null,
+  exam-routes.js:187:            questions: questions.map(q =>
+> exam-routes.js:188:              safeQuestion(
+> exam-routes.js:189:                q.question_snapshot,
+  exam-routes.js:190:                q.selected_answer,
+  exam-routes.js:191:                q.question_id,
+  exam-routes.js:192:                q.position
+  exam-routes.js:193:              )
+  exam-routes.js:194:            )
+  exam-routes.js:286:          SELECT q.id, q.text, q.options, q.correct_answer,
+  exam-routes.js:287:                 q.explanation, q.category, q.subcategory, q.topic
+  exam-routes.js:288:          FROM exam_questions eq
+> exam-routes.js:289:          JOIN questions q ON q.id = eq.question_id
+  exam-routes.js:290:          WHERE eq.exam_id = ?
+> exam-routes.js:291:            AND q.active = 1
+  exam-routes.js:292:            AND NOT EXISTS (
+  exam-routes.js:293:              SELECT 1
+> exam-routes.js:294:              FROM question_import_items qii
+  exam-routes.js:295:              JOIN question_import_batch_controls qbc ON qbc.batch_id = qii.batch_id
+  exam-routes.js:296:              WHERE qii.question_id = q.id AND qbc.is_paused = 1
+  exam-routes.js:297:            )
+  exam-routes.js:298:          ORDER BY eq.position, eq.id
+  exam-routes.js:299:        `).all(exam.id);
+  exam-routes.js:383:
+  exam-routes.js:384:        const attemptId = Number(inserted.lastInsertRowid);
+  exam-routes.js:385:
+> exam-routes.js:386:        const saveSnapshot = db.prepare(`
+> exam-routes.js:387:          INSERT INTO attempt_questions
+> exam-routes.js:388:            (attempt_id, question_id, position, question_snapshot,
+> exam-routes.js:389:             answer_key_snapshot, explanation_snapshot)
+  exam-routes.js:390:          VALUES (?, ?, ?, ?, ?, ?)
+  exam-routes.js:391:        `);
+  exam-routes.js:392:
+  exam-routes.js:393:        const responseQuestions = [];
+  exam-routes.js:394:
+  exam-routes.js:412:            };
+  exam-routes.js:413:          });
+  exam-routes.js:414:
+> exam-routes.js:415:          const snapshot = JSON.stringify({
+  exam-routes.js:416:            text: question.text,
+  exam-routes.js:417:            options,
+  exam-routes.js:418:            category: question.category,
+  exam-routes.js:419:            subcategory: question.subcategory,
+  exam-routes.js:420:            topic: question.topic,
+  exam-routes.js:422:            media: getQuestionMedia(db, question.id)
+  exam-routes.js:423:          });
+  exam-routes.js:424:
+> exam-routes.js:425:          saveSnapshot.run(
+  exam-routes.js:426:            attemptId,
+  exam-routes.js:427:            question.id,
+  exam-routes.js:428:            index + 1,
+> exam-routes.js:429:            snapshot,
+  exam-routes.js:430:            question.correct_answer,
+  exam-routes.js:431:            question.explanation
+  exam-routes.js:432:          );
+  exam-routes.js:433:
+  exam-routes.js:434:          responseQuestions.push({
+  exam-routes.js:502:
+  exam-routes.js:503:        if (attempt.status !== 'in_progress') {
+  exam-routes.js:504:          db.exec('ROLLBACK');
+> exam-routes.js:505:          return res.status(409).json({ error: 'This attempt is no longer active.' });
+  exam-routes.js:506:        }
+  exam-routes.js:507:
+  exam-routes.js:508:        if (attempt.deadline_at && attempt.deadline_at <= new Date().toISOString()) {
+  exam-routes.js:509:          db.exec('ROLLBACK');
+  exam-routes.js:510:          return res.status(409).json({
+  exam-routes.js:515:        }
+  exam-routes.js:516:
+  exam-routes.js:517:        const assigned = db.prepare(`
+> exam-routes.js:518:          SELECT question_snapshot
+> exam-routes.js:519:          FROM attempt_questions
+  exam-routes.js:520:          WHERE attempt_id = ? AND question_id = ?
+  exam-routes.js:521:        `).get(attemptId, questionId);
+  exam-routes.js:522:
+  exam-routes.js:523:        if (!assigned) {
+  exam-routes.js:524:          db.exec('ROLLBACK');
+  exam-routes.js:527:          });
+  exam-routes.js:528:        }
+  exam-routes.js:529:
+> exam-routes.js:530:        const snapshot = JSON.parse(assigned.question_snapshot);
+> exam-routes.js:531:        const options = snapshot.options;
+  exam-routes.js:532:
+  exam-routes.js:533:        const validOptions =
+  exam-routes.js:534:          options &&
+  exam-routes.js:535:          typeof options === 'object' &&
+  exam-routes.js:536:          !Array.isArray(options) &&
+  exam-routes.js:642:          attempt.deadline_at <= new Date().toISOString();
+  exam-routes.js:643:
+  exam-routes.js:644:        const questions = db.prepare(`
+> exam-routes.js:645:          SELECT aq.question_id, aq.answer_key_snapshot,
+  exam-routes.js:646:                 aa.selected_answer
+> exam-routes.js:647:          FROM attempt_questions aq
+  exam-routes.js:648:          LEFT JOIN attempt_answers aa
+  exam-routes.js:649:            ON aa.attempt_id = aq.attempt_id
+  exam-routes.js:650:           AND aa.question_id = aq.question_id
+  exam-routes.js:651:          WHERE aq.attempt_id = ?
+  exam-routes.js:652:          ORDER BY aq.position
+  exam-routes.js:655:        if (!questions.length) {
+  exam-routes.js:656:          db.exec('ROLLBACK');
+  exam-routes.js:657:          return res.status(409).json({
+> exam-routes.js:658:            error: 'This attempt has no saved question snapshots.'
+  exam-routes.js:659:          });
+  exam-routes.js:660:        }
+  exam-routes.js:661:
+  exam-routes.js:662:        const correct = questions.filter(row =>
+  exam-routes.js:663:          row.selected_answer !== null &&
+  exam-routes.js:664:          String(row.selected_answer).trim().toUpperCase() ===
+> exam-routes.js:665:          String(row.answer_key_snapshot).trim().toUpperCase()
+  exam-routes.js:666:        ).length;
+  exam-routes.js:667:
+  exam-routes.js:668:        const total = questions.length;
+  exam-routes.js:669:        const percentage = Number((correct / total * 100).toFixed(2));
+  exam-routes.js:670:        const passed = percentage >= attempt.passing_score;
+  exam-routes.js:747:            attempt.deadline_at <= new Date().toISOString()) {
+  exam-routes.js:748:
+  exam-routes.js:749:          const questions = db.prepare(`
+> exam-routes.js:750:            SELECT aq.answer_key_snapshot, aa.selected_answer
+> exam-routes.js:751:            FROM attempt_questions aq
+  exam-routes.js:752:            LEFT JOIN attempt_answers aa
+  exam-routes.js:753:              ON aa.attempt_id = aq.attempt_id
+  exam-routes.js:754:             AND aa.question_id = aq.question_id
+  exam-routes.js:755:            WHERE aq.attempt_id = ?
+  exam-routes.js:756:          `).all(attemptId);
+  exam-routes.js:758:          const correct = questions.filter(row =>
+  exam-routes.js:759:            row.selected_answer !== null &&
+  exam-routes.js:760:            String(row.selected_answer).trim().toUpperCase() ===
+> exam-routes.js:761:            String(row.answer_key_snapshot).trim().toUpperCase()
+  exam-routes.js:762:          ).length;
+  exam-routes.js:763:
+  exam-routes.js:764:          const completedAt = new Date().toISOString();
+  exam-routes.js:765:
+  exam-routes.js:766:          db.prepare(`
+  exam-routes.js:852:
+  exam-routes.js:853:      const rows = db.prepare(`
+  exam-routes.js:854:        SELECT aq.question_id, aq.position,
+> exam-routes.js:855:               aq.question_snapshot, aq.answer_key_snapshot,
+> exam-routes.js:856:               aq.explanation_snapshot, aa.selected_answer
+> exam-routes.js:857:        FROM attempt_questions aq
+  exam-routes.js:858:        LEFT JOIN attempt_answers aa
+  exam-routes.js:859:          ON aa.attempt_id = aq.attempt_id
+  exam-routes.js:860:         AND aa.question_id = aq.question_id
+  exam-routes.js:861:        WHERE aq.attempt_id = ?
+  exam-routes.js:862:        ORDER BY aq.position
+  exam-routes.js:864:
+  exam-routes.js:865:      const incorrectQuestions = rows
+  exam-routes.js:866:        .map(row => {
+> exam-routes.js:867:          const question = JSON.parse(row.question_snapshot);
+  exam-routes.js:868:          const selected = row.selected_answer ?? null;
+> exam-routes.js:869:          const correctAnswer = row.answer_key_snapshot;
+  exam-routes.js:870:
+  exam-routes.js:871:          return {
+  exam-routes.js:872:            questionId: row.question_id,
+  exam-routes.js:873:            position: row.position,
+  exam-routes.js:874:            text: question.text,
+  exam-routes.js:879:            media: question.media || {},
+  exam-routes.js:880:            selectedAnswer: selected,
+  exam-routes.js:881:            correctAnswer,
+> exam-routes.js:882:            explanation: row.explanation_snapshot || '',
+  exam-routes.js:883:            correct: selected !== null &&
+  exam-routes.js:884:              String(selected).trim().toUpperCase() ===
+  exam-routes.js:885:              String(correctAnswer).trim().toUpperCase()
+  exam-routes.js:886:          };
+  exam-routes.js:887:        })
+  exam-routes.js:958:          FROM exams
+  exam-routes.js:959:          WHERE exam_type = 'category'
+  exam-routes.js:960:            AND category = ?
+> exam-routes.js:961:            AND active = 1
+  exam-routes.js:962:          ORDER BY id
+  exam-routes.js:963:          LIMIT 1
+  exam-routes.js:964:        `).get(category);
+  exam-routes.js:965:
+  exam-routes.js:966:        const passed = isStudent
+
+
+PS C:\Users\mavmu\Desktop\Traffic Sim\LMS>
