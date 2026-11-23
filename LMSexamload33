@@ -1,0 +1,705 @@
+BATCH 4 QUESTION ASSOCIATIONS:
+[
+  [Object: null prototype] {
+    question_id: 567,
+    active: 1,
+    review_status: 'approved',
+    batch_count: 0,
+    batch_ids: null
+  },
+  [Object: null prototype] {
+    question_id: 568,
+    active: 1,
+    review_status: 'approved',
+    batch_count: 0,
+    batch_ids: null
+  },
+  [Object: null prototype] {
+    question_id: 569,
+    active: 1,
+    review_status: 'approved',
+    batch_count: 0,
+    batch_ids: null
+  },
+  [Object: null prototype] {
+    question_id: 570,
+    active: 1,
+    review_status: 'approved',
+    batch_count: 0,
+    batch_ids: null
+  },
+  [Object: null prototype] {
+    question_id: 571,
+    active: 1,
+    review_status: 'approved',
+    batch_count: 0,
+    batch_ids: null
+  },
+  [Object: null prototype] {
+    question_id: 572,
+    active: 1,
+    review_status: 'approved',
+    batch_count: 0,
+    batch_ids: null
+  },
+  [Object: null prototype] {
+    question_id: 573,
+    active: 1,
+    review_status: 'approved',
+    batch_count: 0,
+    batch_ids: null
+  },
+  [Object: null prototype] {
+    question_id: 574,
+    active: 1,
+    review_status: 'approved',
+    batch_count: 0,
+    batch_ids: null
+  },
+  [Object: null prototype] {
+    question_id: 575,
+    active: 1,
+    review_status: 'approved',
+    batch_count: 0,
+    batch_ids: null
+  },
+  [Object: null prototype] {
+    question_id: 576,
+    active: 1,
+    review_status: 'approved',
+    batch_count: 0,
+    batch_ids: null
+  },
+  [Object: null prototype] {
+    question_id: 577,
+    active: 1,
+    review_status: 'approved',
+    batch_count: 0,
+    batch_ids: null
+  },
+  [Object: null prototype] {
+    question_id: 578,
+    active: 1,
+    review_status: 'approved',
+    batch_count: 0,
+    batch_ids: null
+  },
+  [Object: null prototype] {
+    question_id: 579,
+    active: 1,
+    review_status: 'approved',
+    batch_count: 0,
+    batch_ids: null
+  },
+  [Object: null prototype] {
+    question_id: 580,
+    active: 1,
+    review_status: 'approved',
+    batch_count: 0,
+    batch_ids: null
+  },
+  [Object: null prototype] {
+    question_id: 581,
+    active: 1,
+    review_status: 'approved',
+    batch_count: 0,
+    batch_ids: null
+  },
+  [Object: null prototype] {
+    question_id: 582,
+    active: 1,
+    review_status: 'approved',
+    batch_count: 0,
+    batch_ids: null
+  },
+  [Object: null prototype] {
+    question_id: 583,
+    active: 1,
+    review_status: 'approved',
+    batch_count: 0,
+    batch_ids: null
+  },
+  [Object: null prototype] {
+    question_id: 584,
+    active: 1,
+    review_status: 'approved',
+    batch_count: 0,
+    batch_ids: null
+  },
+  [Object: null prototype] {
+    question_id: 585,
+    active: 1,
+    review_status: 'approved',
+    batch_count: 0,
+    batch_ids: null
+  },
+  [Object: null prototype] {
+    question_id: 586,
+    active: 1,
+    review_status: 'approved',
+    batch_count: 0,
+    batch_ids: null
+  },
+  [Object: null prototype] {
+    question_id: 587,
+    active: 1,
+    review_status: 'approved',
+    batch_count: 0,
+    batch_ids: null
+  },
+  [Object: null prototype] {
+    question_id: 588,
+    active: 1,
+    review_status: 'approved',
+    batch_count: 0,
+    batch_ids: null
+  },
+  [Object: null prototype] {
+    question_id: 589,
+    active: 1,
+    review_status: 'approved',
+    batch_count: 0,
+    batch_ids: null
+  },
+  [Object: null prototype] {
+    question_id: 590,
+    active: 1,
+    review_status: 'approved',
+    batch_count: 0,
+    batch_ids: null
+  },
+  [Object: null prototype] {
+    question_id: 591,
+    active: 1,
+    review_status: 'approved',
+    batch_count: 0,
+    batch_ids: null
+  },
+  [Object: null prototype] {
+    question_id: 592,
+    active: 1,
+    review_status: 'approved',
+    batch_count: 0,
+    batch_ids: null
+  },
+  [Object: null prototype] {
+    question_id: 593,
+    active: 1,
+    review_status: 'approved',
+    batch_count: 0,
+    batch_ids: null
+  },
+  [Object: null prototype] {
+    question_id: 594,
+    active: 1,
+    review_status: 'approved',
+    batch_count: 0,
+    batch_ids: null
+  },
+  [Object: null prototype] {
+    question_id: 595,
+    active: 1,
+    review_status: 'approved',
+    batch_count: 0,
+    batch_ids: null
+  },
+  [Object: null prototype] {
+    question_id: 596,
+    active: 1,
+    review_status: 'approved',
+    batch_count: 0,
+    batch_ids: null
+  },
+  [Object: null prototype] {
+    question_id: 597,
+    active: 1,
+    review_status: 'approved',
+    batch_count: 0,
+    batch_ids: null
+  },
+  [Object: null prototype] {
+    question_id: 598,
+    active: 1,
+    review_status: 'approved',
+    batch_count: 0,
+    batch_ids: null
+  },
+  [Object: null prototype] {
+    question_id: 599,
+    active: 1,
+    review_status: 'approved',
+    batch_count: 0,
+    batch_ids: null
+  },
+  [Object: null prototype] {
+    question_id: 600,
+    active: 1,
+    review_status: 'approved',
+    batch_count: 0,
+    batch_ids: null
+  },
+  [Object: null prototype] {
+    question_id: 601,
+    active: 1,
+    review_status: 'approved',
+    batch_count: 0,
+    batch_ids: null
+  },
+  [Object: null prototype] {
+    question_id: 602,
+    active: 1,
+    review_status: 'approved',
+    batch_count: 0,
+    batch_ids: null
+  },
+  [Object: null prototype] {
+    question_id: 603,
+    active: 1,
+    review_status: 'approved',
+    batch_count: 0,
+    batch_ids: null
+  },
+  [Object: null prototype] {
+    question_id: 604,
+    active: 1,
+    review_status: 'approved',
+    batch_count: 0,
+    batch_ids: null
+  },
+  [Object: null prototype] {
+    question_id: 605,
+    active: 1,
+    review_status: 'approved',
+    batch_count: 0,
+    batch_ids: null
+  },
+  [Object: null prototype] {
+    question_id: 606,
+    active: 1,
+    review_status: 'approved',
+    batch_count: 0,
+    batch_ids: null
+  },
+  [Object: null prototype] {
+    question_id: 607,
+    active: 1,
+    review_status: 'approved',
+    batch_count: 0,
+    batch_ids: null
+  },
+  [Object: null prototype] {
+    question_id: 608,
+    active: 1,
+    review_status: 'approved',
+    batch_count: 0,
+    batch_ids: null
+  },
+  [Object: null prototype] {
+    question_id: 609,
+    active: 1,
+    review_status: 'approved',
+    batch_count: 0,
+    batch_ids: null
+  },
+  [Object: null prototype] {
+    question_id: 610,
+    active: 1,
+    review_status: 'approved',
+    batch_count: 0,
+    batch_ids: null
+  },
+  [Object: null prototype] {
+    question_id: 611,
+    active: 1,
+    review_status: 'approved',
+    batch_count: 0,
+    batch_ids: null
+  },
+  [Object: null prototype] {
+    question_id: 612,
+    active: 1,
+    review_status: 'approved',
+    batch_count: 0,
+    batch_ids: null
+  },
+  [Object: null prototype] {
+    question_id: 613,
+    active: 1,
+    review_status: 'approved',
+    batch_count: 0,
+    batch_ids: null
+  },
+  [Object: null prototype] {
+    question_id: 614,
+    active: 1,
+    review_status: 'approved',
+    batch_count: 0,
+    batch_ids: null
+  },
+  [Object: null prototype] {
+    question_id: 615,
+    active: 1,
+    review_status: 'approved',
+    batch_count: 0,
+    batch_ids: null
+  },
+  [Object: null prototype] {
+    question_id: 616,
+    active: 1,
+    review_status: 'approved',
+    batch_count: 0,
+    batch_ids: null
+  },
+  [Object: null prototype] {
+    question_id: 617,
+    active: 1,
+    review_status: 'approved',
+    batch_count: 0,
+    batch_ids: null
+  },
+  [Object: null prototype] {
+    question_id: 618,
+    active: 1,
+    review_status: 'approved',
+    batch_count: 0,
+    batch_ids: null
+  },
+  [Object: null prototype] {
+    question_id: 619,
+    active: 1,
+    review_status: 'approved',
+    batch_count: 0,
+    batch_ids: null
+  },
+  [Object: null prototype] {
+    question_id: 620,
+    active: 1,
+    review_status: 'approved',
+    batch_count: 0,
+    batch_ids: null
+  },
+  [Object: null prototype] {
+    question_id: 621,
+    active: 1,
+    review_status: 'approved',
+    batch_count: 0,
+    batch_ids: null
+  },
+  [Object: null prototype] {
+    question_id: 622,
+    active: 1,
+    review_status: 'approved',
+    batch_count: 0,
+    batch_ids: null
+  },
+  [Object: null prototype] {
+    question_id: 623,
+    active: 1,
+    review_status: 'approved',
+    batch_count: 0,
+    batch_ids: null
+  },
+  [Object: null prototype] {
+    question_id: 624,
+    active: 1,
+    review_status: 'approved',
+    batch_count: 0,
+    batch_ids: null
+  },
+  [Object: null prototype] {
+    question_id: 625,
+    active: 1,
+    review_status: 'approved',
+    batch_count: 0,
+    batch_ids: null
+  },
+  [Object: null prototype] {
+    question_id: 626,
+    active: 1,
+    review_status: 'approved',
+    batch_count: 0,
+    batch_ids: null
+  },
+  [Object: null prototype] {
+    question_id: 627,
+    active: 1,
+    review_status: 'approved',
+    batch_count: 0,
+    batch_ids: null
+  },
+  [Object: null prototype] {
+    question_id: 628,
+    active: 1,
+    review_status: 'approved',
+    batch_count: 0,
+    batch_ids: null
+  },
+  [Object: null prototype] {
+    question_id: 629,
+    active: 1,
+    review_status: 'approved',
+    batch_count: 0,
+    batch_ids: null
+  },
+  [Object: null prototype] {
+    question_id: 630,
+    active: 1,
+    review_status: 'approved',
+    batch_count: 0,
+    batch_ids: null
+  },
+  [Object: null prototype] {
+    question_id: 631,
+    active: 1,
+    review_status: 'approved',
+    batch_count: 0,
+    batch_ids: null
+  },
+  [Object: null prototype] {
+    question_id: 632,
+    active: 1,
+    review_status: 'approved',
+    batch_count: 0,
+    batch_ids: null
+  },
+  [Object: null prototype] {
+    question_id: 633,
+    active: 1,
+    review_status: 'approved',
+    batch_count: 0,
+    batch_ids: null
+  },
+  [Object: null prototype] {
+    question_id: 634,
+    active: 1,
+    review_status: 'approved',
+    batch_count: 0,
+    batch_ids: null
+  },
+  [Object: null prototype] {
+    question_id: 635,
+    active: 1,
+    review_status: 'approved',
+    batch_count: 0,
+    batch_ids: null
+  },
+  [Object: null prototype] {
+    question_id: 636,
+    active: 1,
+    review_status: 'approved',
+    batch_count: 0,
+    batch_ids: null
+  },
+  [Object: null prototype] {
+    question_id: 637,
+    active: 1,
+    review_status: 'approved',
+    batch_count: 0,
+    batch_ids: null
+  },
+  [Object: null prototype] {
+    question_id: 638,
+    active: 1,
+    review_status: 'approved',
+    batch_count: 0,
+    batch_ids: null
+  },
+  [Object: null prototype] {
+    question_id: 639,
+    active: 1,
+    review_status: 'approved',
+    batch_count: 0,
+    batch_ids: null
+  },
+  [Object: null prototype] {
+    question_id: 640,
+    active: 1,
+    review_status: 'approved',
+    batch_count: 0,
+    batch_ids: null
+  },
+  [Object: null prototype] {
+    question_id: 641,
+    active: 1,
+    review_status: 'approved',
+    batch_count: 0,
+    batch_ids: null
+  },
+  [Object: null prototype] {
+    question_id: 642,
+    active: 1,
+    review_status: 'approved',
+    batch_count: 0,
+    batch_ids: null
+  },
+  [Object: null prototype] {
+    question_id: 643,
+    active: 1,
+    review_status: 'approved',
+    batch_count: 0,
+    batch_ids: null
+  },
+  [Object: null prototype] {
+    question_id: 644,
+    active: 1,
+    review_status: 'approved',
+    batch_count: 0,
+    batch_ids: null
+  },
+  [Object: null prototype] {
+    question_id: 645,
+    active: 1,
+    review_status: 'approved',
+    batch_count: 0,
+    batch_ids: null
+  },
+  [Object: null prototype] {
+    question_id: 646,
+    active: 1,
+    review_status: 'approved',
+    batch_count: 0,
+    batch_ids: null
+  },
+  [Object: null prototype] {
+    question_id: 647,
+    active: 1,
+    review_status: 'approved',
+    batch_count: 0,
+    batch_ids: null
+  },
+  [Object: null prototype] {
+    question_id: 648,
+    active: 1,
+    review_status: 'approved',
+    batch_count: 0,
+    batch_ids: null
+  },
+  [Object: null prototype] {
+    question_id: 649,
+    active: 1,
+    review_status: 'approved',
+    batch_count: 0,
+    batch_ids: null
+  },
+  [Object: null prototype] {
+    question_id: 650,
+    active: 1,
+    review_status: 'approved',
+    batch_count: 0,
+    batch_ids: null
+  },
+  [Object: null prototype] {
+    question_id: 651,
+    active: 1,
+    review_status: 'approved',
+    batch_count: 0,
+    batch_ids: null
+  },
+  [Object: null prototype] {
+    question_id: 652,
+    active: 1,
+    review_status: 'approved',
+    batch_count: 0,
+    batch_ids: null
+  },
+  [Object: null prototype] {
+    question_id: 653,
+    active: 1,
+    review_status: 'approved',
+    batch_count: 0,
+    batch_ids: null
+  },
+  [Object: null prototype] {
+    question_id: 654,
+    active: 1,
+    review_status: 'approved',
+    batch_count: 0,
+    batch_ids: null
+  },
+  [Object: null prototype] {
+    question_id: 655,
+    active: 1,
+    review_status: 'approved',
+    batch_count: 0,
+    batch_ids: null
+  },
+  [Object: null prototype] {
+    question_id: 656,
+    active: 1,
+    review_status: 'approved',
+    batch_count: 0,
+    batch_ids: null
+  },
+  [Object: null prototype] {
+    question_id: 657,
+    active: 1,
+    review_status: 'approved',
+    batch_count: 0,
+    batch_ids: null
+  },
+  [Object: null prototype] {
+    question_id: 658,
+    active: 1,
+    review_status: 'approved',
+    batch_count: 0,
+    batch_ids: null
+  },
+  [Object: null prototype] {
+    question_id: 659,
+    active: 1,
+    review_status: 'approved',
+    batch_count: 0,
+    batch_ids: null
+  },
+  [Object: null prototype] {
+    question_id: 660,
+    active: 1,
+    review_status: 'approved',
+    batch_count: 0,
+    batch_ids: null
+  },
+  [Object: null prototype] {
+    question_id: 661,
+    active: 1,
+    review_status: 'approved',
+    batch_count: 0,
+    batch_ids: null
+  },
+  [Object: null prototype] {
+    question_id: 662,
+    active: 1,
+    review_status: 'approved',
+    batch_count: 0,
+    batch_ids: null
+  },
+  [Object: null prototype] {
+    question_id: 663,
+    active: 1,
+    review_status: 'approved',
+    batch_count: 0,
+    batch_ids: null
+  },
+  [Object: null prototype] {
+    question_id: 664,
+    active: 1,
+    review_status: 'approved',
+    batch_count: 0,
+    batch_ids: null
+  },
+  [Object: null prototype] {
+    question_id: 665,
+    active: 1,
+    review_status: 'approved',
+    batch_count: 0,
+    batch_ids: null
+  },
+  [Object: null prototype] {
+    question_id: 666,
+    active: 1,
+    review_status: 'approved',
+    batch_count: 0,
+    batch_ids: null
+  },
+  ... 90 more items
+]
+PS C:\Users\mavmu\Desktop\Traffic Sim\LMS>
