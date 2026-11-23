@@ -1,0 +1,120 @@
+========== QUESTION 1942 ==========
+[Object: null prototype] {
+  id: 1942,
+  text: 'The Supreme Court [A: upholds] the highest [B: principles] and [C: standards] of morality as [D: embodied] in the Constitution.',
+  options: '{"A":"upholds","B":"principles","C":"standards","D":"embodied"}',
+  correct_answer: 'E',
+  question_type: 'single_choice',
+  content_json: '{"category":"Verbal Ability","subcategory":"Identifying errors","topic":"Grammar / Correct Usage / Spelling","originalQuestionID":"S2-P65-Q06","questionType":"single_choice","promptText":"The Supreme Court [A: upholds] the highest [B: principles] and [C: standards] of morality as [D: embodied] in the Constitution.","promptMediaID":"","options":{"A":{"text":"upholds","mediaId":""},"B":{"text":"principles","mediaId":""},"C":{"text":"standards","mediaId":""},"D":{"text":"embodied","mediaId":""},"E":{"text":"No error","mediaId":""}},"passageID":"","sourceTitle":"Civil Service Exam Reviewer for Professional and Sub-Professional Levels (v2.2)","sourcePage":"p. 65","sourceURL":"","rightsStatus":"Free/publicly downloadable reviewer; no license or permission recorded","originalReviewStatus":"Approved","adminNotes":"Directions: Choose the underlined word or phrase (A-D) that is NOT acceptable in formal written English; choose E if there is no error. Underlined segments are marked [A: …] to [D: …] in the prompt.","difficulty":"Unclassified","examLevel":"Both / Unclassified"}'
+}
+
+========== QUESTION 1944 ==========
+[Object: null prototype] {
+  id: 1944,
+  text: 'Some [A: believe] that the flag we [B: use] now [C: is] not the same as the one [D: made] by Marcela Agoncillo.',
+  options: '{"A":"believe","B":"use","C":"is","D":"made"}',
+  correct_answer: 'E',
+  question_type: 'single_choice',
+  content_json: '{"category":"Verbal Ability","subcategory":"Identifying errors","topic":"Grammar / Correct Usage / Spelling","originalQuestionID":"S2-P65-Q08","questionType":"single_choice","promptText":"Some [A: believe] that the flag we [B: use] now [C: is] not the same as the one [D: made] by Marcela Agoncillo.","promptMediaID":"","options":{"A":{"text":"believe","mediaId":""},"B":{"text":"use","mediaId":""},"C":{"text":"is","mediaId":""},"D":{"text":"made","mediaId":""},"E":{"text":"No error","mediaId":""}},"passageID":"","sourceTitle":"Civil Service Exam Reviewer for Professional and Sub-Professional Levels (v2.2)","sourcePage":"p. 65","sourceURL":"","rightsStatus":"Free/publicly downloadable reviewer; no license or permission recorded","originalReviewStatus":"Approved","adminNotes":"Directions: Choose the underlined word or phrase (A-D) that is NOT acceptable in formal written English; choose E if there is no error. Underlined segments are marked [A: …] to [D: …] in the prompt.","difficulty":"Unclassified","examLevel":"Both / Unclassified"}'
+}
+
+========== QUESTION 1949 ==========
+[Object: null prototype] {
+  id: 1949,
+  text: '[A: Reading] [B: books] [C: widens] [D: one’s] horizons.',
+  options: '{"A":"Reading","B":"books","C":"widens","D":"one’s"}',
+  correct_answer: 'E',
+  question_type: 'single_choice',
+  content_json: '{"category":"Verbal Ability","subcategory":"Identifying errors","topic":"Grammar / Correct Usage / Spelling","originalQuestionID":"S2-P66-Q13","questionType":"single_choice","promptText":"[A: Reading] [B: books] [C: widens] [D: one’s] horizons.","promptMediaID":"","options":{"A":{"text":"Reading","mediaId":""},"B":{"text":"books","mediaId":""},"C":{"text":"widens","mediaId":""},"D":{"text":"one’s","mediaId":""},"E":{"text":"No error","mediaId":""}},"passageID":"","sourceTitle":"Civil Service Exam Reviewer for Professional and Sub-Professional Levels (v2.2)","sourcePage":"p. 66","sourceURL":"","rightsStatus":"Free/publicly downloadable reviewer; no license or permission recorded","originalReviewStatus":"Approved","adminNotes":"Directions: Choose the underlined word or phrase (A-D) that is NOT acceptable in formal written English; choose E if there is no error. Underlined segments are marked [A: …] to [D: …] in the prompt.","difficulty":"Unclassified","examLevel":"Both / Unclassified"}'
+}
+
+========== QUESTION 1951 ==========
+[Object: null prototype] {
+  id: 1951,
+  text: '[A: No one] [B: dares] to [C: question] how invaluable books [D: are].',
+  options: '{"A":"No one","B":"dares","C":"question","D":"are"}',
+  correct_answer: 'E',
+  question_type: 'single_choice',
+  content_json: '{"category":"Verbal Ability","subcategory":"Identifying errors","topic":"Grammar / Correct Usage / Spelling","originalQuestionID":"S2-P66-Q15","questionType":"single_choice","promptText":"[A: No one] [B: dares] to [C: question] how invaluable books [D: are].","promptMediaID":"","options":{"A":{"text":"No one","mediaId":""},"B":{"text":"dares","mediaId":""},"C":{"text":"question","mediaId":""},"D":{"text":"are","mediaId":""},"E":{"text":"No error","mediaId":""}},"passageID":"","sourceTitle":"Civil Service Exam Reviewer for Professional and Sub-Professional Levels (v2.2)","sourcePage":"p. 66","sourceURL":"","rightsStatus":"Free/publicly downloadable reviewer; no license or permission recorded","originalReviewStatus":"Approved","adminNotes":"Directions: Choose the underlined word or phrase (A-D) that is NOT acceptable in formal written English; choose E if there is no error. Underlined segments are marked [A: …] to [D: …] in the prompt.","difficulty":"Unclassified","examLevel":"Both / Unclassified"}'
+}
+
+========== QUESTION 1962 ==========
+[Object: null prototype] {
+  id: 1962,
+  text: 'The [A: editor-in-chief], together with the [B: writers], [C: confers] about the contents of their [D: newspapers].',
+  options: '{"A":"editor-in-chief","B":"writers","C":"confers","D":"newspapers"}',
+  correct_answer: 'E',
+  question_type: 'single_choice',
+  content_json: '{"category":"Verbal Ability","subcategory":"Identifying errors","topic":"Grammar / Correct Usage / Spelling","originalQuestionID":"S2-P67-Q26","questionType":"single_choice","promptText":"The [A: editor-in-chief], together with the [B: writers], [C: confers] about the contents of their [D: newspapers].","promptMediaID":"","options":{"A":{"text":"editor-in-chief","mediaId":""},"B":{"text":"writers","mediaId":""},"C":{"text":"confers","mediaId":""},"D":{"text":"newspapers","mediaId":""},"E":{"text":"No error","mediaId":""}},"passageID":"","sourceTitle":"Civil Service Exam Reviewer for Professional and Sub-Professional Levels (v2.2)","sourcePage":"p. 67","sourceURL":"","rightsStatus":"Free/publicly downloadable reviewer; no license or permission recorded","originalReviewStatus":"Approved","adminNotes":"Directions: Choose the underlined word or phrase (A-D) that is NOT acceptable in formal written English; choose E if there is no error. Underlined segments are marked [A: …] to [D: …] in the prompt.","difficulty":"Unclassified","examLevel":"Both / Unclassified"}'
+}
+
+========== QUESTION 1970 ==========
+[Object: null prototype] {
+  id: 1970,
+  text: 'The [A: number] of [B: socialized] housing units [C: sponsored] by the government [D: increases] each year.',
+  options: '{"A":"number","B":"socialized","C":"sponsored","D":"increases"}',
+  correct_answer: 'E',
+  question_type: 'single_choice',
+  content_json: '{"category":"Verbal Ability","subcategory":"Identifying errors","topic":"Grammar / Correct Usage / Spelling","originalQuestionID":"S2-P68-Q34","questionType":"single_choice","promptText":"The [A: number] of [B: socialized] housing units [C: sponsored] by the government [D: increases] each year.","promptMediaID":"","options":{"A":{"text":"number","mediaId":""},"B":{"text":"socialized","mediaId":""},"C":{"text":"sponsored","mediaId":""},"D":{"text":"increases","mediaId":""},"E":{"text":"No error","mediaId":""}},"passageID":"","sourceTitle":"Civil Service Exam Reviewer for Professional and Sub-Professional Levels (v2.2)","sourcePage":"p. 68","sourceURL":"","rightsStatus":"Free/publicly downloadable reviewer; no license or permission recorded","originalReviewStatus":"Approved","adminNotes":"Directions: Choose the underlined word or phrase (A-D) that is NOT acceptable in formal written English; choose E if there is no error. Underlined segments are marked [A: …] to [D: …] in the prompt.","difficulty":"Unclassified","examLevel":"Both / Unclassified"}'
+}
+
+========== QUESTION 1986 ==========
+[Object: null prototype] {
+  id: 1986,
+  text: 'Robert Frost, an [A: American] poet, [B: defines] litereature [C: as] “performance [D: in] words.”',
+  options: '{"A":"American","B":"defines","C":"as","D":"in"}',
+  correct_answer: 'E',
+  question_type: 'single_choice',
+  content_json: '{"category":"Verbal Ability","subcategory":"Identifying errors","topic":"Grammar / Correct Usage / Spelling","originalQuestionID":"S2-P69-Q50","questionType":"single_choice","promptText":"Robert Frost, an [A: American] poet, [B: defines] litereature [C: as] “performance [D: in] words.”","promptMediaID":"","options":{"A":{"text":"American","mediaId":""},"B":{"text":"defines","mediaId":""},"C":{"text":"as","mediaId":""},"D":{"text":"in","mediaId":""},"E":{"text":"No error","mediaId":""}},"passageID":"","sourceTitle":"Civil Service Exam Reviewer for Professional and Sub-Professional Levels (v2.2)","sourcePage":"p. 69","sourceURL":"","rightsStatus":"Free/publicly downloadable reviewer; no license or permission recorded","originalReviewStatus":"Approved","adminNotes":"Directions: Choose the underlined word or phrase (A-D) that is NOT acceptable in formal written English; choose E if there is no error. Underlined segments are marked [A: …] to [D: …] in the prompt.","difficulty":"Unclassified","examLevel":"Both / Unclassified"}'
+}
+
+========== QUESTION 1990 ==========
+[Object: null prototype] {
+  id: 1990,
+  text: 'The [A: number] of Computer Science [B: students] [C: steadily] [D: increases].',
+  options: '{"A":"number","B":"students","C":"steadily","D":"increases"}',
+  correct_answer: 'E',
+  question_type: 'single_choice',
+  content_json: '{"category":"Verbal Ability","subcategory":"Identifying errors","topic":"Grammar / Correct Usage / Spelling","originalQuestionID":"S2-P70-Q54","questionType":"single_choice","promptText":"The [A: number] of Computer Science [B: students] [C: steadily] [D: increases].","promptMediaID":"","options":{"A":{"text":"number","mediaId":""},"B":{"text":"students","mediaId":""},"C":{"text":"steadily","mediaId":""},"D":{"text":"increases","mediaId":""},"E":{"text":"No error","mediaId":""}},"passageID":"","sourceTitle":"Civil Service Exam Reviewer for Professional and Sub-Professional Levels (v2.2)","sourcePage":"p. 70","sourceURL":"","rightsStatus":"Free/publicly downloadable reviewer; no license or permission recorded","originalReviewStatus":"Approved","adminNotes":"Directions: Choose the underlined word or phrase (A-D) that is NOT acceptable in formal written English; choose E if there is no error. Underlined segments are marked [A: …] to [D: …] in the prompt.","difficulty":"Unclassified","examLevel":"Both / Unclassified"}'
+}
+
+========== QUESTION 1992 ==========
+[Object: null prototype] {
+  id: 1992,
+  text: '[A: Knowledge] [B: should] always [C: be put] to good [D: use].',
+  options: '{"A":"Knowledge","B":"should","C":"be put","D":"use"}',
+  correct_answer: 'E',
+  question_type: 'single_choice',
+  content_json: '{"category":"Verbal Ability","subcategory":"Identifying errors","topic":"Grammar / Correct Usage / Spelling","originalQuestionID":"S2-P70-Q56","questionType":"single_choice","promptText":"[A: Knowledge] [B: should] always [C: be put] to good [D: use].","promptMediaID":"","options":{"A":{"text":"Knowledge","mediaId":""},"B":{"text":"should","mediaId":""},"C":{"text":"be put","mediaId":""},"D":{"text":"use","mediaId":""},"E":{"text":"No error","mediaId":""}},"passageID":"","sourceTitle":"Civil Service Exam Reviewer for Professional and Sub-Professional Levels (v2.2)","sourcePage":"p. 70","sourceURL":"","rightsStatus":"Free/publicly downloadable reviewer; no license or permission recorded","originalReviewStatus":"Approved","adminNotes":"Directions: Choose the underlined word or phrase (A-D) that is NOT acceptable in formal written English; choose E if there is no error. Underlined segments are marked [A: …] to [D: …] in the prompt.","difficulty":"Unclassified","examLevel":"Both / Unclassified"}'
+}
+
+========== QUESTION 2217 ==========
+[Object: null prototype] {
+  id: 2217,
+  text: 'Maganda siya [A: ngunit] masungit [B: kaya] hindi siya [C: popular] sa mga [D: kamag-aral].',
+  options: '{"A":"ngunit","B":"kaya","C":"popular","D":"kamag-aral"}',
+  correct_answer: 'E',
+  question_type: 'single_choice',
+  content_json: '{"category":"Verbal Ability","subcategory":"Pagkilala sa mali","topic":"Grammar / Correct Usage / Spelling","originalQuestionID":"S2-P122-Q16","questionType":"single_choice","promptText":"Maganda siya [A: ngunit] masungit [B: kaya] hindi siya [C: popular] sa mga [D: kamag-aral].","promptMediaID":"","options":{"A":{"text":"ngunit","mediaId":""},"B":{"text":"kaya","mediaId":""},"C":{"text":"popular","mediaId":""},"D":{"text":"kamag-aral","mediaId":""},"E":{"text":"Walang mali","mediaId":""}},"passageID":"","sourceTitle":"Civil Service Exam Reviewer for Professional and Sub-Professional Levels (v2.2)","sourcePage":"p. 122","sourceURL":"","rightsStatus":"Free/publicly downloadable reviewer; no license or permission recorded","originalReviewStatus":"Approved","adminNotes":"Panuto: Hanapin ang salita o grupo ng mga salitang may salungguhit na di wasto ang gamit. Kung walang mali, piliin ang titik E. Underlined segments are marked [A: …] to [D: …] in the prompt.","difficulty":"Unclassified","examLevel":"Both / Unclassified"}'
+}
+
+========== QUESTION 2221 ==========
+[Object: null prototype] {
+  id: 2221,
+  text: '[A: Hanapan] mo [B: ng] [C: sa]got sa iyong [D: katanungan] ang iyong guro.',
+  options: '{"A":"Hanapan","B":"ng","C":"sa","D":"katanungan"}',
+  correct_answer: 'E',
+  question_type: 'single_choice',
+  content_json: '{"category":"Verbal Ability","subcategory":"Pagkilala sa mali","topic":"Grammar / Correct Usage / Spelling","originalQuestionID":"S2-P122-Q20","questionType":"single_choice","promptText":"[A: Hanapan] mo [B: ng] [C: sa]got sa iyong [D: katanungan] ang iyong guro.","promptMediaID":"","options":{"A":{"text":"Hanapan","mediaId":""},"B":{"text":"ng","mediaId":""},"C":{"text":"sa","mediaId":""},"D":{"text":"katanungan","mediaId":""},"E":{"text":"Walang mali","mediaId":""}},"passageID":"","sourceTitle":"Civil Service Exam Reviewer for Professional and Sub-Professional Levels (v2.2)","sourcePage":"p. 122","sourceURL":"","rightsStatus":"Free/publicly downloadable reviewer; no license or permission recorded","originalReviewStatus":"Approved","adminNotes":"Panuto: Hanapin ang salita o grupo ng mga salitang may salungguhit na di wasto ang gamit. Kung walang mali, piliin ang titik E. Underlined segments are marked [A: …] to [D: …] in the prompt.","difficulty":"Unclassified","examLevel":"Both / Unclassified"}'
+}
+
+========== QUESTION 2224 ==========
+[Object: null prototype] {
+  id: 2224,
+  text: '[A: Panatilihin] nating laging malinis at malayo [B: sa] polusyon [C: ang] ating kapaligiran [D: para] na rin sa ating kalusugan.',
+  options: '{"A":"Panatilihin","B":"sa","C":"ang","D":"para"}',
+  correct_answer: 'E',
+  question_type: 'single_choice',
+  content_json: '{"category":"Verbal Ability","subcategory":"Pagkilala sa mali","topic":"Grammar / Correct Usage / Spelling","originalQuestionID":"S2-P122-Q23","questionType":"single_choice","promptText":"[A: Panatilihin] nating laging malinis at malayo [B: sa] polusyon [C: ang] ating kapaligiran [D: para] na rin sa ating kalusugan.","promptMediaID":"","options":{"A":{"text":"Panatilihin","mediaId":""},"B":{"text":"sa","mediaId":""},"C":{"text":"ang","mediaId":""},"D":{"text":"para","mediaId":""},"E":{"text":"Walang mali","mediaId":""}},"passageID":"","sourceTitle":"Civil Service Exam Reviewer for Professional and Sub-Professional Levels (v2.2)","sourcePage":"p. 122","sourceURL":"","rightsStatus":"Free/publicly downloadable reviewer; no license or permission recorded","originalReviewStatus":"Approved","adminNotes":"Panuto: Hanapin ang salita o grupo ng mga salitang may salungguhit na di wasto ang gamit. Kung walang mali, piliin ang titik E. Underlined segments are marked [A: …] to [D: …] in the prompt.","difficulty":"Unclassified","examLevel":"Both / Unclassified"}'
+}
+PS C:\Users\mavmu\Desktop\Traffic Sim\LMS>
