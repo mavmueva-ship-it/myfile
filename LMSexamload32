@@ -1,0 +1,267 @@
+PS C:\Users\mavmu\Desktop\Traffic Sim\LMS> Select-String -Path .\server.js -Pattern "question-bank|FROM questions|UPDATE questions|syncApprovedQuestionsToCategoryExams|question_import_items" -Context 4,8
+
+  server.js:516:    'SELECT COUNT(*) AS count FROM exams'
+  server.js:517:  ).get().count;
+  server.js:518:
+  server.js:519:  const totalQuestions = db.prepare(
+> server.js:520:    'SELECT COUNT(*) AS count FROM questions'
+  server.js:521:  ).get().count;
+  server.js:522:
+  server.js:523:  const totalStudents = db.prepare(
+  server.js:524:    "SELECT COUNT(*) AS count FROM users WHERE role = 'student'"
+  server.js:525:  ).get().count;
+  server.js:526:
+  server.js:527:  res.json({
+  server.js:528:    totalExams,
+  server.js:560:    callback(null, true);
+  server.js:561:  }
+  server.js:562:});
+  server.js:563:
+> server.js:564:app.post('/api/owner/question-bank/upload', requireAuth, requireOwner, (req, res, next) => {
+  server.js:565:  questionBankUpload.single('workbook')(req, res, error => {
+  server.js:566:    if (error) return res.status(400).json({ error: error.message });
+  server.js:567:    next();
+  server.js:568:  });
+  server.js:569:}, async (req, res) => {
+  server.js:570:  if (!req.file) return res.status(400).json({ error: 'Choose an .xlsx workbook.' });
+  server.js:571:
+  server.js:572:  let tempDir;
+  server.js:573:  try {
+  server.js:574:    tempDir = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'learnspace-question-upload-'));
+> server.js:575:    const workbookPath = path.join(tempDir, 'question-bank.xlsx');
+  server.js:576:    await fs.promises.writeFile(workbookPath, req.file.buffer);
+  server.js:577:
+  server.js:578:    const result = await execFileAsync(process.execPath, [
+> server.js:579:      path.join(__dirname, 'import-question-bank-cse2017.js'),
+  server.js:580:      workbookPath,
+  server.js:581:      String(req.user.id)
+  server.js:582:    ], {
+  server.js:583:      cwd: __dirname,
+  server.js:584:      timeout: 180000,
+  server.js:585:      maxBuffer: 5 * 1024 * 1024
+  server.js:586:    });
+  server.js:587:
+  server.js:598:    }
+  server.js:599:  }
+  server.js:600:});
+  server.js:601:
+> server.js:602:// Owner question-bank batch controls.
+  server.js:603:db.exec(`
+  server.js:604:  CREATE TABLE IF NOT EXISTS question_import_batch_controls (
+  server.js:605:    batch_id INTEGER PRIMARY KEY,
+  server.js:606:    is_paused INTEGER NOT NULL DEFAULT 0 CHECK(is_paused IN (0,1)),
+  server.js:607:    updated_by INTEGER,
+  server.js:608:    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  server.js:609:    FOREIGN KEY (batch_id) REFERENCES question_import_batches(id),
+  server.js:610:    FOREIGN KEY (updated_by) REFERENCES users(id)
+  server.js:611:  );
+  server.js:612:`);
+  server.js:613:
+> server.js:614:app.get('/api/owner/question-bank/batches', requireAuth, requireOwner, (req, res) => {
+  server.js:615:  const batches = db.prepare(`
+  server.js:616:    SELECT b.id, b.original_filename, b.status, b.total_rows,
+  server.js:617:           b.imported_rows, b.error_rows, b.created_at, b.completed_at,
+  server.js:618:           COALESCE(c.is_paused, 0) AS is_paused,
+  server.js:619:           COUNT(qii.question_id) AS linked_questions
+  server.js:620:    FROM question_import_batches b
+  server.js:621:    LEFT JOIN question_import_batch_controls c ON c.batch_id = b.id
+> server.js:622:    LEFT JOIN question_import_items qii
+  server.js:623:      ON qii.batch_id = b.id AND qii.status = 'imported'
+  server.js:624:    GROUP BY b.id
+  server.js:625:    ORDER BY b.created_at DESC, b.id DESC
+  server.js:626:  `).all();
+  server.js:627:  res.json({ batches });
+  server.js:628:});
+  server.js:629:
+> server.js:630:app.patch('/api/owner/question-bank/batches/:id/:action', requireAuth, requireOwner, (req, res) => {
+  server.js:631:  const id = Number(req.params.id);
+  server.js:632:  const action = req.params.action;
+  server.js:633:  if (!Number.isSafeInteger(id) || id < 1 || !['pause', 'activate'].includes(action)) {
+  server.js:634:    return res.status(400).json({ error: 'Invalid batch or action.' });
+  server.js:635:  }
+  server.js:636:  const batch = db.prepare('SELECT id, status FROM question_import_batches WHERE id = ?').get(id);
+  server.js:637:  if (!batch) return res.status(404).json({ error: 'Import batch not found.' });
+  server.js:638:  if (batch.status !== 'imported') {
+  server.js:648:  `).run(id, action === 'pause' ? 1 : 0, req.user.id);
+  server.js:649:  res.json({ success: true, is_paused: action === 'pause' });
+  server.js:650:});
+  server.js:651:
+> server.js:652:app.delete('/api/owner/question-bank/batches/:id', requireAuth, requireOwner, (req, res) => {
+  server.js:653:  const id = Number(req.params.id);
+  server.js:654:  if (!Number.isSafeInteger(id) || id < 1) {
+  server.js:655:    return res.status(400).json({ error: 'Invalid batch ID.' });
+  server.js:656:  }
+  server.js:657:
+  server.js:658:  const tableExists = name => !!db.prepare(
+  server.js:659:    "SELECT 1 FROM sqlite_master WHERE type='table' AND name=?"
+  server.js:660:  ).get(name);
+  server.js:662:  const batch = db.prepare('SELECT * FROM question_import_batches WHERE id=?').get(id);
+  server.js:663:  if (!batch) return res.status(404).json({ error: 'Import batch not found.' });
+  server.js:664:
+  server.js:665:  const questionIds = db.prepare(`
+> server.js:666:    SELECT question_id FROM question_import_items
+  server.js:667:    WHERE batch_id=? AND question_id IS NOT NULL
+  server.js:668:  `).all(id).map(row => row.question_id);
+  server.js:669:
+  server.js:670:  if (!questionIds.length) {
+  server.js:671:    db.exec('BEGIN IMMEDIATE');
+  server.js:672:    try {
+  server.js:673:      db.prepare('DELETE FROM question_import_errors WHERE batch_id=?').run(id);
+> server.js:674:      db.prepare('DELETE FROM question_import_items WHERE batch_id=?').run(id);
+  server.js:675:      db.prepare('DELETE FROM question_import_batch_controls WHERE batch_id=?').run(id);
+  server.js:676:      db.prepare('DELETE FROM question_import_batches WHERE id=?').run(id);
+  server.js:677:      db.exec('COMMIT');
+  server.js:678:      return res.json({ success: true, deletedQuestions: 0 });
+  server.js:679:    } catch (error) {
+  server.js:680:      db.exec('ROLLBACK');
+  server.js:681:      return res.status(409).json({ error: 'Batch could not be deleted safely: ' + error.message });
+  server.js:682:    }
+  server.js:699:    }
+  server.js:700:  }
+  server.js:701:
+  server.js:702:  const approved = db.prepare(
+> server.js:703:    'SELECT COUNT(*) AS n FROM questions WHERE id IN (' + placeholders + ") AND review_status='approved'"
+  server.js:704:  ).get(...params).n;
+  server.js:705:  if (approved) {
+  server.js:706:    return res.status(409).json({ error: 'Deletion blocked: approved questions must be handled through the review workflow.'
+});
+  server.js:707:  }
+  server.js:708:
+  server.js:709:  for (const table of ['question_current_versions', 'question_review_history']) {
+  server.js:710:    if (tableExists(table)) {
+  server.js:711:      const hit = db.prepare(
+  server.js:761:      db.prepare('DELETE FROM passage_media_links WHERE passage_id IN (' + p + ')').run(...passageIds);
+  server.js:762:    }
+  server.js:763:    db.prepare('DELETE FROM question_passage_links WHERE question_id IN (' + placeholders + ')').run(...params);
+  server.js:764:    db.prepare('DELETE FROM question_import_errors WHERE batch_id=?').run(id);
+> server.js:765:    db.prepare('DELETE FROM question_import_items WHERE batch_id=?').run(id);
+> server.js:766:    db.prepare('DELETE FROM questions WHERE id IN (' + placeholders + ')').run(...params);
+  server.js:767:
+  server.js:768:    if (passageIds.length) {
+  server.js:769:      const p = passageIds.map(() => '?').join(',');
+  server.js:770:      db.prepare('DELETE FROM question_passages WHERE id IN (' + p + ')').run(...passageIds);
+  server.js:771:    }
+  server.js:772:
+  server.js:773:    for (const mediaId of mediaIds) {
+  server.js:774:      const refs = db.prepare(`
+  server.js:820:    "(SELECT COUNT(*) FROM question_import_errors e " +
+  server.js:821:    " WHERE e.batch_id = qii.batch_id AND e.row_number = qii.row_number AND NOT (e.error_code = 'MISSING_OPTION' AND
+e.field_name = 'OptionD')) AS error_count, " +
+  server.js:822:    "(SELECT GROUP_CONCAT(e.message, '; ') FROM question_import_errors e " +
+  server.js:823:    " WHERE e.batch_id = qii.batch_id AND e.row_number = qii.row_number AND NOT (e.error_code = 'MISSING_OPTION' AND
+e.field_name = 'OptionD')) AS error_messages " +
+> server.js:824:    "FROM question_import_items qii " +
+  server.js:825:    "JOIN questions q ON q.id = qii.question_id " +
+  server.js:826:    "WHERE qii.batch_id = ? AND qii.status = 'imported' " +
+  server.js:827:    "ORDER BY qii.row_number, q.id"
+  server.js:828:  ).all(batchId);
+  server.js:829:
+  server.js:830:  const eligible = [];
+  server.js:831:  const blocked = [];
+  server.js:832:  let alreadyApproved = 0;
+  server.js:910:    already_approved: alreadyApproved
+  server.js:911:  };
+  server.js:912:}
+  server.js:913:
+> server.js:914:app.get('/api/owner/question-bank/batches/:id/review', requireAuth, requireOwner, (req, res) => {
+  server.js:915:  const id = Number(req.params.id);
+  server.js:916:  if (!Number.isSafeInteger(id) || id < 1) {
+  server.js:917:    return res.status(400).json({ error: 'Invalid batch ID.' });
+  server.js:918:  }
+  server.js:919:
+  server.js:920:  try {
+  server.js:921:    const review = getQuestionBatchReview(id);
+  server.js:922:    res.json({
+  server.js:933:  }
+  server.js:934:});
+  server.js:935:
+  server.js:936:
+> server.js:937:function syncApprovedQuestionsToCategoryExams(ownerId) {
+  server.js:938:  const categories = [
+  server.js:939:    'Verbal Ability',
+  server.js:940:    'Numerical Ability',
+  server.js:941:    'General Information',
+  server.js:942:    'Analytical Ability'
+  server.js:943:  ];
+  server.js:944:  const results = [];
+  server.js:945:
+  server.js:946:  for (const category of categories) {
+  server.js:947:    const questions = db.prepare(
+> server.js:948:      "SELECT id FROM questions WHERE category = ? AND active = 1 AND review_status = 'approved' ORDER BY id"
+  server.js:949:    ).all(category);
+  server.js:950:
+  server.js:951:    if (!questions.length) continue;
+  server.js:952:
+  server.js:953:    let exam = db.prepare(
+  server.js:954:      "SELECT id FROM exams WHERE exam_type = 'category' AND category = ? ORDER BY id LIMIT 1"
+  server.js:955:    ).get(category);
+  server.js:956:
+  server.js:989:
+  server.js:990:  return results;
+  server.js:991:}
+  server.js:992:
+> server.js:993:app.post('/api/owner/question-bank/batches/:id/approve', requireAuth, requireOwner, (req, res) => {
+  server.js:994:  const id = Number(req.params.id);
+  server.js:995:  if (!Number.isSafeInteger(id) || id < 1) {
+  server.js:996:    return res.status(400).json({ error: 'Invalid batch ID.' });
+  server.js:997:  }
+  server.js:998:
+  server.js:999:  try {
+  server.js:1000:    db.exec('BEGIN IMMEDIATE');
+  server.js:1001:
+  server.js:1010:      });
+  server.js:1011:    }
+  server.js:1012:
+  server.js:1013:    const updateQuestion = db.prepare(
+> server.js:1014:      "UPDATE questions SET review_status = 'approved', active = 1, " +
+  server.js:1015:      "reviewed_by = ?, reviewed_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP " +
+  server.js:1016:      "WHERE id = ? AND review_status IN ('draft', 'pending_review')"
+  server.js:1017:    );
+  server.js:1018:
+  server.js:1019:    const addHistory = db.prepare(
+  server.js:1020:      "INSERT INTO question_review_history " +
+  server.js:1021:      "(question_id, actor_id, action, previous_status, new_status, notes) " +
+  server.js:1022:      "VALUES (?, ?, 'approved', ?, 'approved', ?)"
+  server.js:1023:    );
+  server.js:1024:
+  server.js:1025:    const setCurrentVersion = db.prepare(
+  server.js:1026:      "INSERT INTO question_current_versions (question_group_id, question_id, updated_at) " +
+> server.js:1027:      "SELECT question_group_id, id, CURRENT_TIMESTAMP FROM questions WHERE id = ? " +
+  server.js:1028:      "ON CONFLICT(question_group_id) DO UPDATE SET " +
+  server.js:1029:      "question_id = excluded.question_id, updated_at = CURRENT_TIMESTAMP"
+  server.js:1030:    );
+  server.js:1031:
+  server.js:1032:    let approved = 0;
+  server.js:1033:
+  server.js:1034:    for (const question of review.eligible) {
+  server.js:1035:      const result = updateQuestion.run(req.user.id, question.question_id);
+  server.js:1047:      setCurrentVersion.run(question.question_id);
+  server.js:1048:      approved++;
+  server.js:1049:    }
+  server.js:1050:
+> server.js:1051:    const publishedExams = syncApprovedQuestionsToCategoryExams(req.user.id);
+  server.js:1052:    db.exec('COMMIT');
+  server.js:1053:
+  server.js:1054:    res.json({
+  server.js:1055:      success: true,
+  server.js:1056:      batch_id: id,
+  server.js:1057:      approved,
+  server.js:1058:      blocked: review.blocked.length,
+  server.js:1059:      already_approved: review.already_approved,
+  server.js:1194:      ]
+  server.js:1195:    },
+  server.js:1196:    questions: {
+  server.js:1197:      filename: 'learnspace-questions',
+> server.js:1198:      sql: 'SELECT id, text, options, correct_answer, explanation, category, difficulty, active, created_at FROM questions
+ORDER BY id',
+  server.js:1199:      columns: [
+  server.js:1200:        { key: 'id', label: 'Question ID' },
+  server.js:1201:        { key: 'text', label: 'Question' },
+  server.js:1202:        { key: 'options', label: 'Options JSON' },
+  server.js:1203:        { key: 'correct_answer', label: 'Correct answer' },
+  server.js:1204:        { key: 'explanation', label: 'Explanation' },
+  server.js:1205:        { key: 'category', label: 'Category' },
+  server.js:1206:        { key: 'difficulty', label: 'Difficulty' },
+
+
+PS C:\Users\mavmu\Desktop\Traffic Sim\LMS>
