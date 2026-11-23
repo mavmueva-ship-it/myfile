@@ -1,0 +1,142 @@
+PS C:\Users\mavmu\Desktop\Traffic Sim\LMS> Select-String .\import-question-bank-cse2017.js -Pattern 'const category|INSERT INTO questions|VALUES \(|insertQuestion.run|const content' -Context 2,5; Select-String .\exam-routes.js -Pattern 'SELECT q.id|const snapshot = JSON.stringify' -Context 2,10; Select-String .\database.js -Pattern "addColumn\('questions'" ; Select-String .\public\dashboard.html -Pattern 'questionPassages' -Context 2,2
+
+  import-question-bank-cse2017.js:29:
+  import-question-bank-cse2017.js:30:function addError(db, batchId, rowNumber, field, code, message) {
+> import-question-bank-cse2017.js:31:  db.prepare("INSERT INTO question_import_errors (batch_id,row_number,field_name,error_code,message)
+VALUES (?,?,?,?,?)")
+  import-question-bank-cse2017.js:32:    .run(batchId, rowNumber, field, code, message);
+  import-question-bank-cse2017.js:33:}
+  import-question-bank-cse2017.js:34:
+  import-question-bank-cse2017.js:35:async function main() {
+  import-question-bank-cse2017.js:36:  const workbook = new ExcelJS.Workbook();
+  import-question-bank-cse2017.js:82:    db.exec("BEGIN IMMEDIATE");
+  import-question-bank-cse2017.js:83:
+> import-question-bank-cse2017.js:84:    const batch = db.prepare("INSERT INTO question_import_batches
+(original_filename,status,total_rows,uploaded_by) VALUES (?,'validating',?,?)")
+  import-question-bank-cse2017.js:85:      .run(filename, questions.length, uploaderId);
+  import-question-bank-cse2017.js:86:    batchId = Number(batch.lastInsertRowid);
+  import-question-bank-cse2017.js:87:
+  import-question-bank-cse2017.js:88:    const insertPassage = db.prepare(`
+  import-question-bank-cse2017.js:89:      INSERT INTO question_passages
+  import-question-bank-cse2017.js:90:
+(title,passage_text,content_json,source_title,source_page,source_url,rights_status,review_status,created_by,created_at,updated_at)
+> import-question-bank-cse2017.js:91:      VALUES (?,?,?,?,?,?,?,'draft',?,?,?)
+  import-question-bank-cse2017.js:92:    `);
+  import-question-bank-cse2017.js:93:
+  import-question-bank-cse2017.js:94:    for (const p of passages) {
+  import-question-bank-cse2017.js:95:      const originalId = p.PassageID;
+  import-question-bank-cse2017.js:96:      const metadata = {
+  import-question-bank-cse2017.js:122:
+  import-question-bank-cse2017.js:123:    const insertQuestion = db.prepare(`
+> import-question-bank-cse2017.js:124:      INSERT INTO questions
+  import-question-bank-cse2017.js:125:      (text,options,correct_answer,explanation,category,difficulty,active,created_at,
+  import-question-bank-cse2017.js:126:       version_number,review_status,question_type,content_json,topic,exam_level,
+  import-question-bank-cse2017.js:127:       source_title,source_page,source_url,rights_status,permission_notes,updated_at,created_by)
+> import-question-bank-cse2017.js:128:      VALUES (?,?,?,?,?,?,0,?,1,'draft',?,?,?,?,?,?,?,?,?,?,?)
+  import-question-bank-cse2017.js:129:    `);
+  import-question-bank-cse2017.js:130:
+  import-question-bank-cse2017.js:131:    const insertItem = db.prepare(
+> import-question-bank-cse2017.js:132:      "INSERT INTO question_import_items (batch_id,row_number,question_id,status) VALUES
+(?,?,?,'imported')"
+  import-question-bank-cse2017.js:133:    );
+  import-question-bank-cse2017.js:134:
+  import-question-bank-cse2017.js:135:    for (const item of questions) {
+  import-question-bank-cse2017.js:136:      const q = item.data;
+  import-question-bank-cse2017.js:137:      const rowNumber = item.rowNumber;
+  import-question-bank-cse2017.js:139:      const prompt = q.PromptText || "";
+  import-question-bank-cse2017.js:140:      const type = q.QuestionType || "unknown";
+> import-question-bank-cse2017.js:141:      const category = q.Category || "General";
+  import-question-bank-cse2017.js:142:      const correct = (q.CorrectOption || "").toUpperCase();
+  import-question-bank-cse2017.js:143:      const choices = {};
+  import-question-bank-cse2017.js:144:      const fullChoices = {};
+  import-question-bank-cse2017.js:145:
+  import-question-bank-cse2017.js:146:      for (const letter of ["A","B","C","D","E"]) {
+  import-question-bank-cse2017.js:151:      }
+  import-question-bank-cse2017.js:152:
+> import-question-bank-cse2017.js:153:      const content = {
+  import-question-bank-cse2017.js:154:        originalQuestionID: originalId,
+  import-question-bank-cse2017.js:155:        questionType: type,
+  import-question-bank-cse2017.js:156:        promptText: prompt,
+  import-question-bank-cse2017.js:157:        promptMediaID: q.PromptMediaID || "",
+  import-question-bank-cse2017.js:158:        options: fullChoices,
+  import-question-bank-cse2017.js:202:      };
+  import-question-bank-cse2017.js:203:
+> import-question-bank-cse2017.js:204:      const result = insertQuestion.run(
+  import-question-bank-cse2017.js:205:        prompt,
+  import-question-bank-cse2017.js:206:        JSON.stringify(legacyOptions),
+  import-question-bank-cse2017.js:207:        correct,
+  import-question-bank-cse2017.js:208:        q.Explanation || "",
+  import-question-bank-cse2017.js:209:        category,
+  import-question-bank-cse2017.js:235:
+  import-question-bank-cse2017.js:236:    const insertLink = db.prepare(
+> import-question-bank-cse2017.js:237:      "INSERT INTO question_passage_links (question_id,passage_id,group_position) VALUES (?,?,?)"
+  import-question-bank-cse2017.js:238:    );
+  import-question-bank-cse2017.js:239:    const groupPositions = new Map();
+  import-question-bank-cse2017.js:240:
+  import-question-bank-cse2017.js:241:    for (const item of questions) {
+  import-question-bank-cse2017.js:242:      const q = item.data;
+  import-question-bank-cse2017.js:250:
+  import-question-bank-cse2017.js:251:    const insertMedia = db.prepare(
+> import-question-bank-cse2017.js:252:      "INSERT INTO question_media
+(storage_key,original_filename,mime_type,byte_size,sha256,alt_text,uploaded_by) VALUES (?,?,?,?,?,?,?)"
+  import-question-bank-cse2017.js:253:    );
+  import-question-bank-cse2017.js:254:    const insertQuestionMediaLink = db.prepare(
+> import-question-bank-cse2017.js:255:      "INSERT INTO question_media_links (question_id,media_id,usage_type,position) VALUES (?,?,?,?)"
+  import-question-bank-cse2017.js:256:    );
+  import-question-bank-cse2017.js:257:    const insertPassageMediaLink = db.prepare(
+> import-question-bank-cse2017.js:258:      "INSERT INTO passage_media_links (passage_id,media_id,position) VALUES (?,?,?)"
+  import-question-bank-cse2017.js:259:    );
+  import-question-bank-cse2017.js:260:    const getQuestionContent = db.prepare("SELECT content_json FROM questions WHERE id=?");
+  import-question-bank-cse2017.js:261:    const updateQuestionContent = db.prepare("UPDATE questions SET content_json=? WHERE id=?");
+  import-question-bank-cse2017.js:262:    const getPassageContent = db.prepare("SELECT content_json FROM question_passages WHERE id=?");
+  import-question-bank-cse2017.js:263:    const updatePassageContent = db.prepare("UPDATE question_passages SET content_json=? WHERE id=?");
+  import-question-bank-cse2017.js:559:        const row = getQuestionContent.get(targetId);
+  import-question-bank-cse2017.js:560:        if (!row) throw new Error("Question content missing for " + m.UsedInRecordID);
+> import-question-bank-cse2017.js:561:        const content = JSON.parse(row.content_json || "{}");
+  import-question-bank-cse2017.js:562:        if (!content.media || typeof content.media !== "object") content.media = {};
+  import-question-bank-cse2017.js:563:        if (!Array.isArray(content.media[usageType])) content.media[usageType] = [];
+  import-question-bank-cse2017.js:564:        content.media[usageType].push(mediaObject);
+  import-question-bank-cse2017.js:565:        if (usageType === "explanation") {
+  import-question-bank-cse2017.js:566:          if (!Array.isArray(content.explanationMedia)) content.explanationMedia = [];
+  import-question-bank-cse2017.js:572:        const row = getPassageContent.get(targetId);
+  import-question-bank-cse2017.js:573:        if (!row) throw new Error("Passage content missing for " + m.UsedInRecordID);
+> import-question-bank-cse2017.js:574:        const content = JSON.parse(row.content_json || "{}");
+  import-question-bank-cse2017.js:575:        if (!Array.isArray(content.media)) content.media = [];
+  import-question-bank-cse2017.js:576:        content.media.push(mediaObject);
+  import-question-bank-cse2017.js:577:        updatePassageContent.run(JSON.stringify(content), targetId);
+  import-question-bank-cse2017.js:578:      }
+  import-question-bank-cse2017.js:579:
+  exam-routes.js:282:
+  exam-routes.js:283:        let assignedQuestions = db.prepare(`
+> exam-routes.js:284:          SELECT q.id, q.text, q.options, q.correct_answer,
+  exam-routes.js:285:                 q.explanation, q.category
+  exam-routes.js:286:          FROM exam_questions eq
+  exam-routes.js:287:          JOIN questions q ON q.id = eq.question_id
+  exam-routes.js:288:          WHERE eq.exam_id = ?
+  exam-routes.js:289:            AND q.active = 1
+  exam-routes.js:290:            AND NOT EXISTS (
+  exam-routes.js:291:              SELECT 1
+  exam-routes.js:292:              FROM question_import_items qii
+  exam-routes.js:293:              JOIN question_import_batch_controls qbc ON qbc.batch_id = qii.batch_id
+  exam-routes.js:294:              WHERE qii.question_id = q.id AND qbc.is_paused = 1
+  exam-routes.js:411:          });
+  exam-routes.js:412:
+> exam-routes.js:413:          const snapshot = JSON.stringify({
+  exam-routes.js:414:            text: question.text,
+  exam-routes.js:415:            options,
+  exam-routes.js:416:            category: question.category,
+  exam-routes.js:417:            passages,
+  exam-routes.js:418:            media: getQuestionMedia(db, question.id)
+  exam-routes.js:419:          });
+  exam-routes.js:420:
+  exam-routes.js:421:          saveSnapshot.run(
+  exam-routes.js:422:            attemptId,
+  exam-routes.js:423:            question.id,
+  public\dashboard.html:178:        <div class="exam-question-area">
+  public\dashboard.html:179:          <div class="question-number" id="questionNumber">QUESTION 1</div>
+> public\dashboard.html:180:          <div id="questionPassages" class="question-passages" hidden></div>
+  public\dashboard.html:181:          <h2 id="questionText">Question text will appear here.</h2>
+  public\dashboard.html:182:          <div id="answerOptions" class="answer-options"></div>
+
+
+PS C:\Users\mavmu\Desktop\Traffic Sim\LMS>
